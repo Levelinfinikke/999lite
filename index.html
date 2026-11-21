@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>999 v.1</title>
+<title>999lite v.1</title>
 <style>
 :root{--bg:#0b0709;--panel:#1a1014;--line:#4a2530;--ink:#f3e9ea;--dim:#a88c92;--ac:#e0213a;--gold:#f2c14e}
 *{box-sizing:border-box}
@@ -327,7 +327,9 @@ body.aOff #wA .hd,body.bOff #wB .hd{height:30px;padding:0 4px 0 8px}
 <script>
 'use strict';
 // ═══════════ 스펙 (출처: 공략 사이트 공개 수치) ═══════════
-const SPEC={zorome:1/999.9, charge:1/538.8, rushP:1/7.7, st:5, rushIn:0.5, chargeUp:0.03, loop:0.5};
+// rushIn·chargeUp: 공표 스펙의 'RUSH 돌입률 약 50%'는 도안 당첨과 차지 경유 돌입을 합친 값 → 차지 승격 1%(추정)를 넣고 도안 당첨 쪽을 49.07%로 맞춰 합계 50% 유지
+// NET_LOSS: 표기 지급수(3000·7500)는 총 지급수라, 지급 중에 쏘는 구슬만큼 실제 획득은 적음 → 지급수의 10%를 투입으로 계산 (본전 회전율 약 31 = 공표 보더 30.4~32.4 범위)
+const SPEC={zorome:1/999.9, charge:1/538.8, rushP:1/7.7, st:5, rushIn:0.4907, chargeUp:0.01, loop:0.5},NET_LOSS=0.10;
 // 통상 리치: [키, 표시명, 신뢰도, 당첨 시 출현 비중]  → 꽝일 때 출현율은 신뢰도가 맞도록 자동 계산
 const N_REACH=[
  ['kyara_uta','キャラリーチ「ウタ」',.33,.02],['kyara_tencho','キャラリーチ「店長」',.33,.02],['kyara_touka','キャラリーチ「董香」',.33,.02],
@@ -672,7 +674,8 @@ const spinCost=()=>250/Math.min(60,Math.max(5,+$('inCost').value||30));
 function costInfo(){$('costInfo').textContent='1회전 −'+spinCost().toFixed(1)+'발 (250발당 '+Math.round(250/spinCost())+'회전)'}
 try{if(!localStorage.getItem('ghoulRate30')){localStorage.setItem('ghoulRate30','1');setTimeout(()=>{$('inCost').value=30;costInfo()},0)}}catch(e){}   // 예전 '회전당 구슬 8' 값이 브라우저에 남아 있으면 30으로 되돌림
 setTimeout(()=>{$('inCost').addEventListener('input',costInfo);costInfo()},0);
-function gPush(){const d=Math.round(S.out-S.used),g=S.g||(S.g=[[0,0]]),l=g[g.length-1];if(l[0]===S.spins)l[1]=d;else g.push([S.spins,d]);
+function gPush(){{const o=S.out;if(S._o===undefined||o<S._o)S._o=o;if(o>S._o){S.used+=(o-S._o)*NET_LOSS;S._o=o}}
+ const d=Math.round(S.out-S.used),g=S.g||(S.g=[[0,0]]),l=g[g.length-1];if(l[0]===S.spins)l[1]=d;else g.push([S.spins,d]);
  if(g.length>3000){const k=[];for(let i=0;i<g.length;i+=2)k.push(g[i]);k.push(g[g.length-1]);S.g=k}}
 function gDraw(){const c=$('gCv');if(!c)return;const x=c.getContext('2d'),W=c.width,H=c.height,g=S.g||[[0,0]],pl=104,pr=14,pt=16,pb=34;
  x.clearRect(0,0,W,H);let mn=0,mx=0;for(const p of g){if(p[1]<mn)mn=p[1];if(p[1]>mx)mx=p[1]}
@@ -842,13 +845,15 @@ function htInit(){if(htBox)return;const H=HT.line+HT.fade,g=`linear-gradient(#00
  htEl=document.createElement('canvas');htEl.width=150;htEl.height=162;
  htEl.style.cssText=`position:absolute;left:${HT.left*100}%;top:${HT.top/H*100}%;width:${HT.w*100}%;height:${HT.h/H*100}%;opacity:0;will-change:transform,opacity`;
  htBox.appendChild(htEl);$('machine').appendChild(htBox);htTmp=document.createElement('canvas');htTmp.width=48;htTmp.height=16;htImg=new Image();htImg.src='images/drop_head.webp'}
-function htTint(v){const now=performance.now();if(now-htLast<80||!htImg.complete||!htImg.naturalWidth)return;htLast=now;
+// 영상 속 머리는 LED 때문에 3~4프레임마다 밝았다 어두워졌다를 반복함(실측: 초당 약 29번 급변, 머리 전체가 같은 박자).
+// 윗부분도 같은 박자로 깜박이도록, 영상의 새 프레임이 화면에 나갈 때마다 그 프레임의 머리색(띠 전체 평균 한 가지 색)으로 다시 칠함
+function htTint(v){if(!htImg.complete||!htImg.naturalWidth)return;
  const x=htEl.getContext('2d'),W=htEl.width,H=htEl.height,S=HT.samp;
  try{x.globalCompositeOperation='source-over';x.globalAlpha=1;x.clearRect(0,0,W,H);
-  if(v.videoWidth){const t=htTmp.getContext('2d');t.imageSmoothingEnabled=true;   // 단계적으로 절반씩 줄여 넓게 평균 냄(머리카락 사이의 어두운 가닥이 세로줄로 남지 않게) → 좌·중·우 3칸의 색만 남김
-   t.drawImage(v,S[0]*v.videoWidth,S[1]*v.videoHeight,S[2]*v.videoWidth,S[3]*v.videoHeight,0,0,48,8);t.drawImage(htTmp,0,0,48,8,0,8,24,4);t.drawImage(htTmp,0,8,24,4,0,12,12,2);t.drawImage(htTmp,0,12,12,2,0,14,6,1);t.drawImage(htTmp,0,14,6,1,0,15,3,1);
-   x.imageSmoothingEnabled=true;x.drawImage(htTmp,.5,15,2,1,0,0,W,H)}else{x.fillStyle='rgb(168,174,198)';x.fillRect(0,0,W,H)}
-  x.globalCompositeOperation='multiply';x.globalAlpha=.75;x.drawImage(htImg,0,0,W,H);      // 머리 그림의 결·명암
+  if(v.videoWidth){const t=htTmp.getContext('2d');t.imageSmoothingEnabled=true;   // 띠 전체를 단계적으로 줄여 한 가지 색(평균)으로
+   t.drawImage(v,S[0]*v.videoWidth,S[1]*v.videoHeight,S[2]*v.videoWidth,S[3]*v.videoHeight,0,0,48,8);t.drawImage(htTmp,0,0,48,8,0,8,24,4);t.drawImage(htTmp,0,8,24,4,0,12,12,2);t.drawImage(htTmp,0,12,12,2,0,14,6,1);t.drawImage(htTmp,0,14,6,1,0,15,3,1);t.drawImage(htTmp,0,15,3,1,4,15,1,1);
+   x.imageSmoothingEnabled=false;x.drawImage(htTmp,4,15,1,1,0,0,W,H)}else{x.fillStyle='rgb(168,174,198)';x.fillRect(0,0,W,H)}
+  x.imageSmoothingEnabled=true;x.globalCompositeOperation='multiply';x.globalAlpha=1;x.drawImage(htImg,0,0,W,H);      // 머리 그림의 결·명암
   x.globalCompositeOperation='destination-in';x.globalAlpha=1;x.drawImage(htImg,0,0,W,H)   // 머리 그림의 윤곽으로 잘라 냄
  }catch(e){}}
 function cueTimes(c){const d=c[0],u=c[1],r=c[3]||1,dh=c[4]||.635,o={hand:[d-.17,d-.09,u+.92/r,u+1.275/r]};   // 올라올 때는 영상 속 손이 화면 위로 거의 빠져나간 뒤에 대기 손이 이어서 나타남
@@ -873,8 +878,9 @@ function runCues(v,src,base){base=base||0;const raw=TUNE.cues[src]||CUES[src]||[
   // 머리 윗부분 이어 붙이기: 머리가 내려와 있는 동안만 보이고, 올라갈 때는 영상 속 머리와 같은 속도로 따라 올라가며 사라짐
   let hop=0,hdy=0;for(const c of cs){const m=c.head;if(!m)continue;const d=m[1]+.07,uh=m[2]-.16;if(t<d-.05||t>=uh+.42)continue;
    if(t<d){const q=(t-(d-.05))/.05;hop=q;hdy=-(1-q)*.03}else if(t<uh){hop=1}else{hdy=-(t-uh)*HT.vy;hop=t<uh+.2?1:1-(t-uh-.2)/.22}break}
-  if(hop>0){htInit();htTint(v);htEl.style.opacity=hop.toFixed(3);htEl.style.transform=`translateY(${(hdy*$('machine').offsetHeight).toFixed(1)}px)`;htOn=true}else if(htOn){htOn=false;htEl.style.opacity=0}};
- let htOn=false;tick();
+  if(hop>0){htInit();if(!vfc||!htOn||v.paused)htTint(v);htEl.style.opacity=hop.toFixed(3);htEl.style.transform=`translateY(${(hdy*$('machine').offsetHeight).toFixed(1)}px)`;htOn=true}else if(htOn){htOn=false;htEl.style.opacity=0}};
+ let htOn=false;const vfc=!!v.requestVideoFrameCallback;if(vfc){const vf=()=>{if(dead)return;if(htOn)htTint(v);v.requestVideoFrameCallback(vf)};v.requestVideoFrameCallback(vf)}
+ tick();
  return ()=>{dead=true;cancelAnimationFrame(raf);partEls.forEach(e=>{e.style.transform='';e.style.opacity=''});restBodyEl.style.opacity=0;if(htEl)htEl.style.opacity=0}}
 function runCuesOld(v,src,base,raw){const cs=raw.map(c=>({d:c[0],u:c[1],only:c[2]||undefined,st:0}));
  const iv=setInterval(()=>{const t=v.currentTime-base;for(const c of cs){
@@ -1146,11 +1152,12 @@ async function rushBonus(skipIntro){
  const set=g=>{if(S.out!==base+g){S.out=base+g;S.rushGain=rb+g;render()}};
  let gain=3000;
  const fHy=take('hyper'),fUw=take('uw'),uwOnly=take('uwOnly');if(uwOnly)skipIntro=true;
- const hyper=!skipIntro&&speed<20&&(fHy!==undefined?fHy:Math.random()<HYPER6000)&&await probe('videos/st_hyper6000.mp4');
- const eps=[];if(!hyper)for(const n of [2,3,4,5,6])if(await probe('videos/st_ep_'+n+'.mp4'))eps.push(n);
- const ep=eps.length&&!uwOnly?'videos/st_ep_'+(eps.includes(S.chain)?S.chain:eps[Math.floor(Math.random()*eps.length)])+'.mp4':'';
  const real=speed<20&&await probe(UW.try)&&await probe(UW.lose);
  let wins=0;if(real){if(fUw)wins=fUw.length;else while(Math.random()<SPEC.loop)wins++}            // 추가 3000 성공 횟수를 미리 정해 두고 영상을 끊김 없이 이어 붙임
+ // HYPER 6000: 추가 3000 을 한 번 이상 성공하는 판의 일부를 '처음부터 6000' 연출로 보여 줌. 그 한 번은 6000 에 이미 포함된 것으로 치므로 지급 기댓값은 그대로
+ const hyper=!skipIntro&&speed<20&&(fHy!==undefined?fHy:(wins>0&&Math.random()<HYPER6000*2))&&await probe('videos/st_hyper6000.mp4');if(hyper&&fHy===undefined)wins--;
+ const eps=[];if(!hyper)for(const n of [2,3,4,5,6])if(await probe('videos/st_ep_'+n+'.mp4'))eps.push(n);
+ const ep=eps.length&&!uwOnly?'videos/st_ep_'+(eps.includes(S.chain)?S.chain:eps[Math.floor(Math.random()*eps.length)])+'.mp4':'';
  const first=hyper?'videos/st_hyper6000.mp4':(ep||(real?UW.try:''));
  if(!skipIntro&&!(await playClip('videos/st_intro.mp4',{next:first}))&&!(await playClip(CLIP.zorome))){fx('HYPER喰種BONUS 3000','big t-gold');await sleep(1400);clearFx()}
  if(hyper){gain=6000;await playClip('videos/st_hyper6000.mp4',{next:real?UW.try:null,skip:[[59,169]],onTime:t=>set(Math.round(6000*lin(t,59,166)))})}
@@ -1349,6 +1356,10 @@ renderHolds('');applyMute();render();
  // 시작하자마자 대기 영상을 띄움 (정지 배경 그림이 보이는 시간을 없앰)
  setTimeout(()=>{try{if(!busy)idleShow(true)}catch(e){}},200);
 })();
+</script>
+<script>
+// 방문 집계: 웹 주소(http/https)로 열었을 때만. 폴더에서 직접 연 경우에는 보내지 않음
+if(/^https?:$/.test(location.protocol)){const g=document.createElement('script');g.async=true;g.src='https://gc.zgo.at/count.js';g.setAttribute('data-goatcounter','https://999lite.goatcounter.com/count');document.body.appendChild(g)}
 </script>
 </body>
 </html>
