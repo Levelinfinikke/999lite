@@ -230,6 +230,17 @@ body.aOff #wA:hover,body.bOff #wB:hover{opacity:1}
 body.aOff #wA .bd,body.bOff #wB .bd{display:none}
 body.aOff #wA .hd,body.bOff #wB .hd{height:30px;padding:0 4px 0 8px}
 #pushHint,#selHint,#skipHint{bottom:10px!important}
+/* 모바일(웹 주소로 열었을 때): 영상을 전부 받은 뒤 시작 */
+#dl{position:fixed;inset:0;z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;background:radial-gradient(ellipse at 50% 35%,#1a0509,#050506 70%);color:#f3e9ea;font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;text-align:center}
+#dl.on{display:flex}
+#dl h1{margin:0;font:900 26px/1.2 "Noto Serif KR",Georgia,serif;letter-spacing:.12em}
+#dl h1 i{font-style:normal;color:#e0213a}
+#dl p{margin:0;font-size:13px;color:#a8a0a4;line-height:1.6}
+#dlBar{width:min(420px,84vw);height:14px;background:#15060a;border:1px solid #5a1220;overflow:hidden}
+#dlBar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8a0b15,#ff2d40);transition:width .2s}
+#dlTxt{font:700 15px/1 system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#fff}
+#dl button{height:38px;padding:0 18px;clip-path:none;border-radius:3px;font:700 13px inherit;font-family:inherit;background:#1a1d26;color:#e9edf5;border:1px solid #3a3f4d}
+#dl button.go{background:linear-gradient(180deg,#e01b2c,#8a0b15);border-color:#ff5364;color:#fff;letter-spacing:.12em;font-size:15px;height:46px;padding:0 34px}
 /* 액정 오른쪽 아래: 이번 당첨 흐름에서 얻은 구슬 수 (누르면 접힘) */
 #wPayBox{position:absolute;inset:0;z-index:9;pointer-events:none;container-type:inline-size}
 #wPay{position:absolute;right:21.2%;bottom:51.3%;pointer-events:auto;display:none;align-items:baseline;gap:0.32cqw;padding:0.32cqw 0.9cqw 0.19cqw 1.41cqw;cursor:pointer;user-select:none;
@@ -1171,7 +1182,36 @@ renderHolds('');applyMute();render();
 <button id="wReset" title="기록 초기화">기록 초기화</button>
 </div></div>
 </div>
+<div id="dl"><h1>999<i>lite</i></h1><p id="dlMsg">게임 영상을 기기에 내려받는 중이에요.<br>한 번 받아 두면 다음부터는 바로 시작돼요.</p><div id="dlBar"><i></i></div><div id="dlTxt">준비 중…</div><button id="dlGo" class="go" style="display:none">▶ 시작</button><button id="dlSkip">받지 않고 바로 시작 (스트리밍)</button></div>
 <script>
+// ── 모바일 + 웹 주소: 영상을 전부 저장소에 받아 둔 뒤 시작 (sw.js 가 저장된 영상을 내어 줌) ──
+(async()=>{const q=id=>document.getElementById(id),CN='g999lite-v1';
+ const mobile=matchMedia('(pointer:coarse)').matches||matchMedia('(max-width:760px)').matches;
+ if(!/^https?:$/.test(location.protocol)||!('serviceWorker' in navigator)||!window.caches||!mobile)return;
+ const box=q('dl'),bar=q('dlBar').firstChild,txt=q('dlTxt'),mb=n=>(n/1048576).toFixed(0);box.classList.add('on');
+ let stop=false;const done=()=>{box.classList.remove('on')};q('dlSkip').onclick=()=>{stop=true;done()};q('dlGo').onclick=done;
+ try{await navigator.serviceWorker.register('sw.js');await navigator.serviceWorker.ready;
+  if(!navigator.serviceWorker.controller)await new Promise(r=>{navigator.serviceWorker.addEventListener('controllerchange',r,{once:true});setTimeout(r,3000)});
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+  const files=Object.keys(window.CLIPS||{}).map(n=>'videos/'+n+'.mp4').concat(['videos/idle_loop.mp4']),cache=await caches.open(CN),abs=f=>new URL(f,location.href).href.split('?')[0];
+  // 아직 안 받은 파일과 전체 크기 확인
+  const need=[];let total=0,got=0,fail=0;
+  await Promise.all(files.map(async f=>{if(await cache.match(abs(f)))return;try{const r=await fetch(f,{method:'HEAD',cache:'no-store'});if(!r.ok)return;const n=+r.headers.get('content-length')||0;total+=n;need.push([f,n])}catch(e){}}));
+  if(!need.length){done();return}
+  const paint=()=>{bar.style.width=(total?Math.min(100,got/total*100):0)+'%';txt.textContent=mb(got)+' / '+mb(total)+' MB'};paint();
+  // 받는 대로 저장소에 바로 흘려 넣음(메모리에 쌓지 않음). 진행률은 같은 흐름을 한 갈래 더 읽어서 셈
+  const acs=new Set();q('dlSkip').onclick=()=>{stop=true;acs.forEach(a=>a.abort());done()};
+  const one=async([f,n])=>{for(let k=0;k<3&&!stop;k++){let mine=0;const ac=new AbortController();acs.add(ac);
+    try{const r=await fetch(f,{cache:'no-store',signal:ac.signal});if(!r.ok||!r.body)throw 0;const [s1,s2]=r.body.tee(),put=cache.put(abs(f),new Response(s1,{headers:{'Content-Type':'video/mp4'}})),rd=s2.getReader();
+     for(;;){const {done:d,value}=await rd.read();if(d)break;mine+=value.length;got+=value.length;paint()}
+     await put;acs.delete(ac);return}catch(e){acs.delete(ac);got-=mine;paint();try{await cache.delete(abs(f))}catch(_){}if(!stop)await new Promise(r=>setTimeout(r,800))}}
+   if(!stop)fail++};
+  need.sort((a,b)=>a[1]-b[1]);let i=0;await Promise.all([0,1].map(async()=>{while(i<need.length&&!stop){await one(need[i++])}}));
+  if(stop)return;
+  if(fail){q('dlMsg').innerHTML='받지 못한 파일이 '+fail+'개 있어요. 그 영상은 재생할 때 내려받아요.<br>저장 공간이나 연결 상태를 확인해 주세요.'}else q('dlMsg').innerHTML='모두 받았어요.';
+  txt.textContent=mb(got)+' / '+mb(total)+' MB';q('dlGo').style.display='';q('dlSkip').style.display='none';
+ }catch(e){q('dlMsg').innerHTML='미리 받기를 쓸 수 없어서 바로 시작해요.';setTimeout(done,1200)}
+})();
 (()=>{const q=id=>document.getElementById(id);
  // 조정 화면·녹화 등 작업용 기능은 실전용에서 끔
  tuneToggle=()=>{};recToggle=()=>{};
