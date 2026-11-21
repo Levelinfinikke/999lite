@@ -626,7 +626,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
  const handoff=()=>{if(!preDone)pre();const p=prepared;if(p&&p.started){if(IOS){try{v.pause()}catch(e){}p.v.muted=muted}p.v.style.zIndex=7;p.v.style.display='block'}};
  let stuckAt=0,lastTry=0;
  await new Promise(r=>{v.onended=()=>{handoff();r()};v.onerror=r;iv=setInterval(()=>{const t=v.currentTime-g.base;
-  if(v.paused&&!v.ended&&!v.seeking){const now=performance.now();if(!stuckAt)stuckAt=now;if(now-lastTry>400){lastTry=now;v.play().catch(()=>{})}if(now-stuckAt>3000){dbg('stuck → next '+g.n+' @'+t.toFixed(1));handoff();return r()}}else stuckAt=0;
+  if(v.paused&&!v.ended&&!v.seeking&&!window.__hold){const now=performance.now();if(!stuckAt)stuckAt=now;if(now-lastTry>400){lastTry=now;v.play().catch(()=>{})}if(now-stuckAt>3000){dbg('stuck → next '+g.n+' @'+t.toFixed(1));handoff();return r()}}else stuckAt=0;
   const sr=opt.skip==='all'?[[1.5,g.dur-.4]]:(opt.skip||[]);const sk=sr.find(x=>t>=x[0]&&t<x[1]-.3);$('skipHint').style.display=sk?'block':'none';
   if(stopReq){stopReq=false;v.pause();return r()}
   // Space: 정해 둔 구간(정산·ST 회전)은 그 끝으로, 그 밖의 연출은 끝나기 1초 전으로 건너뜀 (마지막 1초는 건너뛸 수 없음)
@@ -827,6 +827,19 @@ function gUp(){return gBusy=gBusy.then(async()=>{
 const CUES={'videos/direct7500.mp4':[[6.2,9999]],'videos/st_intro.mp4':[[0.18,9.53],[34.77,36.98,'hand',1.23]],'videos/uw_win_6000.mp4':[[0.25,7.88]],'videos/uw_win_9000.mp4':[[0.13,7.76]],'videos/uw_win_12000.mp4':[[0.22,7.87,0,1,0.6]],'videos/uw_win_15000.mp4':[[0.13,7.77]],'videos/uw_win_18000.mp4':[[0.2,7.84,0,1,0.57]],'videos/uw_win_21000.mp4':[[0.07,7.71]],'videos/judge_break_win.mp4':[[4.78,10.39],[14.15,9999,'hand']],'videos/battle_nishio_winfull.mp4':[[87.8,97.01],[107.32,9999,'hand']],'videos/battle_tsukiyama_winfull.mp4':[[118.62,127.81],[138.3,9999,'hand']],'videos/yokoku_hand.mp4':[[0.1,5.14,'hand']],'videos/st_win_rize.mp4':[[75.57,84.77],[109.33,111.54,'hand',1.21]],'videos/st_win_omedetou.mp4':[[5.72,6.7,'hand'],[19.07,9999]],'videos/st_hyper6000.mp4':[[0.23,2.62,'hand'],[7.07,8.44,'hand',1.24],[12.9,18.83]],'videos/revival_fukurou.mp4':[[38.1,42.77],[53.92,9999,'hand']],'videos/st_win_tsukiyama.mp4':[[53.8,9999]],'videos/climax_yamori_body.mp4':[[65.57,9999]],'videos/climax_yamori_win.mp4':[[0.57,12.74],[27.72,9999,'hand']],'videos/bonus.mp4':[[0.72,4.54,'hand']],'videos/bonus7500.mp4':[[3.72,7.51,'hand'],[18.12,21.91,'hand'],[31.25,35.04,'hand']],'videos/judge_shiro_body.mp4':[[43.87,9999]],'videos/judge_tail_win.mp4':[[0.32,5.94]],'videos/pre_long.mp4':[[70.15,72.98,'hand']]};
 // 실기 역물의 움직임(전 연출 공통으로 측정): 손은 닿기 0.17초 전에 대기 자리를 떠나 0.09초 전에 화면 안으로 들어오고, 머리·몸은 0.15초 전 → 0.07초 전.
 // 올라갈 때 손은 일정한 속도로 약 1.24초 뒤, 머리·몸은 손보다 0.635초 늦게 출발해 0.36초 뒤 화면 밖으로 나감
+// 전체 낙하 때 영상에서는 머리 윗부분이 화면 위로 잘려 있음 → 같은 머리 그림을 영상 속 머리에 맞춰(배율·위치 실측) 화면 위쪽에 이어 붙임.
+// 색은 영상 속 머리카락에서 읽어 맞춤(웹 주소로 열었을 때). 읽을 수 없으면(폴더에서 직접 연 경우) 중간 밝기로 고정
+const HT={line:.2856,left:.2488,top:.2035,w:.3004,h:.2046,vy:.37*.3338,samp:[.19,.05,.28,.07],base:[227,229,236]};   // 기기 대비 비율, vy: 올라가는 속도(기기 높이/초), samp: 영상에서 색을 읽는 영역(비율), base: 머리 그림의 평균색
+let htBox=null,htEl=null,htCv=null,htOK=true,htCol=[168,174,198],htLast=0;
+function htInit(){if(htBox)return;htBox=document.createElement('div');htBox.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${HT.line*100}%;overflow:hidden;z-index:9;pointer-events:none`;
+ htEl=document.createElement('div');const u="url('images/drop_head.webp')";
+ htEl.style.cssText=`position:absolute;left:${HT.left*100}%;top:${HT.top/HT.line*100}%;width:${HT.w*100}%;height:${HT.h/HT.line*100}%;background:${u} center/100% 100% no-repeat;background-blend-mode:multiply;-webkit-mask:${u} center/100% 100% no-repeat;mask:${u} center/100% 100% no-repeat;opacity:0;will-change:transform,opacity`;
+ htBox.appendChild(htEl);$('machine').appendChild(htBox);htCv=document.createElement('canvas');htCv.width=htCv.height=4}
+function htTint(v){const now=performance.now();if(now-htLast<110)return;htLast=now;
+ if(htOK&&v.videoWidth){try{const x=htCv.getContext('2d',{willReadFrequently:true}),S=HT.samp;x.drawImage(v,S[0]*v.videoWidth,S[1]*v.videoHeight,S[2]*v.videoWidth,S[3]*v.videoHeight,0,0,4,4);
+   const d=x.getImageData(0,0,4,4).data;let r=0,g=0,b=0;for(let i=0;i<64;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2]}
+   const t=[r/16,g/16,b/16].map((c,i)=>Math.min(255,c*255/HT.base[i]));htCol=htCol.map((c,i)=>c+(t[i]-c)*.5)}catch(e){htOK=false}}
+ htEl.style.backgroundColor=`rgb(${htCol.map(c=>Math.round(c)).join(',')})`}
 function cueTimes(c){const d=c[0],u=c[1],r=c[3]||1,dh=c[4]||.635,o={hand:[d-.17,d-.09,u+.92/r,u+1.275/r]};   // 올라올 때는 영상 속 손이 화면 위로 거의 빠져나간 뒤에 대기 손이 이어서 나타남
  if(c[2]!=='hand'){o.head=[d-.15,d-.07,u+dh+.16,u+dh+.42];o.body=o.head}return o}
 function runCues(v,src,base){base=base||0;const raw=TUNE.cues[src]||CUES[src]||[];if(!raw.length)return ()=>{};
@@ -845,9 +858,13 @@ function runCues(v,src,base){base=base||0;const raw=TUNE.cues[src]||CUES[src]||[
    const e=partEls[i],g=G[i];
    if(p===0&&op===1){if(e.style.transform){e.style.transform='';e.style.opacity=''}}
    else{e.style.transform=`translate(${(g.dx*p).toFixed(1)}px,${(g.dy*p).toFixed(1)}px) scale(${(1+g.s*p).toFixed(4)})`;e.style.opacity=op.toFixed(3);if(P.to==='hand')handAway=true;if(P.to==='body')bodyAway=true}});
-  restBodyEl.style.opacity=handAway&&!bodyAway?1:0};
- tick();
- return ()=>{dead=true;cancelAnimationFrame(raf);partEls.forEach(e=>{e.style.transform='';e.style.opacity=''});restBodyEl.style.opacity=0}}
+  restBodyEl.style.opacity=handAway&&!bodyAway?1:0;
+  // 머리 윗부분 이어 붙이기: 머리가 내려와 있는 동안만 보이고, 올라갈 때는 영상 속 머리와 같은 속도로 따라 올라가며 사라짐
+  let hop=0,hdy=0;for(const c of cs){const m=c.head;if(!m)continue;const d=m[1]+.07,uh=m[2]-.16;if(t<d-.05||t>=uh+.42)continue;
+   if(t<d){const q=(t-(d-.05))/.05;hop=q;hdy=-(1-q)*.03}else if(t<uh){hop=1}else{hdy=-(t-uh)*HT.vy;hop=t<uh+.2?1:1-(t-uh-.2)/.22}break}
+  if(hop>0){htInit();htTint(v);htEl.style.opacity=hop.toFixed(3);htEl.style.transform=`translateY(${(hdy*$('machine').offsetHeight).toFixed(1)}px)`;htOn=true}else if(htOn){htOn=false;htEl.style.opacity=0}};
+ let htOn=false;tick();
+ return ()=>{dead=true;cancelAnimationFrame(raf);partEls.forEach(e=>{e.style.transform='';e.style.opacity=''});restBodyEl.style.opacity=0;if(htEl)htEl.style.opacity=0}}
 function runCuesOld(v,src,base,raw){const cs=raw.map(c=>({d:c[0],u:c[1],only:c[2]||undefined,st:0}));
  const iv=setInterval(()=>{const t=v.currentTime-base;for(const c of cs){
   if(c.st===0&&t>=c.d-(EXTRA?(c.only?.175:.31):.2)){c.st=1;gDown('',c.only,{quiet:true,extra:EXTRA})}
