@@ -1063,8 +1063,9 @@ async function judgement(success,j,jfrom){
  const fJl=take('jlate');
  if(j&&success&&(fJl!==undefined?fJl:Math.random()<LATE_J)){   // 실패로 보인 뒤 계수 중 아무 때나 역물이 떨어지며 역전 (안내 문구가 뜨기 전까지)
   const tl={src:JT.lose,from:j.loseFrom||undefined};await playClip(j.body,{from:jfrom,next:j.pre||JT.lose});if(j.pre)await playClip(j.pre,{next:JT.lose});
-  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.random()*Math.max(0,LATE.j1-LATE.j0)).toFixed(2),next:'videos/yokoku_hand.mp4'});
-  if(!(await playClip('videos/yokoku_hand.mp4',{next:CLIP.bonus7500}))){clearTimeout(hideT);await handDrop(true)}return true}   // 실패 계수 도중 → 손떨 영상 → 7500
+  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.random()*Math.max(0,LATE.j1-LATE.j0)).toFixed(2),next:'videos/direct7500.mp4'});
+  // 실패 계수 도중 → 즉시 7500 영상 → 7500 확정(전체 낙하) → 7500 보너스. 3000 도중의 즉시 7500 분기와 같은 순서
+  if(await playClip('videos/direct7500.mp4',{next:JT.win}))await playClip(JT.win,{next:CLIP.bonus7500});else if(!(await playClip(JT.win,{next:CLIP.bonus7500}))){clearTimeout(hideT);await handDrop(true)}return true}
  if(j){const tail=success?{src:(j.win&&await probe(j.win))?j.win:JT.win}:{src:JT.lose,from:j.loseFrom||undefined}   /* 배틀 실패는 조정한 시작점(+0.6)부터 */;
   await playClip(j.body,{from:jfrom,next:j.pre||tail});if(j.pre)await playClip(j.pre,{next:tail});
   await playClip(tail.src,{from:tail.from,next:success?CLIP.bonus7500:null});return success}
