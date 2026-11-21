@@ -1306,5 +1306,9 @@ renderHolds('');applyMute();render();
  setTimeout(()=>{try{if(!busy)idleShow(true)}catch(e){}},200);
 })();
 </script>
+<script>
+// 방문 집계: 웹 주소(http/https)로 열었을 때만. 폴더에서 직접 연 경우에는 보내지 않음
+if(/^https?:$/.test(location.protocol)){const g=document.createElement('script');g.async=true;g.src='https://gc.zgo.at/count.js';g.setAttribute('data-goatcounter','https://999lite.goatcounter.com/count');document.body.appendChild(g)}
+</script>
 </body>
 </html>
