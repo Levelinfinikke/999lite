@@ -829,11 +829,12 @@ const CUES={'videos/direct7500.mp4':[[6.2,9999]],'videos/st_intro.mp4':[[0.18,9.
 // 올라갈 때 손은 일정한 속도로 약 1.24초 뒤, 머리·몸은 손보다 0.635초 늦게 출발해 0.36초 뒤 화면 밖으로 나감
 // 전체 낙하 때 영상에서는 머리 윗부분이 화면 위로 잘려 있음 → 같은 머리 그림을 영상 속 머리에 맞춰(배율·위치 실측) 화면 위쪽에 이어 붙임.
 // 색은 영상 속 머리카락에서 읽어 맞춤(웹 주소로 열었을 때). 읽을 수 없으면(폴더에서 직접 연 경우) 중간 밝기로 고정
-const HT={line:.2856,left:.2488,top:.2035,w:.3004,h:.2046,vy:.37*.3338,samp:[.19,.05,.28,.07],base:[227,229,236]};   // 기기 대비 비율, vy: 올라가는 속도(기기 높이/초), samp: 영상에서 색을 읽는 영역(비율), base: 머리 그림의 평균색
+const HT={fade:.024,line:.2856,left:.2488,top:.2035,w:.3004,h:.2046,vy:.37*.3338,samp:[.19,.05,.28,.07],base:[227,229,236]};   // 기기 대비 비율, vy: 올라가는 속도(기기 높이/초), samp: 영상에서 색을 읽는 영역(비율), base: 머리 그림의 평균색
 let htBox=null,htEl=null,htCv=null,htOK=true,htCol=[168,174,198],htLast=0;
-function htInit(){if(htBox)return;htBox=document.createElement('div');htBox.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${HT.line*100}%;overflow:hidden;z-index:9;pointer-events:none`;
+function htInit(){if(htBox)return;htBox=document.createElement('div');const H=HT.line+HT.fade,g=`linear-gradient(#000 0,#000 ${(HT.line/H*100).toFixed(2)}%,transparent 100%)`;   // 영상 위쪽 가장자리부터 아래로 조금 겹치면서 서서히 사라지게 해 경계선을 없앰
+ htBox.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${H*100}%;overflow:hidden;z-index:9;pointer-events:none;-webkit-mask-image:${g};mask-image:${g}`;
  htEl=document.createElement('div');const u="url('images/drop_head.webp')";
- htEl.style.cssText=`position:absolute;left:${HT.left*100}%;top:${HT.top/HT.line*100}%;width:${HT.w*100}%;height:${HT.h/HT.line*100}%;background:${u} center/100% 100% no-repeat;background-blend-mode:multiply;-webkit-mask:${u} center/100% 100% no-repeat;mask:${u} center/100% 100% no-repeat;opacity:0;will-change:transform,opacity`;
+ htEl.style.cssText=`position:absolute;left:${HT.left*100}%;top:${HT.top/H*100}%;width:${HT.w*100}%;height:${HT.h/H*100}%;background:${u} center/100% 100% no-repeat;background-blend-mode:multiply;-webkit-mask:${u} center/100% 100% no-repeat;mask:${u} center/100% 100% no-repeat;opacity:0;will-change:transform,opacity`;
  htBox.appendChild(htEl);$('machine').appendChild(htBox);htCv=document.createElement('canvas');htCv.width=htCv.height=4}
 function htTint(v){const now=performance.now();if(now-htLast<110)return;htLast=now;
  if(htOK&&v.videoWidth){try{const x=htCv.getContext('2d',{willReadFrequently:true}),S=HT.samp;x.drawImage(v,S[0]*v.videoWidth,S[1]*v.videoHeight,S[2]*v.videoWidth,S[3]*v.videoHeight,0,0,4,4);
