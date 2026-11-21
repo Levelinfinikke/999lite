@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>999lite v.1</title>
+<title>999 v.1</title>
 <style>
 :root{--bg:#0b0709;--panel:#1a1014;--line:#4a2530;--ink:#f3e9ea;--dim:#a88c92;--ac:#e0213a;--gold:#f2c14e}
 *{box-sizing:border-box}
@@ -841,12 +841,13 @@ function htInit(){if(htBox)return;const H=HT.line+HT.fade,g=`linear-gradient(#00
  htBox=document.createElement('div');htBox.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${H*100}%;overflow:hidden;z-index:9;pointer-events:none;-webkit-mask-image:${g};mask-image:${g}`;
  htEl=document.createElement('canvas');htEl.width=150;htEl.height=162;
  htEl.style.cssText=`position:absolute;left:${HT.left*100}%;top:${HT.top/H*100}%;width:${HT.w*100}%;height:${HT.h/H*100}%;opacity:0;will-change:transform,opacity`;
- htBox.appendChild(htEl);$('machine').appendChild(htBox);htTmp=document.createElement('canvas');htTmp.width=12;htTmp.height=3;htImg=new Image();htImg.src='images/drop_head.webp'}
+ htBox.appendChild(htEl);$('machine').appendChild(htBox);htTmp=document.createElement('canvas');htTmp.width=48;htTmp.height=16;htImg=new Image();htImg.src='images/drop_head.webp'}
 function htTint(v){const now=performance.now();if(now-htLast<80||!htImg.complete||!htImg.naturalWidth)return;htLast=now;
  const x=htEl.getContext('2d'),W=htEl.width,H=htEl.height,S=HT.samp;
  try{x.globalCompositeOperation='source-over';x.globalAlpha=1;x.clearRect(0,0,W,H);
-  if(v.videoWidth){const t=htTmp.getContext('2d');t.drawImage(v,S[0]*v.videoWidth,S[1]*v.videoHeight,S[2]*v.videoWidth,S[3]*v.videoHeight,0,0,12,3);   // 아주 작게 줄였다가 늘려서 부드러운 색 띠로
-   x.imageSmoothingEnabled=true;x.drawImage(htTmp,1,1,10,1,0,0,W,H)}else{x.fillStyle='rgb(168,174,198)';x.fillRect(0,0,W,H)}
+  if(v.videoWidth){const t=htTmp.getContext('2d');t.imageSmoothingEnabled=true;   // 단계적으로 절반씩 줄여 넓게 평균 냄(머리카락 사이의 어두운 가닥이 세로줄로 남지 않게) → 좌·중·우 3칸의 색만 남김
+   t.drawImage(v,S[0]*v.videoWidth,S[1]*v.videoHeight,S[2]*v.videoWidth,S[3]*v.videoHeight,0,0,48,8);t.drawImage(htTmp,0,0,48,8,0,8,24,4);t.drawImage(htTmp,0,8,24,4,0,12,12,2);t.drawImage(htTmp,0,12,12,2,0,14,6,1);t.drawImage(htTmp,0,14,6,1,0,15,3,1);
+   x.imageSmoothingEnabled=true;x.drawImage(htTmp,.5,15,2,1,0,0,W,H)}else{x.fillStyle='rgb(168,174,198)';x.fillRect(0,0,W,H)}
   x.globalCompositeOperation='multiply';x.globalAlpha=.75;x.drawImage(htImg,0,0,W,H);      // 머리 그림의 결·명암
   x.globalCompositeOperation='destination-in';x.globalAlpha=1;x.drawImage(htImg,0,0,W,H)   // 머리 그림의 윤곽으로 잘라 냄
  }catch(e){}}
@@ -1348,10 +1349,6 @@ renderHolds('');applyMute();render();
  // 시작하자마자 대기 영상을 띄움 (정지 배경 그림이 보이는 시간을 없앰)
  setTimeout(()=>{try{if(!busy)idleShow(true)}catch(e){}},200);
 })();
-</script>
-<script>
-// 방문 집계: 웹 주소(http/https)로 열었을 때만. 폴더에서 직접 연 경우에는 보내지 않음
-if(/^https?:$/.test(location.protocol)){const g=document.createElement('script');g.async=true;g.src='https://gc.zgo.at/count.js';g.setAttribute('data-goatcounter','https://999lite.goatcounter.com/count');document.body.appendChild(g)}
 </script>
 </body>
 </html>
