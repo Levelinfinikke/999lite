@@ -634,7 +634,12 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
   if(inPush!==pushShown){pushShown=inPush;$('pushHint').style.display=inPush?'block':'none'}
   if(pushReq){pushReq=false;if(inPush){pushed=true;skipReq=false;inputLock=performance.now()+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
   if(skipReq&&performance.now()<inputLock)skipReq=false;
-  if(skipReq){skipReq=false;inputLock=performance.now()+200;const e1=t1-g.base-1;if(sk){try{v.currentTime=g.base+sk[1]}catch(e){}return}else if(t<e1-.05){try{v.currentTime=g.base+e1}catch(e){}return}}
+  if(skipReq){const now=performance.now(),e1=t1-g.base-1,nx=sr.find(x=>x[0]>t),go=(to,lock)=>{skipReq=false;inputLock=now+lock;try{v.currentTime=g.base+to}catch(e){}};
+   if(sk){go(sk[1],1200);return}                                  // 정해 둔 구간(정산·ST 한 회전) 안: 그 구간 끝으로. 이어지는 1.2초는 추가 입력을 버림(다음 회전까지 딸려 넘어가지 않게)
+   else if(nx&&nx[0]-t<2.5){if(now-skipAt>3000)skipReq=false}     // 다음 구간이 곧 시작: 기다렸다가 그 구간에 적용 (영상 끝으로 건너뛰지 않음)
+   else if(nx){go(nx[0]+.05,200);return}                          // 다음 구간이 멀리 있음: 그 구간의 시작으로
+   else if(t<e1-.05){go(e1,200);return}                           // 구간이 더 없음: 끝나기 1초 전으로
+   else skipReq=false}
   for(const m of marks)if(!m[2]&&t>=m[0]){m[2]=true;try{m[1]()}catch(e){console.error(e)}}
   if(opt.onTime)try{opt.onTime(t,g.dur)}catch(e){}
   const tEnd=Math.min(t1,v.duration||1e9);if(!preDone&&(tEnd-v.currentTime)/(v.playbackRate||1)<=LAT)pre();
@@ -828,19 +833,23 @@ const CUES={'videos/direct7500.mp4':[[6.2,9999]],'videos/st_intro.mp4':[[0.18,9.
 // 실기 역물의 움직임(전 연출 공통으로 측정): 손은 닿기 0.17초 전에 대기 자리를 떠나 0.09초 전에 화면 안으로 들어오고, 머리·몸은 0.15초 전 → 0.07초 전.
 // 올라갈 때 손은 일정한 속도로 약 1.24초 뒤, 머리·몸은 손보다 0.635초 늦게 출발해 0.36초 뒤 화면 밖으로 나감
 // 전체 낙하 때 영상에서는 머리 윗부분이 화면 위로 잘려 있음 → 같은 머리 그림을 영상 속 머리에 맞춰(배율·위치 실측) 화면 위쪽에 이어 붙임.
-// 색은 영상 속 머리카락에서 읽어 맞춤(웹 주소로 열었을 때). 읽을 수 없으면(폴더에서 직접 연 경우) 중간 밝기로 고정
-const HT={fade:.024,line:.2856,left:.2488,top:.2035,w:.3004,h:.2046,vy:.37*.3338,samp:[.19,.05,.28,.07],base:[227,229,236]};   // 기기 대비 비율, vy: 올라가는 속도(기기 높이/초), samp: 영상에서 색을 읽는 영역(비율), base: 머리 그림의 평균색
-let htBox=null,htEl=null,htCv=null,htOK=true,htCol=[168,174,198],htLast=0;
-function htInit(){if(htBox)return;htBox=document.createElement('div');const H=HT.line+HT.fade,g=`linear-gradient(#000 0,#000 ${(HT.line/H*100).toFixed(2)}%,transparent 100%)`;   // 영상 위쪽 가장자리부터 아래로 조금 겹치면서 서서히 사라지게 해 경계선을 없앰
- htBox.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${H*100}%;overflow:hidden;z-index:9;pointer-events:none;-webkit-mask-image:${g};mask-image:${g}`;
- htEl=document.createElement('div');const u="url('images/drop_head.webp')";
- htEl.style.cssText=`position:absolute;left:${HT.left*100}%;top:${HT.top/H*100}%;width:${HT.w*100}%;height:${HT.h/H*100}%;background:${u} center/100% 100% no-repeat;background-blend-mode:multiply;-webkit-mask:${u} center/100% 100% no-repeat;mask:${u} center/100% 100% no-repeat;opacity:0;will-change:transform,opacity`;
- htBox.appendChild(htEl);$('machine').appendChild(htBox);htCv=document.createElement('canvas');htCv.width=htCv.height=4}
-function htTint(v){const now=performance.now();if(now-htLast<110)return;htLast=now;
- if(htOK&&v.videoWidth){try{const x=htCv.getContext('2d',{willReadFrequently:true}),S=HT.samp;x.drawImage(v,S[0]*v.videoWidth,S[1]*v.videoHeight,S[2]*v.videoWidth,S[3]*v.videoHeight,0,0,4,4);
-   const d=x.getImageData(0,0,4,4).data;let r=0,g=0,b=0;for(let i=0;i<64;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2]}
-   const t=[r/16,g/16,b/16].map((c,i)=>Math.min(255,c*255/HT.base[i]));htCol=htCol.map((c,i)=>c+(t[i]-c)*.5)}catch(e){htOK=false}}
- htEl.style.backgroundColor=`rgb(${htCol.map(c=>Math.round(c)).join(',')})`}
+// 색은 영상 속 머리카락 띠(잘린 선 바로 아래)를 그대로 가져다 칠하고, 그 위에 머리 그림의 명암과 윤곽만 입힘.
+// 픽셀 값을 읽지 않고 그리기만 하므로 폴더에서 index.html 을 직접 열어도 똑같이 동작함
+const HT={fade:.024,line:.2856,left:.2488,top:.2035,w:.3004,h:.2046,vy:.37*.3338,samp:[.158,.05,.331,.07]};   // 기기 대비 비율, vy: 올라가는 속도(기기 높이/초), samp: 영상에서 색을 가져오는 띠(영상 대비 비율)
+let htBox=null,htEl=null,htTmp=null,htImg=null,htLast=0;
+function htInit(){if(htBox)return;const H=HT.line+HT.fade,g=`linear-gradient(#000 0,#000 ${(HT.line/H*100).toFixed(2)}%,transparent 100%)`;   // 영상 위쪽 가장자리부터 아래로 조금 겹치면서 서서히 사라지게 해 경계선을 없앰
+ htBox=document.createElement('div');htBox.style.cssText=`position:absolute;left:0;top:0;width:100%;height:${H*100}%;overflow:hidden;z-index:9;pointer-events:none;-webkit-mask-image:${g};mask-image:${g}`;
+ htEl=document.createElement('canvas');htEl.width=150;htEl.height=162;
+ htEl.style.cssText=`position:absolute;left:${HT.left*100}%;top:${HT.top/H*100}%;width:${HT.w*100}%;height:${HT.h/H*100}%;opacity:0;will-change:transform,opacity`;
+ htBox.appendChild(htEl);$('machine').appendChild(htBox);htTmp=document.createElement('canvas');htTmp.width=12;htTmp.height=3;htImg=new Image();htImg.src='images/drop_head.webp'}
+function htTint(v){const now=performance.now();if(now-htLast<80||!htImg.complete||!htImg.naturalWidth)return;htLast=now;
+ const x=htEl.getContext('2d'),W=htEl.width,H=htEl.height,S=HT.samp;
+ try{x.globalCompositeOperation='source-over';x.globalAlpha=1;x.clearRect(0,0,W,H);
+  if(v.videoWidth){const t=htTmp.getContext('2d');t.drawImage(v,S[0]*v.videoWidth,S[1]*v.videoHeight,S[2]*v.videoWidth,S[3]*v.videoHeight,0,0,12,3);   // 아주 작게 줄였다가 늘려서 부드러운 색 띠로
+   x.imageSmoothingEnabled=true;x.drawImage(htTmp,1,1,10,1,0,0,W,H)}else{x.fillStyle='rgb(168,174,198)';x.fillRect(0,0,W,H)}
+  x.globalCompositeOperation='multiply';x.globalAlpha=.75;x.drawImage(htImg,0,0,W,H);      // 머리 그림의 결·명암
+  x.globalCompositeOperation='destination-in';x.globalAlpha=1;x.drawImage(htImg,0,0,W,H)   // 머리 그림의 윤곽으로 잘라 냄
+ }catch(e){}}
 function cueTimes(c){const d=c[0],u=c[1],r=c[3]||1,dh=c[4]||.635,o={hand:[d-.17,d-.09,u+.92/r,u+1.275/r]};   // 올라올 때는 영상 속 손이 화면 위로 거의 빠져나간 뒤에 대기 손이 이어서 나타남
  if(c[2]!=='hand'){o.head=[d-.15,d-.07,u+dh+.16,u+dh+.42];o.body=o.head}return o}
 function runCues(v,src,base){base=base||0;const raw=TUNE.cues[src]||CUES[src]||[];if(!raw.length)return ()=>{};
@@ -873,8 +882,9 @@ function runCuesOld(v,src,base,raw){const cs=raw.map(c=>({d:c[0],u:c[1],only:c[2
  return ()=>{clearInterval(iv);if(gState)gUp()}}
 let gimmickOk=false;$('gimmick').onload=()=>{gimmickOk=true};$('gimmick').onerror=()=>{gimmickOk=false;$('gimmick').style.display='none'};if($('gimmick').complete&&$('gimmick').naturalWidth)gimmickOk=true;
 async function handDrop(win,kind,only){
+ // 손떨은 항상 실기 영상(yokoku_hand)으로. 영상이 없을 때만 아래의 만든 동작을 씀
+ if(await playClip(CLIP.hand)||await playClip('videos/yokoku_hand.mp4'))return;
  se('hand');
- if(await playClip(CLIP.hand))return;
  if(DROP_AS_REST&&partsOk===NP&&dropsOk===ND){ // 같은 그림이 그대로 내려왔다 올라감 (바뀌는 순간 없음)
   const T=170/speed,use=k=>!only||k===only,F=kind==='gold'?GOLD:SH,bl=n=>F+' blur('+n+'px)',ks=Object.keys(DROPS).filter(use);
   $('main').animate([{opacity:1},{opacity:0,offset:.3},{opacity:0,offset:.8},{opacity:1}],{duration:420/speed});
@@ -1053,7 +1063,8 @@ async function judgement(success,j,jfrom){
  const fJl=take('jlate');
  if(j&&success&&(fJl!==undefined?fJl:Math.random()<LATE_J)){   // 실패로 보인 뒤 계수 중 아무 때나 역물이 떨어지며 역전 (안내 문구가 뜨기 전까지)
   const tl={src:JT.lose,from:j.loseFrom||undefined};await playClip(j.body,{from:jfrom,next:j.pre||JT.lose});if(j.pre)await playClip(j.pre,{next:JT.lose});
-  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.random()*Math.max(0,LATE.j1-LATE.j0)).toFixed(2)});clearTimeout(hideT);await handDrop(true);return true}
+  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.random()*Math.max(0,LATE.j1-LATE.j0)).toFixed(2),next:'videos/yokoku_hand.mp4'});
+  if(!(await playClip('videos/yokoku_hand.mp4',{next:CLIP.bonus7500}))){clearTimeout(hideT);await handDrop(true)}return true}   // 실패 계수 도중 → 손떨 영상 → 7500
  if(j){const tail=success?{src:(j.win&&await probe(j.win))?j.win:JT.win}:{src:JT.lose,from:j.loseFrom||undefined}   /* 배틀 실패는 조정한 시작점(+0.6)부터 */;
   await playClip(j.body,{from:jfrom,next:j.pre||tail});if(j.pre)await playClip(j.pre,{next:tail});
   await playClip(tail.src,{from:tail.from,next:success?CLIP.bonus7500:null});return success}
