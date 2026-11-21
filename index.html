@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>999lite v.1</title>
+<style>
+:root{--bg:#0b0709;--panel:#1a1014;--line:#4a2530;--ink:#f3e9ea;--dim:#a88c92;--ac:#e0213a;--gold:#f2c14e}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+body{display:flex;justify-content:center;padding:4px;overflow:hidden}
+#layout{display:flex;gap:8px;align-items:flex-start;justify-content:center;width:100%;height:100%}
+.side{flex:0 0 250px;width:250px;max-height:100%;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px}
+#panel{order:-1}
+.side h3{margin:10px 0 6px;font-size:12px;color:var(--dim);font-weight:600;letter-spacing:.05em}
+.side h3:first-child{margin-top:0}
+.row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:5px}
+button{font:600 12px inherit;font-family:inherit;background:#2b1a20;color:var(--ink);border:1px solid #5a2f3b;border-radius:7px;padding:6px 9px;cursor:pointer}
+button:hover{border-color:#8a4456}
+button.go{background:var(--ac);border-color:var(--ac);color:#fff;flex:1;font-size:14px;padding:9px}
+button.on{background:#2fd6a1;border-color:#2fd6a1;color:#052}
+button:focus-visible{outline:2px solid #8cf;outline-offset:2px}
+select,input{font:12px inherit;font-family:inherit;background:#120b0e;color:var(--ink);border:1px solid #5a2f3b;border-radius:6px;padding:5px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.stat{background:#120b0e;border:1px solid var(--line);border-radius:8px;padding:6px}
+.stat b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--dim);font-size:11px}
+#hist{max-height:300px;overflow-y:auto;font-size:11px;font-variant-numeric:tabular-nums}
+#hist div{display:flex;justify-content:space-between;border-bottom:1px solid #2a1a20;padding:3px 0}
+#hist .r{color:var(--gold)}
+.note{color:var(--dim);font-size:11px;line-height:1.5}
+#cab{flex:0 0 auto;width:min(calc(100vw - 580px),calc((100vh - 8px) * var(--ar)))}
+:root{--ar:1.15;--ty:-11%}
+body.full{--ar:.6324;--ty:0%}
+#view{position:relative;width:100%;aspect-ratio:var(--ar);overflow:hidden;border-radius:10px;background:#0a0608}
+#machine{position:absolute;left:0;top:0;width:100%;aspect-ratio:1552/2454;transform:translateY(var(--ty));transition:transform .3s}
+#stage{position:absolute;left:18.126%;top:15.001%;width:63.437%;height:45.891%;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#3a0d16 0%,#14060a 60%,#050203 100%);user-select:none}
+#stage.rush #main{background:none!important}
+#stage.rush{background:radial-gradient(ellipse at 50% 40%,#5a0a14 0%,#250409 55%,#090103 100%)}
+#main{position:absolute;left:0.00%;top:29.56%;width:100.00%;height:70.44%;container-type:inline-size}
+#gimmick{position:absolute;left:20.747%;top:14.996%;width:60.374%;z-index:11;pointer-events:none;filter:drop-shadow(0 .4vh .8vh rgba(0,0,0,.6))}
+#gimmick.glow-gold{filter:drop-shadow(0 0 2vh #ffd04a)}
+#bgfx{position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 3cqw,rgba(255,30,60,.04) 3cqw 3.4cqw);pointer-events:none}
+/* 게임이 그리던 숫자·보류·회전수 표시는 쓰지 않음 (통상 화면도 실기 영상) */
+#reels,#holds,#hud,#hudR,#stCount{display:none!important}
+#bgVid{position:absolute;left:-0.03%;top:-4.37%;width:107.43%;height:103.26%;object-fit:fill;z-index:1;background:#000;display:none}
+#stage.rush #bgVid,#stage.rush #idleVid{display:none!important}
+#idleVid{position:absolute;left:-0.03%;top:-4.37%;width:107.43%;height:103.26%;object-fit:fill;z-index:2;background:#000;display:none}
+/* 결과 화면 숫자 덮개: 영상 프레임(1390×1080) 기준 % 위치 */
+#resOv{position:absolute;left:-0.03%;top:-4.37%;width:107.43%;height:103.26%;z-index:8;pointer-events:none;container-type:size;display:none}
+#resOv span{position:absolute;display:none;font-family:"Times New Roman","Noto Serif KR",Georgia,serif;font-weight:900;font-size:10.9cqh;line-height:9.3cqh;height:9.3cqh;color:#15151b;white-space:nowrap;
+ text-shadow:.25cqh .3cqh .35cqh rgba(0,0,0,.38),0 0 .9cqh rgba(255,150,170,.35);background:#c7d9df;box-shadow:0 0 1.3cqh .9cqh #c7d9df;border-radius:1cqh;letter-spacing:.02em}
+#resN{left:73.2%;top:36.5%;width:8.2%;text-align:center}
+#resP{right:41.6%;top:52.6%;min-width:21.8%;text-align:right;padding:0 .2cqh}
+#resOv span.on{display:block;animation:resPop .28s ease-out}
+@keyframes resPop{0%{opacity:0;transform:scale(1.25)}100%{opacity:1;transform:none}}
+.vid{position:absolute;left:-0.03%;top:-4.37%;width:107.43%;height:103.26%;object-fit:fill;display:none;z-index:5;background:#000}
+body.inclip #reels,body.inclip #holds{visibility:hidden}
+#bgN{position:absolute;left:-0.03%;top:-4.37%;width:107.43%;height:103.26%;background:url(images/bg_normal.jpg) center/100% 100% no-repeat;z-index:0}
+#stage.rush #bgN{display:none}
+/* 실기 정지 위치: 좌·우는 크게, 가운데는 작게 */
+#reels{position:absolute;inset:0;z-index:3;transition:transform .4s,opacity .3s}
+#reels.small{transform:translate(-32%,-25.5%) scale(.28)}
+.reel{position:absolute;top:46.2%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center}
+#r0{left:22.1%}#r1{left:51%}#r2{left:80.1%}
+.reel.pop .num{animation:numPop .26s cubic-bezier(.2,1.4,.4,1)}
+@keyframes numPop{0%{transform:scale(1.35);filter:brightness(1.8)}100%{transform:scale(1)}}
+.num{font-weight:900;font-size:22cqw;line-height:1;font-family:Impact,"Arial Black",sans-serif;letter-spacing:-.02em;-webkit-text-stroke:.35cqw #1a0005;filter:drop-shadow(0 .5cqw .8cqw rgba(0,0,0,.7));transition:filter .15s}
+.num img{height:41.5cqw;display:block;filter:drop-shadow(0 .6cqw 1cqw rgba(0,0,0,.6))}
+#reels .reel:nth-child(2) .num img{height:26.5cqw}
+.spin .num img{opacity:.55;filter:blur(1.1cqw) brightness(1.35)}
+.spin .num{filter:blur(.6cqw) drop-shadow(0 .5cqw .8cqw rgba(0,0,0,.7));transform:scaleY(1.15)}
+.c1,.c5{background:linear-gradient(#ffe6ea,#ff5a72 60%,#a3001a);-webkit-background-clip:text;color:transparent}
+.c2,.c6{background:linear-gradient(#e6f1ff,#5aa0ff 60%,#00307a);-webkit-background-clip:text;color:transparent}
+.c3,.c4{background:linear-gradient(#f0ffe9,#62d06a 60%,#0d5a1a);-webkit-background-clip:text;color:transparent}
+.c7,.c8{background:linear-gradient(#fff6d6,#ffc42e 55%,#c2410c);-webkit-background-clip:text;color:transparent}
+#fx{position:absolute;inset:0;z-index:6;pointer-events:none;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.banner{font-weight:900;text-align:center;padding:1.2cqw 4cqw;border-radius:1cqw;animation:pop .35s ease-out;text-shadow:0 .3cqw 1cqw #000}
+.banner.big{font-size:7cqw}.banner.mid{font-size:4.2cqw}.banner.sm{font-size:2.6cqw}
+.t-white{color:#fff}.t-red{color:#ff3550}.t-gold{color:var(--gold)}.t-rainbow{background:linear-gradient(90deg,#ff3b3b,#ffb23b,#f9ff3b,#3bff6b,#3bc8ff,#9b3bff);-webkit-background-clip:text;color:transparent}
+.bar{width:60cqw;height:1.4cqw;background:#300;border:.2cqw solid #fff3;border-radius:1cqw;margin-top:1.5cqw;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff2a44,#ffb02e)}
+@keyframes pop{from{transform:scale(1.6);opacity:0}to{transform:scale(1);opacity:1}}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:9;pointer-events:none}
+#hand{position:absolute;left:50%;top:30%;width:60%;transform:translate(-50%,-55%);opacity:0;z-index:12;pointer-events:none;filter:drop-shadow(0 1cqw 2cqw rgba(0,0,0,.8))}
+#hand.glow-gold{filter:drop-shadow(0 0 2cqw #ffd04a) drop-shadow(0 1cqw 2cqw #000)}
+#handFallback{position:absolute;left:50%;top:30%;transform:translate(-50%,-55%);z-index:12;font-weight:900;font-size:6vh;color:#ff2a44;text-shadow:0 0 2cqw #f00;display:none}
+#topMask{position:absolute;left:18.1%;top:14.9%;width:63.5%;height:12.25%;background:
+  radial-gradient(ellipse 70% 55% at 50% 108%,rgba(150,24,36,.20),transparent 70%),
+  radial-gradient(ellipse 60% 80% at 50% 0%,rgba(90,100,130,.10),transparent 70%),
+  repeating-linear-gradient(45deg,rgba(255,255,255,.030) 0 1px,transparent 1px 5px),
+  repeating-linear-gradient(-45deg,rgba(255,255,255,.024) 0 1px,transparent 1px 5px),
+  linear-gradient(#08090c,#13141a 55%,#0b0b0f);box-shadow:inset 0 0 44px 16px #000;overflow:hidden;container-type:inline-size;z-index:9;pointer-events:none}
+/* 역물이 내려간 뒤 드러나는 안쪽 판: 어두운 격자 무늬 + 가는 레일 두 줄 (눈에 띄지 않게) */
+#topMask::before{content:"";position:absolute;inset:0;background:
+  linear-gradient(transparent 0 46%,rgba(255,255,255,.055) 46% 46.6%,rgba(0,0,0,.5) 46.6% 47.6%,transparent 47.6% 78%,rgba(255,255,255,.045) 78% 78.5%,rgba(0,0,0,.5) 78.5% 79.4%,transparent 79.4%),
+  radial-gradient(circle at 12% 62%,rgba(255,255,255,.07) 0 .35cqw,transparent .4cqw),radial-gradient(circle at 88% 62%,rgba(255,255,255,.07) 0 .35cqw,transparent .4cqw),
+  radial-gradient(circle at 30% 62%,rgba(255,255,255,.05) 0 .28cqw,transparent .33cqw),radial-gradient(circle at 70% 62%,rgba(255,255,255,.05) 0 .28cqw,transparent .33cqw)}
+#frameImg{position:absolute;inset:0;width:100%;height:100%;z-index:10;pointer-events:none;display:none}
+#holds{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);display:flex;gap:1.6cqw;z-index:4;align-items:center}
+.hold{width:4.2cqw;height:4.2cqw;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#bbb 40%,#555);box-shadow:0 0 .8cqw rgba(0,0,0,.6)}
+.hold.cur{width:5.6cqw;height:5.6cqw;margin-right:1.4cqw}
+.hold.empty{opacity:.15}
+.hold.blink{animation:blink .4s infinite alternate}
+@keyframes blink{to{filter:brightness(2)}}
+.h-blue{background:radial-gradient(circle at 35% 30%,#dff,#3a8bff 45%,#0a2a6a)}
+.h-green{background:radial-gradient(circle at 35% 30%,#efe,#3fcf5f 45%,#0a4a1a)}
+.h-purple{background:radial-gradient(circle at 35% 30%,#fdf,#a64dff 45%,#3a0a6a)}
+.h-red{background:radial-gradient(circle at 35% 30%,#fee,#ff2a44 45%,#6a0010)}
+.h-gold{background:radial-gradient(circle at 35% 30%,#fff7d6,#ffc42e 45%,#7a4a00);box-shadow:0 0 1.6cqw #ffcf4a}
+.h-rainbow{background:conic-gradient(#ff3b3b,#ffb23b,#f9ff3b,#3bff6b,#3bc8ff,#9b3bff,#ff3b3b);box-shadow:0 0 1.8cqw #fff}
+.h-kaneki{background:radial-gradient(circle at 35% 30%,#fff,#e6e6e6 40%,#222 41%,#000);box-shadow:0 0 1.2cqw #f22}
+#hud{position:absolute;left:2%;top:2.5%;z-index:4;font-size:2cqw;font-weight:700;color:#ffb9c2;text-shadow:0 .2cqw .6cqw #000}
+#hudR{position:absolute;right:2%;top:2.5%;z-index:4;font-size:2.4cqw;font-weight:900;color:var(--gold);text-align:right;text-shadow:0 .2cqw .6cqw #000}
+#stCount{position:absolute;right:3%;bottom:3%;z-index:4;font-weight:900;font-size:3cqw;color:#fff;text-shadow:0 0 1cqw #f00;display:none}
+#muteBtn{position:fixed;right:10px;bottom:10px;z-index:99;opacity:.9}
+#skipHint{display:none;position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:99;background:rgba(0,0,0,.7);color:#fff;padding:4px 12px;border-radius:6px;font-size:13px;pointer-events:none}
+#tuneBtn{position:fixed;right:215px;bottom:10px;z-index:99;opacity:.9}
+#tune{display:none;position:fixed;left:8px;bottom:8px;z-index:98;width:480px;max-height:92vh;overflow:auto;background:rgba(14,14,20,.96);color:#eee;border:1px solid #555;border-radius:8px;padding:10px;font-size:12px;line-height:1.5}
+#tune.on{display:block}
+#tune h4{margin:8px 0 3px;font-size:12px;color:#ffd27a}
+#tune select{max-width:190px;font-size:12px}
+#tune button{font-size:11px;padding:2px 6px;margin:1px}
+#tune .v{display:inline-block;min-width:54px;text-align:right;font-family:monospace;color:#8f8}
+#tune .r{display:flex;align-items:center;flex-wrap:wrap;gap:2px;margin:2px 0}
+#tune .lab{display:inline-block;width:140px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#tune .now{font-family:monospace;color:#9cf}
+#recBtn{position:fixed;right:120px;bottom:10px;z-index:99;opacity:.9}
+#recBtn.on{background:#a00;color:#fff;opacity:.55}
+</style>
+
+<style id="tgTheme">
+/* ── 테마: 먹색 바탕 · 핏빛 강조 · 뼈색 글자, 각진 모서리와 가는 붉은 선 ── */
+:root{--bg:#07070a;--panel:#0f0f14;--panel2:#15151c;--line:#2a2a35;--ink:#ece8e4;--dim:#8d8a93;--ac:#c1121f;--ac2:#ff3b4e;--gold:#e9c46a;--h:32px;
+ --cut:polygon(7px 0,100% 0,100% calc(100% - 7px),calc(100% - 7px) 100%,0 100%,0 7px)}
+html,body{background:radial-gradient(1200px 700px at 50% -10%,#1a0a0f 0,#07070a 60%) fixed,#07070a;color:var(--ink);font-family:"Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+#layout{gap:10px}
+.side{flex:0 0 268px;width:268px;background:linear-gradient(180deg,rgba(193,18,31,.07),transparent 120px),var(--panel);border:1px solid var(--line);border-radius:0;padding:14px 12px 12px;font-size:12px;position:relative;
+ box-shadow:0 0 0 1px #000,0 14px 40px rgba(0,0,0,.6);scrollbar-width:thin;scrollbar-color:#3a1218 transparent}
+.side::before{content:"";position:absolute;left:0;top:0;width:100%;height:2px;background:linear-gradient(90deg,var(--ac),transparent 70%)}
+.side::after{content:"";position:absolute;right:0;top:0;width:54px;height:54px;pointer-events:none;opacity:.5;
+ background:linear-gradient(135deg,transparent 48%,rgba(193,18,31,.55) 49%,transparent 50%),linear-gradient(135deg,transparent 62%,rgba(193,18,31,.3) 63%,transparent 64%),linear-gradient(135deg,transparent 76%,rgba(193,18,31,.18) 77%,transparent 78%)}
+.brand{margin:-2px 0 12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.brand b{display:block;font-family:"Noto Serif KR","Nanum Myeongjo",Georgia,serif;font-size:19px;font-weight:900;letter-spacing:.16em;color:#fff;line-height:1.1}
+.brand b i{font-style:normal;color:var(--ac2)}
+.brand span{display:block;margin-top:5px;font-size:10px;letter-spacing:.28em;color:var(--dim)}
+.side h3{margin:14px 0 7px;font-size:10.5px;color:var(--dim);font-weight:700;letter-spacing:.22em;display:flex;align-items:center;gap:8px;text-transform:uppercase}
+.side h3::before{content:"";width:3px;height:11px;background:var(--ac);flex:none}
+.side h3::after{content:"";flex:1;height:1px;background:var(--line)}
+.side h3 span{letter-spacing:0;text-transform:none;order:3}
+.side h3:first-child{margin-top:0}
+/* 한 줄의 버튼은 같은 너비·같은 높이 */
+.row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px;margin-bottom:6px;align-items:stretch}
+button{height:var(--h);padding:0 5px;font:600 12px/1 inherit;font-family:inherit;letter-spacing:.02em;background:var(--panel2);color:var(--ink);border:1px solid #33333f;border-radius:0;clip-path:var(--cut);cursor:pointer;
+ transition:background .12s,border-color .12s,color .12s,transform .06s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button:hover{background:#1d1d27;border-color:var(--ac);color:#fff}
+button:active{transform:translateY(1px)}
+button.on{background:linear-gradient(180deg,#d31626,#8f0c17);border-color:#ff5364;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+button.go{height:46px;font-size:15px;letter-spacing:.2em;font-weight:800;background:linear-gradient(180deg,#e01b2c,#8a0b15);border-color:#ff5364;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+button.go:hover{background:linear-gradient(180deg,#ff2d40,#a30d19)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--ac2);outline-offset:1px}
+/* 이름표 + 입력칸: 이름은 왼쪽, 입력칸은 오른쪽에 같은 너비로 */
+.row>label{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#cfcbd0;height:var(--h)}
+select,input{height:var(--h);font:500 12px inherit;font-family:inherit;background:#0a0a0e;color:var(--ink);border:1px solid #33333f;border-radius:0;padding:0 8px}
+.row>label select,.row>label input{width:128px;flex:none}
+.row>select{width:100%}
+select:hover,input:hover{border-color:#55555f}
+#costInfo{display:block;margin:-2px 0 6px;font-size:10.5px;color:var(--dim);text-align:right}
+/* 통계 */
+.stats{gap:6px;margin-bottom:8px}
+.stat{background:#0a0a0e;border:1px solid var(--line);border-radius:0;padding:7px 8px 6px;border-left:2px solid #3a1218}
+.stat span{font-size:10px;letter-spacing:.08em;color:var(--dim)}
+.stat b{font-size:17px;font-weight:800;margin-top:2px;font-family:"Noto Serif KR",Georgia,serif}
+#gCv{background:#0a0a0e!important;border:1px solid var(--line)!important;border-radius:0!important;display:block;margin-bottom:6px}
+#hist{font-size:11px;scrollbar-width:thin;scrollbar-color:#3a1218 transparent}
+#hist div{border-bottom:1px solid #1c1c24;padding:5px 2px}
+#hist .r{color:var(--gold)}
+/* 화면 아래 도구 버튼 3개: 같은 크기로 나란히 */
+#tuneBtn,#recBtn,#muteBtn{position:fixed;bottom:10px;width:104px;height:var(--h);opacity:1;z-index:99;background:rgba(15,15,20,.92)}
+#muteBtn{right:10px}#recBtn{right:120px}#tuneBtn{right:230px}
+#skipBtn{position:fixed;bottom:10px;right:340px;width:104px;height:var(--h);z-index:99;background:linear-gradient(180deg,#d31626,#8f0c17);border-color:#ff5364;color:#fff;letter-spacing:.14em}
+#pushHint,#selHint{display:none;position:fixed;left:50%;bottom:52px;transform:translateX(-50%);z-index:99;background:rgba(7,7,10,.88);color:#fff;border:1px solid var(--ac);padding:6px 16px;font-size:13px;letter-spacing:.05em;pointer-events:none;white-space:nowrap}
+#pushHint{color:#ffd9a0;font-weight:800;animation:pushBlink .5s infinite alternate}
+@keyframes pushBlink{from{opacity:.55}to{opacity:1}}
+#recBtn.on{background:linear-gradient(180deg,#d31626,#8f0c17);opacity:.6}
+#skipHint{border:1px solid var(--ac);border-radius:0;background:rgba(7,7,10,.85);letter-spacing:.06em}
+/* 조정 화면 */
+#tune{background:rgba(10,10,14,.97);border:1px solid var(--line);border-top:2px solid var(--ac);border-radius:0;color:var(--ink);box-shadow:0 20px 60px #000}
+#tune h4{color:var(--ac2);letter-spacing:.12em;font-size:11px;margin:12px 0 5px}
+#tune button{height:24px;font-size:11px;padding:0 7px;clip-path:none}
+#tune select{height:26px;max-width:210px}
+#tune .v{color:#ffd9a0}
+#tune .now{color:#9fd3ff}
+#tune .r{display:flex}
+</style>
+<style id="v1css">
+/* ── 999 v.1: 기기가 화면을 꽉 채우고, 왼쪽에 접을 수 있는 위젯 2개(조작 / 데이터) ── */
+#panel,#panel2,#tuneBtn,#recBtn,#muteBtn,#skipBtn,#tune{display:none!important}
+html,body{background:#050506}
+body{padding:0;--ww:236px}
+body.aOff.bOff{--ww:0px}
+#layout{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:0;height:100%;padding-left:var(--ww)}
+#cab{width:min(calc(100vw - var(--ww)),calc(100vh * var(--ar)))}
+#view{border-radius:0}
+#machine{width:var(--mw);transform:translate(var(--tx),var(--ty))}
+body.v-full{--ar:.6324;--mw:100%;--tx:0%;--ty:0%}
+body.v-zoom{--ar:1.15;--mw:100%;--tx:0%;--ty:-11%}
+body.v-max{--ar:1.189;--mw:157.64%;--tx:-18.126%;--ty:-27.15%}
+#wcol{position:fixed;left:0;top:0;z-index:120;width:236px;max-height:100vh;overflow-y:auto;display:flex;flex-direction:column;align-items:flex-start;gap:5px;scrollbar-width:none;pointer-events:none}
+#wcol>*{pointer-events:auto}
+.wg{position:relative;width:100%;background:linear-gradient(180deg,rgba(16,18,26,.96),rgba(6,7,11,.96));border:1px solid #2b6fb0;border-left:0;box-shadow:0 0 0 1px #000,6px 0 24px rgba(0,0,0,.5)}
+.wg::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,#1b4fa0,#39c2ff,#1b4fa0)}
+.wg .hd{display:flex;align-items:center;justify-content:space-between;height:24px;padding:2px 4px 0 8px;font:700 10.5px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;letter-spacing:.14em;color:#8fb8e6;cursor:pointer;user-select:none}
+.wg .hd i{font-style:normal;color:#8a93a3;padding:0 6px}
+.wg .bd{padding:3px 7px 7px}
+#wA .bd{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+#wcol button,#wcol label{height:32px;min-width:0;padding:0 6px;margin:0;font:700 12px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;letter-spacing:.03em;color:#e9edf5;background:#1a1d26;border:1px solid #3a3f4d;border-radius:3px;clip-path:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;overflow:hidden}
+#wcol button:hover{border-color:#39c2ff;background:#222634}
+#wcol button.sel{background:linear-gradient(180deg,#ffb23d,#e07a12);border-color:#ffd08a;color:#1a0d00}
+#wcol .wide{grid-column:1/3}
+#wcol #wPlay{height:42px;font-size:14px;background:linear-gradient(180deg,#e01b2c,#8a0b15);border-color:#ff5364;color:#fff;letter-spacing:.18em}
+#wcol label{cursor:default;color:#9fb2c8;font-weight:600;font-size:11px;justify-content:space-between;gap:2px;padding:0 5px 0 7px;overflow:visible}
+#wcol #inCost::-webkit-inner-spin-button{display:none}
+#wcol #inCost{width:40px!important;flex:none;-moz-appearance:textfield;height:22px;padding:0 2px;background:#07080c;color:#fff;border:1px solid #3a3f4d;border-radius:2px;font:700 12px inherit;text-align:center}
+#wB canvas{display:block;width:100%!important;height:auto!important;margin:0 0 5px!important;border:1px solid #23283a!important;border-radius:0!important;background:#000!important}
+#wcol #wReset{width:100%;height:22px;font-size:10.5px;font-weight:600;color:#8a93a3;background:transparent;border-color:#23283a}
+/* 접힌 위젯은 작은 버튼 하나로 */
+body.aOff #wA,body.bOff #wB{width:auto;border:1px solid #2b6fb0;background:rgba(10,12,18,.72);opacity:.65;margin:4px 0 0 4px}
+body.aOff #wA:hover,body.bOff #wB:hover{opacity:1}
+body.aOff #wA .bd,body.bOff #wB .bd{display:none}
+body.aOff #wA .hd,body.bOff #wB .hd{height:30px;padding:0 4px 0 8px}
+#pushHint,#selHint,#skipHint{bottom:10px!important}
+/* 액정 오른쪽 아래: 이번 당첨 흐름에서 얻은 구슬 수 (누르면 접힘) */
+#wPayBox{position:absolute;inset:0;z-index:9;pointer-events:none;container-type:inline-size}
+#wPay{position:absolute;right:21.2%;bottom:51.3%;pointer-events:auto;display:none;align-items:baseline;gap:0.32cqw;padding:0.32cqw 0.9cqw 0.19cqw 1.41cqw;cursor:pointer;user-select:none;
+ background:linear-gradient(90deg,rgba(0,0,0,0),rgba(0,0,0,.82) 22%,rgba(0,0,0,.9));border-bottom:0.22cqw solid #c8102e;transform:skewX(-8deg);transform-origin:100% 100%}
+#wPay.on{display:flex}
+#wPay b{padding:0 .14em 0 .04em;font:italic 900 3.58cqw/1 Impact,"Arial Black","Haettenschweiler",sans-serif;letter-spacing:.02em;background:linear-gradient(180deg,#fff7c2 0%,#ffd84a 38%,#ff9a1a 62%,#c94a00 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+ filter:drop-shadow(0 0 0.16cqw #7a1500) drop-shadow(0.08cqw 0.14cqw 0 #2a0500)}
+#wPay i{padding-right:.5em;font:italic 900 1.6cqw/1 Impact,"Arial Black",sans-serif;color:#ffd84a;text-shadow:0.06cqw 0.1cqw 0 #2a0500}
+#wPay u{font:italic 800 1.02cqw/1 "Arial Black",Impact,sans-serif;text-decoration:none;color:#fff;letter-spacing:.14em;align-self:flex-start;margin-right:0.38cqw;text-shadow:0 0 0.26cqw #e0213a}
+#wPay.fold{padding:.26cqw .64cqw}#wPay.fold b,#wPay.fold i{display:none}
+/* 모바일: 기기 화면 왼쪽 위에 겹쳐 놓음 (기기는 화면 폭 전체 사용) */
+@media (max-width:760px){body{--ww:0px!important}#wcol{left:4px;top:4px;width:200px;max-height:calc(100vh - 8px)}.wg{border-left:1px solid #2b6fb0;background:linear-gradient(180deg,rgba(16,18,26,.88),rgba(6,7,11,.88))}
+ #wcol button,#wcol label{height:36px}#wcol #wPlay{height:44px}body.aOff #wA,body.bOff #wB{margin:0}}
+</style>
+</head>
+<body>
+<div id="layout">
+  <div id="panel" class="side">
+    <div class="brand"><b>喰種 <i>SIM</i></b><span>999 · 超デカ超一撃</span></div>
+    <h3>조작</h3>
+    <div class="row"><button class="go" id="bSpin">회전 (Space)</button></div>
+    <div class="row"><button id="bAuto">자동</button><button id="bForce" title="다음 회전을 당첨으로">강제 당첨</button><button id="bRush">RUSH 직행</button></div>
+    <h3>속도 <span id="spdNote" style="display:none;font-weight:400;font-size:11px;color:#ffd27a">당첨 연출 중 · 1배속</span></h3>
+    <div class="row"><button data-spd="1" class="spd on">1배</button><button data-spd="2" class="spd">2배</button><button data-spd="4" class="spd">4배</button><button data-spd="20" class="spd">초고속</button></div>
+    <h3>설정</h3>
+    <div class="row"><label>확률 배수 <select id="selMult"><option value="1">×1 (실기)</option><option value="2">×2</option><option value="5">×5</option><option value="10">×10</option></select></label></div>
+    <div class="row"><label title="1,000엔(250구슬)으로 도는 횟수. 회전당 투입 구슬 = 250 ÷ 회전율">회전율 <input id="inCost" type="number" min="5" max="60" value="30" autocomplete="off" style="width:56px"></label></div>
+    <span id="costInfo"></span>
+    <div class="row" style="display:none"><label>喰MAX 낙하 커스텀 <select id="selCustom"><option value="def">기본</option><option value="25">25%</option><option value="50">50%</option><option value="99">99%</option><option value="ex">EX</option></select></label></div>
+    <h3>연출 선택 시작</h3>
+    <div class="row"><select id="selStart"></select></div>
+    <div class="row"><button id="bStart">▶ 여기서 시작</button></div>
+    <h3>화면</h3>
+    <div class="row"><button id="bView">기기 전체 보기</button></div>
+    <div style="display:none"><h3>테스트</h3>
+    <div class="row"><button id="tClipAll">영상: 전체 낙하</button><button id="tClipHand">영상: 손만 낙하</button><button id="tClip7500">영상: 7500 연출</button></div>
+    <div class="row"><button id="tHand">역물 낙하</button><button id="tHandOnly">손만 낙하</button><button id="tExtra" class="on">Extra 시안</button><button id="tJudge">저지먼트</button><button id="tLoop">喰MAX 루프</button><button id="tRB">ST 당첨 흐름</button></div>
+    </div>
+  </div>
+  <div id="cab"><div id="view"><div id="machine"><div id="stage">
+    <div id="bgfx"></div>
+    <div id="main">
+    <div id="hud">통상</div><div id="hudR"></div>
+    <div id="bgN"></div><div id="reels"><div class="reel" id="r0"><div class="num c1">1</div></div><div class="reel" id="r1"><div class="num c2">2</div></div><div class="reel" id="r2"><div class="num c3">3</div></div></div>
+    <video id="bgVid" playsinline></video><video id="idleVid" playsinline loop muted></video><video id="vid" class="vid" playsinline></video><video id="vid2" class="vid" playsinline></video><div id="resOv"><span id="resN"></span><span id="resP"></span></div>
+    <div id="fx"></div>
+    <div id="holds"></div>
+    <div id="stCount"></div>
+    </div>
+    <div id="flash"></div>
+  </div>
+  <div id="topMask"></div>
+  <img id="frameImg" alt="">
+  <img id="gimmick" alt="" src="images/gimmick_1.webp"><img id="hand" alt="" style="display:none"><div id="handFallback">喰MAX</div>
+  </div></div></div>
+  <div id="panel2" class="side">
+    <div class="brand"><b>RECORD</b><span>통계 · 수지 · 당첨 기록</span></div>
+    <h3>통계</h3>
+    <div class="stats">
+      <div class="stat"><span>총 회전</span><b id="sSpins">0</b></div>
+      <div class="stat"><span>현재 회전</span><b id="sCur">0</b></div>
+      <div class="stat"><span>대당(합산)</span><b id="sHits">0</b></div>
+      <div class="stat"><span>RUSH 돌입</span><b id="sRush">0</b></div>
+      <div class="stat"><span>총 출구슬</span><b id="sOut">0</b></div>
+      <div class="stat"><span>차구슬</span><b id="sDiff">0</b></div>
+      <div class="stat"><span>실제 합산 확률</span><b id="sProb">-</b></div>
+      <div class="stat"><span>최대 연속</span><b id="sMax">0</b></div>
+    </div>
+    <h3>수지 그래프 <span id="gInfo" style="font-weight:400;font-size:11px;color:#aaa"></span></h3>
+    <canvas id="gCv" width="520" height="300" style="width:100%;height:auto;background:#0d0d12;border:1px solid #333;border-radius:6px"></canvas>
+    <div class="row"><button id="bReset">통계 초기화</button></div>
+    <h3>당첨 기록</h3>
+    <div id="hist"><div class="note">당첨이 나오면 여기에 기록돼요.</div></div>
+  </div>
+</div>
+<div id="skipHint">Space: 정산 건너뛰기</div>
+<button id="muteBtn">🔊 소리</button>
+<button id="skipBtn" title="건너뛰기 / PUSH (Space)">⏭ SKIP</button>
+<div id="pushHint">PUSH ▶ 화면 클릭 · Space · SKIP</div><div id="selHint"></div>
+<button id="tuneBtn" title="연출 분기점 조정 (T)">🎚 조정</button>
+<div id="tune"></div>
+<button id="recBtn" title="화면+소리 녹화 (R)">⏺ 녹화</button>
+<script src="videos/clips.js"></script>
+<script>
+'use strict';
+// ═══════════ 스펙 (출처: 공략 사이트 공개 수치) ═══════════
+const SPEC={zorome:1/999.9, charge:1/538.8, rushP:1/7.7, st:5, rushIn:0.5, chargeUp:0.03, loop:0.5};
+// 통상 리치: [키, 표시명, 신뢰도, 당첨 시 출현 비중]  → 꽝일 때 출현율은 신뢰도가 맞도록 자동 계산
+const N_REACH=[
+ ['kyara_uta','キャラリーチ「ウタ」',.33,.02],['kyara_tencho','キャラリーチ「店長」',.33,.02],['kyara_touka','キャラリーチ「董香」',.33,.02],
+ ['long_kattou','ロングリーチ「葛藤」',.36,.03],['long_ue','ロングリーチ「飢え」',.45,.03],
+ ['battle_scrapper','バトルSP VSスクラッパー',.12,.03],['battle_tsukiyama','バトルSP VS月山',.14,.03],['battle_nishio','バトルSP VS西尾',.19,.03],
+ ['ep_kazoku','エピソードリーチ「家族」',.51,.07],['ep_kyouteki','エピソードリーチ「強敵」',.92,.07],
+ ['fukoro','不殺の梟',.81,.13],['hankakusha','半赫者SP',.81,.13],
+ ['climax_yamori','喰種クライマックスSP「ヤモリ」',.74,.16],['climax_amon','喰種クライマックスSP「亜門」',.92,.12],
+ ['zenkaiten','全回転リーチ',1,.02]];
+const R_REACH=[
+ ['shunkan_shachi','瞬間決着SP「鯱」',.15,.08],['shunkan_yamori','瞬間決着SP「ヤモリ」',.21,.08],['shunkan_ayato','瞬間決着SP「絢都」',.34,.08],['shunkan_kurona','瞬間決着SP「クロナ&ナシロ」',.92,.08],
+ ['battle_yamori','喰種バトルSP「ヤモリ」',.32,.08],['battle_ayato','喰種バトルSP「絢都」',.67,.1],['amon','亜門決戦リーチ',.71,.12],
+ ['kyushutsu','救出リーチ',.29,.07],['ookui','大食いの気まぐれ',.85,.1],['ranbu','乱舞リーチ',.6,.07],['hoshoku','捕食リーチ',.88,.1],['zenkaiten_r','全回転',1,.04]];
+const N_NORMAL_REACH_LOSE=1/14;           // 노멀 리치(꽝) 출현율
+const HOLD=[['',0,.30],['blink',.03,.04],['blue',.06,.05],['green',.11,.06],['purple',.21,.10],['red',.88,.30],['gold',1,.10],['rainbow',1,.05]];
+const LEVER=[['white',.75,.10],['red',1,.04],['rainbow',1,.02]];
+const HAND_WIN_SHARE=1, HAND_REL=.72;   // 통상 당첨은 항상 손떨 예고를 거침   // 喰MAX 핸드 낙하(변동 중) 약 72%
+const JUDGE=[['鯱',.26,.15],['ヤモリ',.40,.30],['絢都',.75,.30],['クロナ&ナシロ',.92,.25]];
+// ═══════════ 소재 파일 슬롯 (없으면 코드 연출) ═══════════
+// 영상: videos/<키>_body.mp4 (리치 본체), videos/<키>_win.mp4 / _lose.mp4 (결말), 그 밖에 아래 이름
+const CLIP={hand:'videos/hand_drop.mp4',zorome:'videos/zorome.mp4',bonus:'videos/bonus.mp4',bonus7500:'videos/bonus7500.mp4',judge_win:'videos/judge_win.mp4',judge_lose:'videos/judge_lose.mp4',rush_in:'videos/rush_in.mp4',rush_end:'videos/rush_end.mp4',loop:'videos/kumax_loop.mp4',charge:'videos/charge.mp4',charge_up:'videos/charge_up.mp4'};
+const IMG={num:n=>'images/num_'+n+'.png',hold:c=>'images/hold_'+(c||'normal')+'.png',frame:'images/machine_frame.webp?v=4'};
+const SND={bgm:'audio/bgm_normal.mp3',bgmRush:'audio/bgm_rush.mp3',stop:'audio/se_stop.mp3',reach:'audio/se_reach.mp3',hold:'audio/se_hold.mp3',hand:'audio/se_hand.mp3',win:'audio/se_win.mp3',lever:'audio/se_lever.mp3'};
+
+// 영상에 숫자가 찍혀 있는 클립: 게임 숫자를 영상에 맞춤 [텐파이, 꽝일 때 가운데]
+// 영상에 박힌 숫자에 게임 숫자를 맞춤. win/lose 가 따로 있으면 결과별로 다른 숫자
+const clipNum=async(ev,win)=>{if(!ev)return null;const k=ev[0];let c=CLIP_NUM[k];if(!c)return null;c=(win?c.win:c.lose)||c;if(!c.t)return null;
+ const v='videos/'+k;return (win&&await probe(v+'_winfull.mp4'))||await probe(v+'_body.mp4')||await probe(v+(win?'_win':'_lose')+'.mp4')?c:null};
+const CLIP_NUM={battle_tsukiyama:{win:{t:4},lose:{t:2,mid:1}},amon:{win:{t:2}},battle_ayato:{t:2,mid:3},battle_nishio:{t:4,mid:3},battle_scrapper:{t:4,mid:3},climax_yamori:{t:2}};
+const NUMS=[1,2,3,4,5,6,7,8]; // 도안 이미지가 있는 숫자만 사용 (1·7은 소재 확보 후 추가)
+const rd=()=>NUMS[Math.floor(Math.random()*NUMS.length)],nx=n=>NUMS[(NUMS.indexOf(n)+1)%NUMS.length];
+const $=id=>document.getElementById(id);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms/speed));
+const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+function wpick(items,w){let t=0;for(const x of items)t+=w(x);let r=Math.random()*t;for(const x of items){r-=w(x);if(r<0)return x}return items[items.length-1]}
+let speed=1,userSpeed=1,muted=false,busy=false,auto=false,forceWin=false,mult=1;
+try{muted=localStorage.getItem('tgMute')==='1'}catch(e){}
+
+// ═══════════ 소리 (파일 우선, 없으면 비프) ═══════════
+let AC=null,MG=null;
+function ac(){if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=muted?0:.25;MG.connect(AC.destination)}return AC}
+const sndOk={},sndEl={};
+for(const [k,src] of Object.entries(SND)){const a=new Audio();a.preload='auto';a.oncanplaythrough=()=>sndOk[k]=true;a.onerror=()=>sndOk[k]=false;a.src=src;sndEl[k]=a;if(k.startsWith('bgm'))a.loop=true}
+function beep(f,d,type,v){if(muted||speed>=20)return;try{const c=ac(),o=c.createOscillator(),g=c.createGain();o.type=type||'square';o.frequency.value=f;g.gain.setValueAtTime(v||.3,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(MG);o.start();o.stop(c.currentTime+d)}catch(e){}}
+const FALL={stop:()=>beep(520,.06),reach:()=>{beep(330,.25,'sawtooth');setTimeout(()=>beep(440,.4,'sawtooth'),120)},hold:()=>beep(880,.15,'triangle'),hand:()=>{beep(70,.6,'sawtooth',.6);beep(140,.3,'square',.4)},win:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.25,'triangle'),i*90))},lever:()=>beep(200,.3,'sawtooth')};
+function se(k){if(muted||speed>=20)return;if(sndOk[k]){const a=sndEl[k];try{a.currentTime=0;a.play().catch(()=>{})}catch(e){}}else if(FALL[k])FALL[k]()}
+let bgmNow=null;
+function bgm(k){if(bgmNow===k)return;for(const b of ['bgm','bgmRush'])try{sndEl[b].pause()}catch(e){};bgmNow=k;if(k&&sndOk[k]&&!muted){sndEl[k].volume=.5;sndEl[k].play().catch(()=>{})}}
+function applyMute(){$('muteBtn').textContent=muted?'🔇 음소거 중':'🔊 소리';if(MG)MG.gain.value=muted?0:.25;for(const a of Object.values(sndEl))a.muted=muted;$('vid').muted=muted;$('vid2').muted=muted;$('bgVid').muted=muted;if(!muted&&bgmNow&&sndOk[bgmNow])sndEl[bgmNow].play().catch(()=>{});try{localStorage.setItem('tgMute',muted?'1':'0')}catch(e){}}
+$('muteBtn').onclick=()=>{muted=!muted;applyMute()};
+/* ---- 녹화: 이 탭의 화면+소리를 파일로 저장 ---- */
+let rec=null,recStream=null,recChunks=[],recT0=0,recTimer=0;
+function recUI(){const b=$('recBtn');if(rec){const s=Math.floor((Date.now()-recT0)/1000);b.textContent='⏹ 중지 '+String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');b.classList.add('on')}else{b.textContent='⏺ 녹화';b.classList.remove('on')}}
+async function recToggle(){
+  if(rec){try{rec.stop()}catch(e){}return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia||!window.MediaRecorder){alert('이 브라우저에서는 녹화를 쓸 수 없어요. 최신 크롬에서 열어 주세요.');return}
+  try{recStream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:60},audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},preferCurrentTab:true,selfBrowserSurface:'include',systemAudio:'include'})}catch(e){return}
+  if(!recStream.getAudioTracks().length){recStream.getTracks().forEach(t=>t.stop());recStream=null;alert('소리가 함께 공유되지 않았어요.\n다시 녹화를 누르고, 공유 창에서 "탭 오디오도 공유"를 켠 뒤 허용해 주세요.');return}
+  const mime=['video/mp4;codecs="avc1.640028,mp4a.40.2"','video/mp4;codecs="avc1.42E01E,mp4a.40.2"','video/mp4;codecs="avc1.640028,opus"','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m))||'';
+  recChunks=[];
+  try{rec=new MediaRecorder(recStream,{mimeType:mime,videoBitsPerSecond:12e6,audioBitsPerSecond:192e3})}catch(e){rec=new MediaRecorder(recStream)}
+  rec.ondataavailable=e=>{if(e.data&&e.data.size)recChunks.push(e.data)};
+  rec.onstop=()=>{clearInterval(recTimer);const type=rec.mimeType||mime||'video/webm';const ext=type.indexOf('mp4')>=0?'mp4':'webm';const blob=new Blob(recChunks,{type});recStream.getTracks().forEach(t=>t.stop());rec=null;recStream=null;recUI();const d=new Date(),p=n=>String(n).padStart(2,'0');const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ghoul_rec_'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'_'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds())+'.'+ext;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},5000)};
+  recStream.getVideoTracks()[0].onended=()=>{if(rec)try{rec.stop()}catch(e){}};
+  rec.start(1000);recT0=Date.now();recUI();recTimer=setInterval(recUI,1000);
+}
+$('recBtn').onclick=recToggle;
+/* ═══════════ 조정 화면: 이음매 미리보기, 시작·끝 이동, 역물 큐, 분기 시각 ═══════════ */
+const ALLCLIPS=["battle_nishio_body", "battle_nishio_lose", "charge", "climax_yamori_body", "climax_yamori_win", "bonus", "bonus7500", "battle_scrapper_body", "battle_scrapper_lose", "battle_tsukiyama_body", "judge_yamori_body", "judge_shiro_body", "judge_tail_win", "judge_tail_lose", "direct7500", "rush_in", "st_intro", "st_ep_2", "st_ep_3", "st_ep_4", "uw_try", "uw_lose", "uw_win_6000", "uw_win_9000", "uw_win_12000", "uw_win_15000", "uw_win_18000", "uw_win_21000", "uw_pay", "rush_result", "judge_shachi_body", "judge_ready", "judge_break_body", "judge_break_win", "battle_nishio_winfull", "battle_tsukiyama_winfull", "yokoku_hand", "pre_long", "st_full", "st_win_rize", "st_win_tsukiyama", "st_win_omedetou", "st_hyper6000", "revival_fukurou", "normal_1", "normal_2", "normal_3", "normal_4", "normal_5"];
+const SEAMS=(()=>{const o=[],add=(a,b)=>o.push([a,b]),all=(as,bs)=>as.forEach(a=>bs.forEach(b=>add(a,b)));
+ const winFirst=['battle_nishio_winfull','battle_tsukiyama_winfull','climax_yamori_body'],loseFirst=['battle_nishio_body','battle_tsukiyama_body','battle_scrapper_body'];
+ add('pre_long','climax_yamori_body');   // 긴 도입 → 클라이맥스 야모리
+ all(['battle_nishio_lose','battle_scrapper_lose','battle_tsukiyama_body'],['revival_fukurou']);   // 꽝 → 부활
+ all(['yokoku_hand'],winFirst.concat(loseFirst));                                                   // 손떨 → 리치
+ add('battle_nishio_body','battle_nishio_lose');add('battle_scrapper_body','battle_scrapper_lose');add('climax_yamori_body','climax_yamori_win');   // 본체 → 결말
+ all(['battle_nishio_winfull','battle_tsukiyama_winfull','climax_yamori_win','revival_fukurou'],['bonus']);                                         // 당첨 → 3000
+ add('bonus@BT.branch','direct7500');add('direct7500','judge_tail_win');
+ all(['bonus@BT.judge'],['judge_yamori_body','judge_shiro_body','judge_shachi_body','judge_break_body']);                                           // 3000 → judgement
+ all(['judge_yamori_body','judge_shiro_body','judge_ready'],['judge_tail_win','judge_tail_lose']);add('judge_shachi_body','judge_ready');
+ add('judge_break_body','judge_break_win');add('judge_break_body','judge_tail_lose');
+ all(['judge_tail_win','judge_break_win'],['bonus7500']);add('bonus7500','st_full');add('rush_in','st_full');                                       // 7500 → ST
+ all(['st_full@ST.b1','st_full@ST.b2','st_full@ST.b3','st_full@ST.b4','st_full@ST.b5'],['st_win_rize','st_win_tsukiyama','st_win_omedetou']);add('st_full@ST.end','rush_result');
+ all(['st_intro'],['st_ep_2','st_ep_3','st_ep_4']);all(['st_win_rize','st_win_tsukiyama','st_win_omedetou'],['st_intro']);add('st_intro','st_hyper6000');
+ all(['st_ep_2','st_ep_3','st_ep_4','st_hyper6000','uw_pay'],['uw_try']);                                                                          // 보너스 → 추가 도전
+ const uwW=['uw_win_6000','uw_win_9000','uw_win_12000','uw_win_15000','uw_win_18000','uw_win_21000'];
+ add('uw_try','uw_lose');all(['uw_try','uw_try@UWT.t2','uw_try@UWT.t1'],uwW);all(uwW,['uw_pay']);add('uw_lose','rush_in');
+ return o})();
+const F1=1/60,TK={sel:'',a:'',b:'',loop:false,running:false};
+const tSrc=n=>'videos/'+n.split('@')[0]+'.mp4';
+async function geomOf(src){if(!(await probe(src)))return null;const v=document.createElement('video');v.preload='metadata';v.src=src;await new Promise(r=>{v.onloadedmetadata=r;v.onerror=r;setTimeout(r,2500)});const g=clipGeom(src,v);v.removeAttribute('src');return g}
+const constRef=tok=>{const m=tok.split('@')[1];if(!m)return null;const [o,k]=m.split('.');return {obj:{BT,B75,ST,UWT,LATE,RES}[o],o,k}};
+function trimOf(n){return TUNE.trim[n]||(TUNE.trim[n]=[0,0])}
+// 조정 대상 한 칸: 클립의 시작(0)/끝(1) 또는 분기 상수
+function edgeGet(tok,e){const c=constRef(tok);if(c&&e===1)return c.obj[c.k];return trimOf(tok.split('@')[0])[e]}
+function edgeAdd(tok,e,d){const c=constRef(tok);if(c&&e===1){c.obj[c.k]=+(c.obj[c.k]+d).toFixed(3);(TUNE.consts[c.o]=TUNE.consts[c.o]||{})[c.k]=c.obj[c.k]}else{const t=trimOf(tok.split('@')[0]);t[e]=+(t[e]+d).toFixed(3)}saveTune();tuneDraw()}
+function edgeRow(label,tok,e){const c=constRef(tok)&&e===1;const id='e_'+tok.replace(/[^\w]/g,'_')+'_'+e;
+ return '<div class="r"><span class="lab" title="'+tok+'">'+label+'</span><span class="v">'+(c?'':(edgeGet(tok,e)>0?'+':''))+edgeGet(tok,e).toFixed(3)+'</span>'+[[-.5,'−0.5'],[-.1,'−0.1'],[-F1,'−1f'],[F1,'+1f'],[.1,'+0.1'],[.5,'+0.5']].map(x=>'<button data-edge="'+tok+'|'+e+'|'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'}
+async function tunePlay(parts){ // parts: [{tok, mode:'tail'|'head'|'all'|'range', a,b}]
+ if(busy&&!TK.running)return;TK.running=true;busy=true;stopAll=false;
+ try{const plan=[];for(const p of parts){const src=tSrc(p.tok),g=await geomOf(src);if(!g){fx(p.tok+' 없음','mid t-white');await sleep(700);clearFx();continue}
+   const c=constRef(p.tok),end=c?c.obj[c.k]:g.dur+g.tout,st=g.tin,W=3;
+   let o;if(p.mode==='tail')o={from:Math.max(st,end-W),to:end};else if(p.mode==='head')o={from:st,to:Math.min(end,st+W)};else if(p.mode==='range')o={from:p.a,to:p.b};else o={from:st,to:end};
+   plan.push({src,o})}
+  do{for(let i=0;i<plan.length&&!stopAll;i++){const nx=plan[i+1]||(TK.loop?plan[0]:null);await playClip(plan[i].src,Object.assign({},plan[i].o,{next:nx&&plan.length>1?{src:nx.src,from:nx.o.from}:null}))}}while(TK.loop&&!stopAll)}finally{TK.running=false;busy=false;stopAll=false;if(S.mode==='normal'){document.body.classList.remove('inclip');bgResume()}}}
+function tuneDraw(){const T=$('tune');if(!T.classList.contains('on'))return;
+ const have=n=>clipState['videos/'+n+'.mp4']!==undefined;const opt=(v,cur)=>'<option'+(v===cur?' selected':'')+'>'+v+'</option>';
+ const list=Object.keys(CLIPS).length?Object.keys(CLIPS):ALLCLIPS;
+ if(!TK.sel)TK.sel=list[0];if(!TK.a){TK.a=SEAMS[0][0];TK.b=SEAMS[0][1]}
+ const src=tSrc(TK.sel),cues=TUNE.cues[src]||CUES[src]||[];
+ let h='<div class="r"><b>연출 조정</b>&nbsp;<span class="now" id="tNow"></span><span style="flex:1"></span><button id="tPause">⏸</button><button id="tB1">◀1f</button><button id="tF1">1f▶</button><button id="tStop" title="재생 중인 연출을 모두 버리고 대기 화면으로">■ 초기화</button></div>';
+ if(!Object.keys(CLIPS).length)h+='<div style="color:#fa8">videos/clips.js 가 없어요. cut_clips.bat 을 실행하면 앞뒤 2초 여유가 생겨 늘리는 조정도 가능해져요. 지금은 줄이기만 돼요.</div>';
+ h+='<h4>① 이음매 (앞 클립 끝 3초 → 뒤 클립 처음 3초)</h4><div class="r"><select id="tSeam"><option value="">빠른 선택…</option>'+SEAMS.map((x,i)=>'<option value="'+i+'"'+(x[0]===TK.a&&x[1]===TK.b?' selected':'')+'>'+x[0]+' → '+x[1]+'</option>').join('')+'</select></div>';
+ h+='<div class="r"><select id="tA">'+list.concat(['bonus@BT.branch','bonus@BT.judge','bonus7500@B75.st','st_full@ST.b1','st_full@ST.b2','st_full@ST.b3','st_full@ST.b4','st_full@ST.b5','st_full@ST.end','uw_try@UWT.t2','uw_try@UWT.t1']).map(n=>opt(n,TK.a)).join('')+'</select> → <select id="tB">'+list.map(n=>opt(n,TK.b)).join('')+'</select></div>';
+ h+='<div class="r"><button id="tPlaySeam">▶ 이음매 재생</button><label><input type="checkbox" id="tLoopC"'+(TK.loop?' checked':'')+'> 반복</label></div>';
+ h+=edgeRow('앞 끝: '+TK.a,TK.a,1)+edgeRow('뒤 시작: '+TK.b,TK.b,0);
+ h+='<h4>② 클립 하나</h4><div class="r"><select id="tSel">'+list.map(n=>opt(n,TK.sel)).join('')+'</select><button id="tAll">▶ 전체</button><button id="tHead">▶ 처음 3초</button><button id="tTail">▶ 끝 3초</button></div>';
+ h+=edgeRow('시작',TK.sel,0)+edgeRow('끝',TK.sel,1)+'<div class="r"><button id="tSetIn">지금 위치를 시작으로</button><button id="tSetOut">지금 위치를 끝으로</button><button id="tZero">이 클립 0으로</button></div>';
+ h+='<h4>③ 역물 낙하 (이 클립, 기준 시각 초)</h4>'+(cues.length?cues.map((c,i)=>'<div class="r"><span class="lab">'+(c[2]?'손만':'전체')+' #'+(i+1)+'</span>내려감 <span class="v">'+c[0].toFixed(2)+'</span><button data-cue="'+i+'|0|-0.05">−</button><button data-cue="'+i+'|0|0.05">+</button> 올라옴 <span class="v">'+c[1].toFixed(2)+'</span><button data-cue="'+i+'|1|-0.05">−</button><button data-cue="'+i+'|1|0.05">+</button><button data-cuep="'+i+'">▶</button></div>').join(''):'<div style="color:#999">이 클립에는 낙하 구간이 없어요.</div>');
+ h+='<h4>④ 분기 시각 (bonus / bonus7500, 초)</h4>'+[['BT','branch','즉시 7500 분기'],['BT','pay','3000 정산 시작'],['BT','jintro','정산 건너뛰기 도착점(judgement 도입)'],['BT','judge','judgement 시작'],['B75','pay','7500 정산 시작'],['B75','st','ST 시작'],['ST','b1','ST 1회전째(4) 시작'],['ST','b2','ST 2회전째(3) 시작'],['ST','b3','ST 3회전째(2) 시작'],['ST','b4','ST 4회전째(1) 시작'],['ST','b5','ST LAST 시작'],['ST','end','ST 꽝 영상 끝'],['UWT','t2','추가 도전: "2"에서 낙하'],['UWT','t1','추가 도전: "1"에서 낙하'],['LATE','j0','judgement 역전 낙하: 가장 이른 시각'],['LATE','j1','judgement 역전 낙하: 가장 늦은 시각'],['RES','n','결과: 횟수 확정 시각'],['RES','p','결과: 획득 수 확정 시각'],['RES','off','결과: 숫자 덮개 치우는 시각']].map(x=>edgeRow(x[2],({BT:'bonus',B75:'bonus7500',ST:'st_full',UWT:'uw_try',LATE:'judge_tail_lose',RES:'rush_result'})[x[0]]+'@'+x[0]+'.'+x[1],1)).join('');
+ h+='<h4>저장</h4><div class="r"><button id="tExp">내보내기 (ghoul_tune.json)</button><button id="tImp">가져오기</button><button id="tReset">전체 초기화</button><input type="file" id="tFile" accept=".json" style="display:none"></div><div style="color:#999">값은 바꾸는 즉시 이 브라우저에 저장되고 게임에 반영돼요.</div>';
+ T.innerHTML=h}
+$('tune').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ if(d.edge){const [tok,ed,dv]=d.edge.split('|');return edgeAdd(tok,+ed,+dv)}
+ if(d.cue){const [i,k,dv]=d.cue.split('|');const src=tSrc(TK.sel);const cs=TUNE.cues[src]||(TUNE.cues[src]=(CUES[src]||[]).map(c=>c.slice()));cs[+i][+k]=+(cs[+i][+k]+ +dv).toFixed(2);saveTune();return tuneDraw()}
+ if(d.cuep){const src=tSrc(TK.sel),c=(TUNE.cues[src]||CUES[src])[+d.cuep];return tunePlay([{tok:TK.sel,mode:'range',a:Math.max(0,c[0]-2),b:c[1]+2}])}
+ const v=curPlay&&curPlay.v;
+ switch(b.id){
+  case 'tStop':resetAll();break;
+  case 'tPause':if(v){v.paused?v.play():v.pause()}break;
+  case 'tB1':if(v){v.pause();v.currentTime=Math.max(0,v.currentTime-F1)}break;
+  case 'tF1':if(v){v.pause();v.currentTime+=F1}break;
+  case 'tPlaySeam':tunePlay([{tok:TK.a,mode:'tail'},{tok:TK.b,mode:'head'}]);break;
+  case 'tAll':tunePlay([{tok:TK.sel,mode:'all'}]);break;
+  case 'tHead':tunePlay([{tok:TK.sel,mode:'head'}]);break;
+  case 'tTail':tunePlay([{tok:TK.sel,mode:'tail'}]);break;
+  case 'tSetIn':if(curPlay&&cname(curPlay.src)===TK.sel){trimOf(TK.sel)[0]=+(v.currentTime-curPlay.g.base).toFixed(3);saveTune();tuneDraw()}break;
+  case 'tSetOut':if(curPlay&&cname(curPlay.src)===TK.sel){trimOf(TK.sel)[1]=+(v.currentTime-curPlay.g.base-curPlay.g.dur).toFixed(3);saveTune();tuneDraw()}break;
+  case 'tZero':TUNE.trim[TK.sel]=[0,0];delete TUNE.cues[tSrc(TK.sel)];saveTune();tuneDraw();break;
+  case 'tExp':{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(TUNE,null,1)],{type:'application/json'}));a.download='ghoul_tune.json';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),2000);break}
+  case 'tImp':$('tFile').click();break;
+  case 'tReset':if(confirm('조정값을 모두 지울까요?')){localStorage.removeItem('g999Tune');location.reload()}break;
+ }});
+$('tune').addEventListener('change',e=>{const t=e.target;
+ if(t.id==='tSeam'&&t.value!==''){TK.a=SEAMS[+t.value][0];TK.b=SEAMS[+t.value][1];TK.sel=TK.b;tuneDraw()}
+ else if(t.id==='tA'){TK.a=t.value;tuneDraw()}else if(t.id==='tB'){TK.b=t.value;tuneDraw()}else if(t.id==='tSel'){TK.sel=t.value;tuneDraw()}
+ else if(t.id==='tLoopC'){TK.loop=t.checked}
+ else if(t.id==='tFile'&&t.files[0]){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);TUNE.trim=Object.assign(TUNE.trim,j.trim);TUNE.cues=Object.assign(TUNE.cues,j.cues);TUNE.consts=Object.assign(TUNE.consts,j.consts);saveTune();location.reload()}catch(_){alert('파일을 읽지 못했어요.')}};r.readAsText(t.files[0])}});
+setInterval(()=>{const n=$('tNow');if(!n)return;n.textContent=curPlay?cname(curPlay.src)+'  '+(curPlay.v.currentTime-curPlay.g.base).toFixed(2)+' / '+curPlay.g.dur.toFixed(2)+'s':''},60);
+// 모든 연출 초기화: 재생 중인 흐름을 전부 버리고 통상 대기 화면으로 (통계·조정값은 유지, 조정 화면은 열린 채로)
+function resetAll(){try{sessionStorage.setItem('tuneOpen',$('tune').classList.contains('on')?JSON.stringify({sel:TK.sel,a:TK.a,b:TK.b,loop:TK.loop}):'')}catch(e){}save();location.reload()}
+$('main').addEventListener('pointerdown',()=>{if(!selHook&&busy)pushReq=true});
+$('skipBtn').onclick=()=>pressSkip();
+function tuneToggle(){$('tune').classList.toggle('on');tuneDraw()}
+/* ═══════════ 연출 선택 시작: 고른 지점부터 게임을 진행 (그 뒤는 평소처럼 추첨) ═══════════ */
+const rushSetup=()=>{if(S.mode!=='rush'){S.mode='rush';S.chain=1;S.rushGain=0;S.rushes++}S.st=SPEC.st;render()};
+const nSpin=f=>async()=>{S.mode='normal';FORCE=Object.assign({},f);await spinNormal()};
+const jStart=(k,ok,late)=>async()=>{S.mode='normal';FORCE={noBonus:true,direct:false,judge:k,jlate:!!late};await finishNormal('zorome',ok,true)};
+const stStart=f=>async()=>{rushSetup();FORCE=Object.assign({},f);await stAuto()};
+const rbStart=(f,skip)=>async()=>{rushSetup();S.chain++;S.hits++;FORCE=Object.assign({},f);await rushBonus(!!skip);S.st=SPEC.st;render();await stAuto()};
+const W={late:false,revival:false,res:'zorome'};
+const ENTRY=[
+ ['통상 ─ 꽝 리치: vs 니시오',nSpin({res:'lose',reach:'battle_nishio',hand:false})],['통상 ─ 꽝 리치: vs 츠키야마',nSpin({res:'lose',reach:'battle_tsukiyama',hand:false})],['통상 ─ 꽝 리치: vs 스크래퍼',nSpin({res:'lose',reach:'battle_scrapper',hand:false})],
+ ['통상 ─ 손떨 → vs 니시오 당첨',nSpin(Object.assign({reach:'battle_nishio',intro:'hand'},W))],['통상 ─ 손떨 → vs 츠키야마 당첨',nSpin(Object.assign({reach:'battle_tsukiyama',intro:'hand'},W))],['통상 ─ 손떨 → 클라이맥스 야모리 당첨',nSpin(Object.assign({reach:'climax_yamori',intro:'hand'},W))],
+ ['통상 ─ 긴 도입 → 클라이맥스 야모리 당첨',nSpin(Object.assign({intro:'long'},W))],
+ ['통상 ─ 꽝(니시오) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_nishio'})],['통상 ─ 꽝(츠키야마) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_tsukiyama'})],['통상 ─ 꽝(스크래퍼) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_scrapper'})],['통상 ─ 구울 차지',nSpin({res:'charge'})],
+ ['첫 당첨 ─ 3000 보너스부터 (이후 랜덤)',async()=>{S.mode='normal';FORCE={direct:false};await finishNormal('zorome',Math.random()<SPEC.rushIn,true)}],
+ ['첫 당첨 ─ 3000 → 즉시 7500',async()=>{S.mode='normal';FORCE={direct:true};await finishNormal('zorome',true,true)}],
+ ['Judgement ─ 배틀 vs 샤치: 성공',jStart('shachi',true)],['Judgement ─ 배틀 vs 샤치: 실패',jStart('shachi',false)],['Judgement ─ 배틀 vs 야모리: 성공',jStart('yamori',true)],['Judgement ─ 배틀 vs 야모리: 실패',jStart('yamori',false)],
+ ['Judgement ─ 배틀 vs 시로&쿠로: 성공',jStart('shiro',true)],['Judgement ─ 배틀 vs 시로&쿠로: 실패',jStart('shiro',false)],['Judgement ─ 브레이크: 성공',jStart('break',true)],['Judgement ─ 브레이크: 실패',jStart('break',false)],
+ ['Judgement ─ 실패 → 계수 중 역전 (야모리)',jStart('yamori',true,true)],
+ ['7500 보너스 → ST',async()=>{S.mode='normal';const p=await play7500(S.out,7500);await enterRush(p)}],['RUSH 돌입 → ST 5회',async()=>{S.mode='normal';await enterRush()}],
+ ['ST ─ 5회 (추첨 랜덤)',stStart({})],['ST ─ 5회 전부 꽝 → 결과 화면',stStart({stHit:-1})],
+ ['ST ─ 2회전째 당첨: 리제',stStart({stHit:1,stWin:'rize'})],['ST ─ 2회전째 당첨: 츠키야마',stStart({stHit:1,stWin:'tsukiyama'})],['ST ─ 3회전째 도중 당첨: 오메데토',stStart({stHit:2,stWin:'omedetou'})],['ST ─ LAST 당첨: 리제',stStart({stHit:4,stWin:'rize'})],
+ ['ST 보너스 ─ 도입 → 3000 → 추가 판정 (랜덤)',rbStart({hyper:false})],['ST 보너스 ─ 3000 → HYPER 6000',rbStart({hyper:true})],
+ ['추가 3000 판정 ─ 실패',rbStart({uwOnly:true,uw:[]})],['추가 3000 판정 ─ LAST에서 성공 → 다음 판정 실패',rbStart({uwOnly:true,uw:['last']})],['추가 3000 판정 ─ "1"에서 성공',rbStart({uwOnly:true,uw:['t1']})],['추가 3000 판정 ─ "2"에서 성공',rbStart({uwOnly:true,uw:['t2']})],
+ ['추가 3000 판정 ─ 3연속 성공 (2 → 1 → LAST)',rbStart({uwOnly:true,uw:['t2','t1','last']})]];
+$('selStart').innerHTML=ENTRY.map((e,i)=>'<option value="'+i+'">'+e[0]+'</option>').join('');
+async function runEntry(i){if(busy)return;busy=true;stopAll=false;if(!AC)ac();try{await ENTRY[i][1]()}catch(e){console.error(e)}finally{busy=false;FORCE={};slowOff();if(S.mode==='normal'){document.body.classList.remove('inclip');bgResume()}idleArm();render();save()}}
+// 다른 연출이 재생 중이면 전부 초기화한 뒤 시작 (브라우저가 소리 재생을 허용하도록 한 번 더 눌러야 함)
+$('bStart').onclick=()=>{const i=+$('selStart').value;if(!busy)return runEntry(i);try{sessionStorage.setItem('startAt',i)}catch(e){}resetAll()};
+try{const i=sessionStorage.getItem('startAt');sessionStorage.removeItem('startAt');if(i!==null&&ENTRY[+i]){$('selStart').value=i;const b=document.createElement('button');b.textContent='▶ 눌러서 시작: '+ENTRY[+i][0];
+ Object.assign(b.style,{position:'fixed',left:'50%',top:'50%',transform:'translate(-50%,-50%)',zIndex:200,fontSize:'18px',padding:'16px 26px',background:'#e0263c',color:'#fff',border:'0',borderRadius:'10px',cursor:'pointer',boxShadow:'0 6px 30px #000'});
+ b.onclick=()=>{b.remove();runEntry(+i)};document.body.appendChild(b)}}catch(e){}
+
+try{const t=sessionStorage.getItem('tuneOpen');sessionStorage.removeItem('tuneOpen');if(t){Object.assign(TK,JSON.parse(t));$('tune').classList.add('on');setTimeout(tuneDraw,50)}}catch(e){}
+$('tuneBtn').onclick=tuneToggle;
+
+
+// ═══════════ 영상 슬롯 ═══════════
+const clipState={};
+const CLIP_OFF=new Set([]); // 소재 보강 전까지 쓰지 않는 클립
+function probe(src){if(CLIP_OFF.has(src))return Promise.resolve(false);if(src in clipState)return clipState[src];return clipState[src]=new Promise(res=>{const v=document.createElement('video');v.preload='metadata';let done=false;const fin=ok=>{if(!done){done=true;res(ok)}};v.onloadedmetadata=()=>fin(true);v.onerror=()=>fin(false);setTimeout(()=>fin(false),1500);v.src=src})}
+let slowed=false;   // 당첨 연출 중: 배속을 잠시 멈추고 1배속으로 보여 줌 (자동 회전은 유지, 정산·RUSH가 끝나면 원래 배속으로)
+function slowOn(){if(speed!==1){slowed=true;speed=1;$('spdNote').style.display='inline'}}
+function slowOff(){if(slowed){slowed=false;speed=userSpeed;$('spdNote').style.display='none'}}
+let FORCE={};const take=k=>{if(k in FORCE){const v=FORCE[k];delete FORCE[k];return v}return undefined};   // '연출 선택 시작'이 정해 둔 분기(한 번 쓰면 사라짐)
+let pushReq=false,inputLock=0,selHook=null;
+// 건너뛰기 요청: Space · SKIP 버튼 (화면 클릭은 PUSH 창에서만 반응)
+let nextRes=null;
+// SKIP 버튼: 연출 중이면 건너뛰기/PUSH. 통상 대기 중이면 꽝 회전을 한꺼번에 넘기고 다음 당첨 회전부터 보여 줌 (회전수·투입 구슬은 그대로 계산)
+function pressSkip(){if(selHook)return selHook('ok');if(busy){pushReq=true;skipReq=true;return}
+ if(S.mode!=='normal')return;let r=drawNormal(),n=0;while(r==='lose'&&n<200000){S.spins++;S.cur++;S.used+=spinCost();n++;r=drawNormal()}
+ if(r==='lose'){render();save();return}nextRes=r;render();spin()}
+let skipReq=false,stopReq=false,stopAll=false;let LAT=.09; // 재생 시작 지연(초) 추정값, 재생할 때마다 실제 값으로 보정
+// ── 조정값: 클립별 시작·끝 이동(초), 역물 큐, 분기 시각. 브라우저에 저장되고 조정 화면에서 바꿈 ──
+const CLIPS=window.CLIPS||{};                       // videos/clips.js: {이름:{in:앞 여유, dur:기준 길이}}
+const TUNE_DEFAULT={"trim":{"judge_yamori_body":[0.4,0.4],"judge_tail_win":[0.1,0.6],"battle_nishio_body":[0.1,0],"judge_tail_lose":[0.6,0],"judge_ready":[0,0.5],"judge_break_win":[0,-2.551],"direct7500":[-0.015,-0.068],"bonus7500":[0.6,2],"st_ep_2":[0,0.1],"st_ep_3":[-2,-0.1],"st_ep_4":[0.234,0],"st_hyper6000":[0.1,-1],"uw_try":[0.185,0],"uw_lose":[0.051,-0.8],"uw_win_21000":[0.087,0],"rush_in":[0.1,1.3],"bonus":[0.568,0],"st_win_omedetou":[5.5,-3.22],"st_win_rize":[0,-61.58],"st_win_tsukiyama":[0,-12.7],"yokoku_hand":[0,0.2],"pre_long":[39.417,0],"judge_shachi_body":[-2,0],"uw_win_6000":[0.015,0],"uw_win_9000":[0.017,0],"uw_win_12000":[0.017,0],"uw_win_15000":[-0.017,0],"uw_win_18000":[-0.051,0],"st_full":[1.798,0],"revival_fukurou":[-2,0],"battle_nishio_winfull":[0,-0.1],"battle_tsukiyama_body":[1,0]},"cues":{},"consts":{"BT":{"branch":22.8,"judge":98.7},"UWT":{"t2":14.78,"t1":24.81}}}; // 2026-11-21 조정값 7차 반영 (final)
+let TUNE=(()=>{let t={};try{t=JSON.parse(localStorage.getItem('g999Tune')||'{}')}catch(e){}
+ return {trim:Object.assign({},TUNE_DEFAULT.trim,t.trim),cues:Object.assign({},TUNE_DEFAULT.cues,t.cues),consts:Object.assign({},TUNE_DEFAULT.consts,t.consts)}})();
+const saveTune=()=>{try{localStorage.setItem('g999Tune',JSON.stringify(TUNE))}catch(e){}};
+try{if(!localStorage.getItem('ghoulFix6')){TUNE.cues={};localStorage.setItem('ghoulFix6','1');saveTune()}}catch(e){} // 역물 시각을 전부 다시 측정해서 옛 조정값은 버림
+try{if(!localStorage.getItem('ghoulFix7')){for(const [k,e] of [['st_win_rize',-61.58],['st_win_tsukiyama',-12.7],['st_win_omedetou',-3.22]])TUNE.trim[k]=[(TUNE.trim[k]||[0,0])[0]||0,e];localStorage.setItem('ghoulFix7','1');saveTune()}}catch(e){} // ST 당첨 영상 3개: 마지막 역물 낙하 직전에서 끝나도록 끝 자르기 (이 브라우저에 저장된 값에도 한 번 적용)
+// 영상 속 PUSH·連打·押せ 가 떠 있는 구간 [시작, 넘어갈 지점] (기준 시각 초, 999 = 그 영상의 끝). 이 구간에서 클릭/Space/SKIP 하면 바로 결과로 넘어감
+const PUSH=Object.assign({judge_yamori_body:[40.3,999],judge_shiro_body:[39.8,999],judge_ready:[2.9,999],judge_break_body:[25.0,999],revival_fukurou:[34.3,37.4]},TUNE.consts.PUSH);
+// 요청받은 이동량을 이 브라우저에 저장된 값에도 한 번만 더함 (judge_tail_lose 시작 +0.3, st_win_omedetou 시작 +5.5)
+try{if(!localStorage.getItem('ghoulFix2')){let raw={};try{raw=(JSON.parse(localStorage.getItem('g999Tune')||'{}').trim)||{}}catch(e){}
+ for(const [k,d] of [['judge_tail_lose',.3],['st_win_omedetou',5.5]])if(raw[k])TUNE.trim[k]=[+((raw[k][0]||0)+d).toFixed(3),raw[k][1]||0];
+ localStorage.setItem('ghoulFix2','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){}
+try{if(!localStorage.getItem('ghoulFix5')){delete TUNE.trim.st_bonus_intro;delete TUNE.trim.st_intro;delete TUNE.cues['videos/st_bonus_intro.mp4'];localStorage.setItem('ghoulFix5','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // st_intro 는 새로 자른 클립
+try{if(!localStorage.getItem('ghoulFix4')){TUNE.trim.pre_long=[39.417,(TUNE.trim.pre_long||[0,0])[1]||0];localStorage.setItem('ghoulFix4','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // pre_long 시작 +39.417
+try{if(!localStorage.getItem('ghoulFix3')){TUNE.trim.yokoku_hand=[(TUNE.trim.yokoku_hand||[0,0])[0]||0,0.2];localStorage.setItem('ghoulFix3','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // yokoku_hand 끝 +0.2
+try{if(!localStorage.getItem('ghoulFix1')){delete TUNE.trim.amon_winfull;delete TUNE.cues['videos/amon_winfull.mp4'];localStorage.setItem('ghoulFix1','1');saveTune()}}catch(e){} // 아몬 결전 클립을 새로 잘라서 옛 조정값 폐기
+const cname=src=>src.split('/').pop().replace('.mp4','');
+// 기준 시각(0 = 원래 자른 시작점) ↔ 파일 시각. base=파일 앞 여유, dur=기준 길이, tin/tout=사용자 이동량
+function clipGeom(src,v){const n=cname(src),c=CLIPS[n]||{},tr=TUNE.trim[n]||[0,0],base=c.in||0;
+ return {n,base,dur:c.dur!=null?c.dur:Math.max(0,((v&&v.duration)||0)-base),tin:tr[0]||0,tout:tr[1]||0}}
+const NORMALS=[1,2,3,4,5].map(n=>'videos/normal_'+n+'.mp4');let bgList=null,bgCur=-1,bgEnd=1e9;const BG=$('bgVid');
+async function bgNext(){if(!bgList){bgList=[];for(const f of NORMALS)if(await probe(f))bgList.push(f)}if(!bgList.length)return;
+ let i;do{i=Math.floor(Math.random()*bgList.length)}while(bgList.length>1&&i===bgCur);bgCur=i;const src=bgList[i],c=CLIPS[cname(src)]||{};
+ BG.src=src;BG.muted=muted;await new Promise(r=>{BG.onloadedmetadata=r;BG.onerror=r;setTimeout(r,2500)});
+ const a=(c.in||0);bgEnd=c.dur!=null?a+c.dur:1e9;if(a>.01){try{BG.currentTime=a}catch(e){}}
+ if(S.mode==='normal'&&!document.body.classList.contains('inclip')){BG.style.display='block';BG.play().catch(()=>{})}}
+BG.ontimeupdate=()=>{if(BG.currentTime>=bgEnd-.05)bgNext()};BG.onended=()=>bgNext();
+// 연출이 없을 때만 통상 화면이 흐름 (추첨 속도와는 무관하게 계속 재생)
+function bgResume(){if(S.mode!=='normal')return;   // 초고속에서도 통상 화면은 계속 흐름 (추첨 속도와 무관)
+ BG.muted=muted;if(bgCur<0||!BG.src)return void bgNext();BG.style.display='block';BG.play().catch(()=>{})}
+function bgPause(){try{BG.pause()}catch(e){}}
+// 대기 화면: 회전하지 않을 때 나오는 데모. 배경 문구의 흐름 주기(8초)의 3배인 정확히 24초로 잘라 둔 영상을 끊김 없이 반복
+const IDLE=$('idleVid'),IDLE_SRC='videos/idle_loop.mp4',IDLE_WAIT=6000;let idleT=0,idleOk=null;
+let fadeIv=0;const IDLE_FADE=1600;
+async function idleShow(first){if(busy||auto||S.mode!=='normal')return;if(idleOk===null)idleOk=await probe(IDLE_SRC);if(!idleOk)return;
+ if(!IDLE.src.includes('idle_loop'))IDLE.src=IDLE_SRC;IDLE.style.transition='none';IDLE.style.opacity=first?1:0;IDLE.style.display='block';IDLE.play().catch(()=>{});
+ if(first)return bgPause();
+ void IDLE.offsetWidth;IDLE.style.transition='opacity '+IDLE_FADE+'ms ease';IDLE.style.opacity=1;                 // 화면은 서서히 겹쳐 넘어가고
+ clearInterval(fadeIv);const v0=BG.volume,t0=performance.now();fadeIv=setInterval(()=>{const k=Math.min(1,(performance.now()-t0)/IDLE_FADE);   // 통상 화면 소리는 같은 시간 동안 줄어듦
+  try{BG.volume=v0*(1-k)}catch(e){}if(k>=1){clearInterval(fadeIv);if(IDLE.style.display!=='none')bgPause();try{BG.volume=1}catch(e){}}},40)}
+function idleHide(){clearTimeout(idleT);clearInterval(fadeIv);try{BG.volume=1}catch(e){}if(IDLE.style.display!=='none'){IDLE.pause();IDLE.style.display='none'}}
+function idleArm(){clearTimeout(idleT);if(!auto&&S.mode==='normal')idleT=setTimeout(()=>idleShow(false),IDLE_WAIT)}
+setTimeout(()=>idleShow(true),300);
+const VIDS=[$('vid'),$('vid2')];let vidI=0,hideT=0,curPlay=null,prepared=null,prepSeq=0;
+// 다음에 나올 영상을 쉬는 쪽 화면에 미리 올려 시작점까지 찾아 둠 → 앞 영상이 끝나는 프레임에 바로 이어 재생
+const nextOf=n=>!n?null:(typeof n==='string'?{src:n}:n);
+async function prepClip(nx){nx=nextOf(nx);if(!nx||!nx.src||speed>=20||!(await probe(nx.src)))return;
+ const my=++prepSeq,v=VIDS[vidI^1];prepared=null;v.preload='auto';v.muted=true;v.src=nx.src;
+ await new Promise(r=>{if(v.readyState>=1)r();else{v.onloadedmetadata=r;v.onerror=r;setTimeout(r,2500)}});if(my!==prepSeq)return;
+ const g=clipGeom(nx.src,v),t0=Math.max(0,g.base+(nx.from!=null?nx.from:g.tin));
+ await new Promise(r=>{v.onseeked=r;setTimeout(r,1500);try{v.currentTime=t0}catch(e){r()}});
+ await new Promise(r=>{if(v.readyState>=3)r();else{v.oncanplay=r;setTimeout(r,1500)}});
+ if(my===prepSeq)prepared={src:nx.src,t0,v,g}}
+// opt: {from,to,skip:[[a,b]]|'all',marks:[[t,fn]],onTime:fn(t,d)}  (모두 기준 시각, 초)
+async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(!(await probe(src)))return false;
+ clearTimeout(hideT);const v=VIDS[vidI^=1],old=VIDS[vidI^1];let g,t0;
+ document.body.classList.add('inclip');bgPause();idleHide();
+ const want=x=>x&&x.src===src&&x.v===v;
+ if(want(prepared)){g=clipGeom(src,v);t0=Math.max(0,g.base+(opt.from!=null?opt.from:g.tin));if(Math.abs(prepared.t0-t0)>.02)prepared=null}
+ let started=false;
+ if(want(prepared)){started=!!prepared.started;clearTimeout(prepared.guard);prepared=null;prepSeq++}   // 미리 준비된 영상: 불러오기·탐색 없이 바로 재생
+ else{if(prepared&&prepared.started){clearTimeout(prepared.guard);prepared.v.pause();prepared.v.style.display='none'}prepSeq++;prepared=null;v.src=src;
+  await new Promise(r=>{if(v.readyState>=1)r();else{v.onloadedmetadata=r;v.onerror=r;setTimeout(r,2500)}});
+  g=clipGeom(src,v);t0=Math.max(0,g.base+(opt.from!=null?opt.from:g.tin));
+  if(t0>.01)await new Promise(r=>{v.onseeked=r;setTimeout(r,1500);try{v.currentTime=t0}catch(e){r()}})}
+ const t1=g.base+(opt.to!=null?opt.to:g.dur+g.tout);
+ v.muted=muted;v.playbackRate=1 /* 연출 영상은 배속하지 않음 (배속은 통상 회전에만 적용) */;
+ if(!started){try{await v.play()}catch(e){v.style.display='none';return false}}
+ v.style.zIndex=6;v.style.display='block';old.style.zIndex=5;old.pause();old.style.display='none';   // 새 영상이 준비된 뒤에 교체 → 이음매에 빈 화면 없음
+ const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);skipReq=false;stopReq=false;let iv=0;
+ curPlay={v,g,src};let pushed=false,pushShown=false;pushReq=false;
+ if(opt.next)prepClip(opt.next);
+ // 다음 영상은 재생을 누른 뒤 실제로 움직이기까지 시간이 걸림(LAT). 그만큼 먼저 눌러 두고, 앞 영상이 끝나는 순간 화면만 바꿈
+ let preDone=false;
+ const pre=()=>{preDone=true;const p=prepared,nx=nextOf(opt.next);if(!p||p.started||!nx||p.src!==nx.src||stopAll)return;p.started=true;p.v.muted=muted;p.v.playbackRate=1;
+  const tc=performance.now();p.v.play().catch(()=>{});
+  const m=setInterval(()=>{if(p.v.currentTime>p.t0+.001){clearInterval(m);LAT=Math.min(.3,Math.max(.02,LAT*.6+(performance.now()-tc)/1000*.4))}},4);setTimeout(()=>clearInterval(m),1000);
+  p.guard=setTimeout(()=>{if(prepared===p){p.v.pause();p.v.style.display='none';prepared=null}},900)};
+ const handoff=()=>{if(!preDone)pre();const p=prepared;if(p&&p.started){p.v.style.zIndex=7;p.v.style.display='block'}};
+ await new Promise(r=>{v.onended=()=>{handoff();r()};v.onerror=r;iv=setInterval(()=>{const t=v.currentTime-g.base;
+  const sr=opt.skip==='all'?[[1.5,g.dur-.4]]:(opt.skip||[]);const sk=sr.find(x=>t>=x[0]&&t<x[1]-.3);$('skipHint').style.display=sk?'block':'none';
+  if(stopReq){stopReq=false;v.pause();return r()}
+  // Space: 정해 둔 구간(정산·ST 회전)은 그 끝으로, 그 밖의 연출은 끝나기 1초 전으로 건너뜀 (마지막 1초는 건너뛸 수 없음)
+  const pw=PUSH[g.n],pEnd=pw?Math.min(pw[1],t1-g.base-.03):0,inPush=!!pw&&!pushed&&t>=pw[0]&&t<pEnd-.1;
+  if(inPush!==pushShown){pushShown=inPush;$('pushHint').style.display=inPush?'block':'none'}
+  if(pushReq){pushReq=false;if(inPush){pushed=true;skipReq=false;inputLock=performance.now()+1500;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
+  if(skipReq&&performance.now()<inputLock)skipReq=false;
+  if(skipReq){skipReq=false;inputLock=performance.now()+450;const e1=t1-g.base-1;if(sk){try{v.currentTime=g.base+sk[1]}catch(e){}return}else if(t<e1-.05){try{v.currentTime=g.base+e1}catch(e){}return}}
+  for(const m of marks)if(!m[2]&&t>=m[0]){m[2]=true;try{m[1]()}catch(e){console.error(e)}}
+  if(opt.onTime)try{opt.onTime(t,g.dur)}catch(e){}
+  const tEnd=Math.min(t1,v.duration||1e9);if(!preDone&&(tEnd-v.currentTime)/(v.playbackRate||1)<=LAT)pre();
+  if(v.currentTime>=t1-.008&&t1<(v.duration||1e9)-.02){handoff();v.pause();r()}},4)});
+ clearInterval(iv);$('skipHint').style.display='none';$('pushHint').style.display='none';stopCues();if(curPlay&&curPlay.v===v)curPlay=null;
+ hideT=setTimeout(()=>{v.style.display='none'},opt.next?2000:350);return true}
+
+// ═══════════ 화면 요소 ═══════════
+const reelEls=[0,1,2].map(i=>$('r'+i));
+const imgOk={};
+function probeImg(src){if(src in imgOk)return;imgOk[src]=false;const i=new Image();i.onload=()=>imgOk[src]=true;i.src=src}
+for(let n=1;n<=8;n++)probeImg(IMG.num(n));
+
+function setNum(i,n){const src=IMG.num(n);reelEls[i].innerHTML=imgOk[src]?'<div class="num"><img alt="'+n+'" src="'+src+'"></div>':'<div class="num c'+n+'">'+n+'</div>'}
+(function(){const f=new Image();f.onload=()=>{$('frameImg').src=f.src;$('frameImg').style.display='block'};f.src=IMG.frame})();
+$('hand').onerror=()=>{$('hand').style.display='none'};
+function fx(html,cls){const d=document.createElement('div');d.className='banner '+(cls||'mid');d.innerHTML=html;$('fx').appendChild(d);return d}
+function clearFx(){$('fx').innerHTML=''}
+async function flash(n=1,ms=120){const f=$('flash');for(let i=0;i<n;i++){f.style.transition='none';f.style.opacity=.9;await sleep(30);f.style.transition='opacity '+(ms/speed)+'ms';f.style.opacity=0;await sleep(ms)}}
+function shake(ms=400){$('stage').animate([{transform:'translate(0,0)'},{transform:'translate(-1.2%,1%)'},{transform:'translate(1.2%,-1%)'},{transform:'translate(-.8%,.6%)'},{transform:'translate(0,0)'}],{duration:ms/speed,iterations:1})}
+
+// ═══════════ 상태 ═══════════
+const S={spins:0,cur:0,hits:0,rushes:0,out:0,used:0,maxChain:0,mode:'normal',st:0,chain:0,rushGain:0,holds:[],hist:[]};
+try{Object.assign(S,JSON.parse(localStorage.getItem('g999Stats')||'{}'),{mode:'normal',st:0,chain:0,rushGain:0})}catch(e){}
+function save(){try{const {spins,cur,hits,rushes,out,used,maxChain,hist,g}=S;localStorage.setItem('g999Stats',JSON.stringify({spins,cur,hits,rushes,out,used,maxChain,hist:hist.slice(0,200),g}))}catch(e){}}
+function fmt(n){return Math.round(n).toLocaleString()}
+// 수지 그래프: 가로 = 총 회전, 세로 = 차옥(획득 − 투입)
+// 회전율: 1,000엔 = 250발로 도는 횟수. 1회전마다 250 ÷ 회전율 발이 차감됨
+const spinCost=()=>250/Math.min(60,Math.max(5,+$('inCost').value||30));
+function costInfo(){$('costInfo').textContent='1회전 −'+spinCost().toFixed(1)+'발 (250발당 '+Math.round(250/spinCost())+'회전)'}
+try{if(!localStorage.getItem('ghoulRate30')){localStorage.setItem('ghoulRate30','1');setTimeout(()=>{$('inCost').value=30;costInfo()},0)}}catch(e){}   // 예전 '회전당 구슬 8' 값이 브라우저에 남아 있으면 30으로 되돌림
+setTimeout(()=>{$('inCost').addEventListener('input',costInfo);costInfo()},0);
+function gPush(){const d=Math.round(S.out-S.used),g=S.g||(S.g=[[0,0]]),l=g[g.length-1];if(l[0]===S.spins)l[1]=d;else g.push([S.spins,d]);
+ if(g.length>3000){const k=[];for(let i=0;i<g.length;i+=2)k.push(g[i]);k.push(g[g.length-1]);S.g=k}}
+function gDraw(){const c=$('gCv');if(!c)return;const x=c.getContext('2d'),W=c.width,H=c.height,g=S.g||[[0,0]],pl=104,pr=14,pt=16,pb=34;
+ x.clearRect(0,0,W,H);let mn=0,mx=0;for(const p of g){if(p[1]<mn)mn=p[1];if(p[1]>mx)mx=p[1]}
+ const span=Math.max(1000,mx-mn),lo=mn-span*.08,hi=mx+span*.08,xm=Math.max(100,g[g.length-1][0]);
+ const X=v=>pl+(W-pl-pr)*v/xm,Y=v=>pt+(H-pt-pb)*(hi-v)/(hi-lo);
+ x.font='22px sans-serif';x.textBaseline='middle';x.textAlign='right';
+ const step=[500,1000,2500,5000,10000,25000,50000,100000,250000].find(s=>(hi-lo)/s<=6)||500000;
+ for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step){x.strokeStyle=v===0?'#888':'#262630';x.lineWidth=v===0?1.2:1;x.beginPath();x.moveTo(pl,Y(v));x.lineTo(W-pr,Y(v));x.stroke();x.fillStyle='#999';x.fillText((v>0?'+':'')+v.toLocaleString(),pl-8,Y(v))}
+ x.textAlign='center';x.textBaseline='alphabetic';x.fillStyle='#777';x.fillText('0',pl,H-8);x.fillText(xm.toLocaleString()+'회전',W-pr-56,H-8);
+ x.lineWidth=3;x.lineJoin='round';
+ for(let i=1;i<g.length;i++){const a=g[i-1],b=g[i];x.strokeStyle=b[1]>=0?'#7fe0a8':'#ff8a9a';x.beginPath();x.moveTo(X(a[0]),Y(a[1]));x.lineTo(X(b[0]),Y(a[1]));x.lineTo(X(b[0]),Y(b[1]));x.stroke()}
+ const e=g[g.length-1];x.fillStyle=e[1]>=0?'#7fe0a8':'#ff8a9a';x.beginPath();x.arc(X(e[0]),Y(e[1]),6,0,7);x.fill();
+ $('gInfo').textContent='최고 '+(mx>0?'+':'')+mx.toLocaleString()+' / 최저 '+mn.toLocaleString()}
+function render(){gPush();gDraw();$('sSpins').textContent=fmt(S.spins);$('sCur').textContent=fmt(S.cur);$('sHits').textContent=S.hits;$('sRush').textContent=S.rushes;$('sOut').textContent=fmt(S.out);const d=S.out-S.used;$('sDiff').textContent=(d>0?'+':'')+fmt(d);$('sDiff').style.color=d>=0?'#7fe0a8':'#ff8a9a';$('sProb').textContent=S.hits&&S.spins?'1/'+(S.spins/S.hits).toFixed(1):'-';$('sMax').textContent=S.maxChain;
+ $('hud').textContent=S.mode==='rush'?'HYPER喰種RUSH':'통상  '+fmt(S.cur)+'회전';
+ $('hudR').textContent=S.mode==='rush'?'RUSH '+S.chain+'연  +'+fmt(S.rushGain):'';
+ $('stCount').style.display=S.mode==='rush'?'block':'none';$('stCount').textContent='ST 남은 '+S.st+'회';
+ $('stage').classList.toggle('rush',S.mode==='rush');
+ const h=$('hist');if(!S.hist.length){h.innerHTML='<div class="note">당첨이 나오면 여기에 기록돼요.</div>';return}
+ h.innerHTML=S.hist.slice(0,60).map(x=>'<div><span>'+x.t+'</span><span class="'+(x.rush?'r':'')+'">'+x.d+'</span></div>').join('');}
+function addHist(t,d,rush){S.hist.unshift({t,d,rush});render();save()}
+function renderHolds(curColor){const H=$('holds');let html='<div class="hold cur '+(curColor?'h-'+curColor:'')+(curColor==='blink'?' blink':'')+'"></div>';for(let i=0;i<4;i++)html+='<div class="hold '+(i<S.holds.length?'':'empty')+'"></div>';H.innerHTML=html}
+
+// ═══════════ 추첨 ═══════════
+function drawNormal(){
+ const r=Math.random(),pz=SPEC.zorome*mult,pc=SPEC.charge*mult;
+ if(forceWin){forceWin=false;$('bForce').classList.remove('on');return 'zorome'}
+ if(r<pz)return 'zorome'; if(r<pz+pc)return 'charge'; return 'lose';
+}
+// 신뢰도 r, 당첨 비중 w → 꽝일 때 출현 확률 = (P당첨/P꽝)·w·(1-r)/r
+function loseRate(pHit,w,r){return r>=1?0:(pHit/(1-pHit))*w*(1-r)/r}
+function chooseEvent(list,isWin,pHit,iRel=2,iW=3){
+ if(isWin)return wpick(list,x=>x[iW]);
+ let acc=0;const u=Math.random();for(const x of list){acc+=loseRate(pHit,x[iW],x[iRel]);if(u<acc)return x}return null;
+}
+window.__simulate=function(n){ // 확률 검증용 (화면 없이 추첨만)
+ let spins=0,z=0,c=0,rushIn=0,out=0,rushHits=0;
+ for(let i=0;i<n;i++){spins++;const k=Math.random()<SPEC.zorome?'zorome':(Math.random()<SPEC.charge/(1-SPEC.zorome)?'charge':'lose');
+  if(k==='lose')continue;let rush=false;
+  if(k==='zorome'){z++;out+=3000;if(Math.random()<SPEC.rushIn){rush=true;out+=4500}}else{c++;out+=300;if(Math.random()<SPEC.chargeUp){rush=true;out+=7200}}
+  if(rush){rushIn++;let st=SPEC.st;while(st>0){if(Math.random()<SPEC.rushP){rushHits++;out+=3000;while(Math.random()<SPEC.loop)out+=3000;st=SPEC.st}else st--}}}
+ return {spins,zorome:spins/z,charge:spins/c,combined:spins/(z+c),rushEntryRate:rushIn/(z+c),avgRushHits:rushHits/rushIn,avgOutPerHit:out/(z+c)};
+};
+
+// ═══════════ 릴 회전 ═══════════
+let spinTimers=[];
+function startReels(){idleHide();document.body.classList.remove('inclip');bgResume();reelEls.forEach((el,i)=>{el.classList.add('spin');spinTimers[i]=setInterval(()=>setNum(i,rd()),60)})}
+function stopReel(i,n){clearInterval(spinTimers[i]);const el=reelEls[i];el.classList.remove('spin');setNum(i,n);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');se('stop')}
+async function cinematic(title,tel,sec,win){ // 코드 연출: 타이틀 → 게이지 → 결말
+ clearFx();$('reels').classList.add('small');
+ fx(title,'big t-'+tel);const b=fx('<div class="bar"><i></i></div>','sm');const bar=b.querySelector('i');
+ const T=sec*1000;bar.style.transition='width '+(T/speed)+'ms linear';await sleep(40);bar.style.width=win?'100%':(55+Math.random()*40)+'%';
+ await sleep(T*.7);if(Math.random()<.5||win){fx(win?'押せ!!':'押せ!','mid t-'+(win?'red':'white'));await sleep(500)}
+ await sleep(T*.3);clearFx();
+}
+// 결과까지 영상으로 볼 수 있는 리치인지
+const BODY_HAS_LOSE=new Set(['battle_tsukiyama']);   // 본체 영상 안에 꽝 결말까지 들어 있는 리치
+async function reachOK(key,win){const v='videos/'+key;return win?(await probe(v+'_winfull.mp4')||await probe(v+'_win.mp4')):(await probe(v+'_lose.mp4')||(BODY_HAS_LOSE.has(key)&&await probe(v+'_body.mp4')))}
+// 리치 영상 중 가장 먼저 나올 것 (없으면 '')
+async function reachFirst(key,win){const v='videos/'+key;if(win&&await probe(v+'_winfull.mp4'))return v+'_winfull.mp4';if(await probe(v+'_body.mp4'))return v+'_body.mp4';const e=v+(win?'_win':'_lose')+'.mp4';return await probe(e)?e:''}
+function stopSilent(i,n){clearInterval(spinTimers[i]);reelEls[i].classList.remove('spin','pop');setNum(i,n)}
+async function doReach(ev,tenpai,win,rush,o){o=o||{};
+ if(!o.quiet){se('reach');fx('リーチ','big t-white');await sleep(900);clearFx()}
+ const key=ev[0],sec=ev[2]>=.8?9:ev[2]>=.4?7:5;
+ const tel=win?(Math.random()<.5?'red':'gold'):(Math.random()<.75?'white':'red');
+ const endSrc='videos/'+key+(win?'_win':'_lose')+'.mp4';
+ const after=o.next||(rush&&win?'videos/st_intro.mp4':null);
+ if(win&&await playClip('videos/'+key+'_winfull.mp4',{next:after})){$('reels').classList.remove('small');return 'full'}
+ const hasEnd=await probe(endSrc);
+ const played=await playClip('videos/'+key+'_body.mp4',{next:hasEnd?endSrc:after});
+ // _body 없이 _win/_lose 만 있으면: 연출 전체가 담긴 영상으로 보고 그것만 재생
+ if(!played&&!hasEnd)await cinematic(ev[1],key.startsWith('zenkaiten')?'rainbow':tel,sec,win);
+ const end=await playClip(endSrc,{next:after});
+ if(!end&&!played){fx(win?'勝利':'…','big t-'+(win?'gold':'white'));await sleep(win?700:500);clearFx()}
+ $('reels').classList.remove('small');return played||end?'clip':'';
+}
+
+// ═══════════ 역물 (머리·몸·손 분리) ═══════════
+// 대기 상태 부품(기기 사진에서 딴 것). to: 낙하 후 바뀌어 보일 부품, back: 복귀 시작 지연(ms)
+const MW=1552,MH=2454;
+const PARTS=[
+ {src:'images/gimmick_3.webp',bbox:[0.43041,0.1793,0.54188,0.28729],z:11,to:'body',delay:20,back:150},
+ {src:'images/gimmick_4.webp',bbox:[0.47423,0.26121,0.71263,0.29788],z:11,to:'body',delay:10,back:80},
+ {src:'images/gimmick_2.webp',bbox:[0.2107,0.15159,0.4549,0.30155],z:12,to:'head',delay:30,back:320},
+ {src:'images/gimmick_5.webp',bbox:[0.45232,0.15281,0.8067,0.29381],z:13,to:'hand',delay:0,back:0}];
+// 낙하 상태 부품(정면 캡처에서 딴 것): [왼쪽, 위, 폭] (기기 대비 비율)
+const DROPS={body:{src:'images/drop_body.webp',box:[0.3617,0.322,0.2906],z:11,rot:0,rest:-52},head:{src:'images/drop_head.webp',box:[0.2575,0.196,0.2726],z:12,rot:0,rest:-28},hand:{src:'images/drop_hand.webp',box:[0.36,0.3822,0.3996],z:13,rot:0,rest:-10}};
+const SH='drop-shadow(0 .4vh .8vh rgba(0,0,0,.6))',GOLD='drop-shadow(0 0 2vh #ffd04a)';
+function mkImg(src,x,y,w,z){const el=document.createElement('img');el.alt='';el.src=src;Object.assign(el.style,{position:'absolute',left:x*100+'%',top:y*100+'%',width:w*100+'%',zIndex:z,pointerEvents:'none',transformOrigin:'50% 50%',filter:SH});$('machine').appendChild(el);return el}
+let partsOk=0,dropsOk=0;const NP=PARTS.length,ND=Object.keys(DROPS).length;
+const partEls=PARTS.map(P=>{const el=mkImg(P.src,P.bbox[0],P.bbox[1],P.bbox[2]-P.bbox[0],P.z);el.style.visibility='hidden';el.onload=()=>{if(++partsOk===NP){$('gimmick').style.display='none';partEls.forEach(e=>e.style.visibility='visible')}};return el});
+for(const [k,D] of Object.entries(DROPS)){D.el=mkImg(D.src,D.box[0],D.box[1],D.box[2],D.z);D.el.style.opacity=0;if(D.rot)D.el.style.transform='rotate('+D.rot+'deg)';D.el.onload=()=>dropsOk++}
+// 추가 3000 판정용: 상단 역물을 어둡게 덮는 검은 실루엣과, 영상의 흰 링에 맞춰 번쩍이는 흰 실루엣 (역물 그림 자체는 건드리지 않음)
+const dimEls=[],flashEls=[];
+function gFxInit(){if(dimEls.length||typeof partEls==='undefined')return;partEls.forEach(el=>{for(const [arr,f,z] of [[dimEls,'brightness(0)',14],[flashEls,'brightness(0) invert(1)',15]]){const d=el.cloneNode();d.style.filter=f;d.style.opacity=0;d.style.zIndex=z;d.style.transform='none';$('machine').appendChild(d);arr.push(d)}})}
+function gDim(on){gFxInit();if(!on)flashEls.forEach(d=>d.style.opacity=0);dimEls.forEach(d=>{d.style.transition='opacity '+(on?2.2:.35)/Math.min(speed,4)+'s ease';d.style.opacity=on?.68:0})}
+// 추가 3000 판정 영상(uw_try) 시각별 상단 역물 밝기(초당 30개, 0=암전 ~ z=가장 밝음). Live03 0:04:27~ 의 실기 역물을 측정한 값
+const UW_LIT='fecb98897673462111000000000000000000000000000000000111112222222222222222222222111100000000000000111112211222egffgffeeedca96544443354444444444433333333333333333333333333333444444455555245579ccccbbbdfikllkjiknpqqponpqqqrqrrrsssth00lb0o4fr7566778ckxkixlkxndcccddddeeeeeeeeedehqzdozamxbhotwxzzzzzzxurojf7gkortvxyzyxvtqokg99ilprtvxyywuromje78hloqsuwxxvtpnkga5bjmpsuwyyxvtqnlha7fknqtuwxyxvtrolid59hlnqsuwxwusqolieddeffghijjklhfgghiijkkllmmmnnnnnooooonnnnnnmmmmmmmmmmlllkkjjiiqvxyzzzzzywutuvwwwutrqsuvvvtsstututtutuuuuuk0bmb0nd2pg5445568huhfuihvja9aabbcddeeefffffffjrzfoydnwchoruvyzzzzyvspmif8ahlortuwxwuspnkgc5dhlortvwxwuspnkgb5dhloqsuwwvsqnlie94cgjnprtvwusqomjhc68gjmpsuwyxvtromjf8bimoqtuwyxvtroljfdeeffghhijkkhfgghhiijjjjkkkkllmmmmnnnooooooppppppppppoonnmlntwxyzzzzzzxtstuvvvtrpnqrsttrqqrsrrrrrrrsssssf1ki2mj5om7677789buj9tbkudaabbcccddddddddddddgwwduvcttckqswyzzzzzzzwspmhbcjnpsuwyzywtrolie7bhlnqsuwxwvsqnkhd6bhlnqtvwyxvtroljf7cfknpsuvxxvspmjif5bgknpruvxwurpmjgc6cgknprtvwvurpnliffghhijjkkllmhhiijjkkkkkkjjjjjkkkllmmnmmmmmmmllllllmmmmnnnnnoooooonnnnnnnnnnnnmmmllkkkjjj';
+function gLit(t){gFxInit();const i=Math.max(0,Math.min(UW_LIT.length-1,Math.floor((t+UW_LIT_OFF)*30)));let v=parseInt(UW_LIT[i],36)/35;
+ // '2' 카운트가 뜨기 전에는 깜박임 없이 천천히 어두워진 채로 유지
+ if(t+UW_LIT_OFF<UW_LIT_FROM){const dim0=.78*Math.min(1,t/2);for(const d of dimEls){d.style.transition='none';d.style.opacity=dim0}for(const d of flashEls)d.style.opacity=0;return}
+ const dim=(1-v)*.78,fl=v>.82?(v-.82)/.18*.38:0;for(const d of dimEls){d.style.transition='none';d.style.opacity=dim}for(const d of flashEls)d.style.opacity=fl}
+function gBlink(){gFxInit();flashEls.forEach(d=>d.animate([{opacity:0},{opacity:.9,offset:.25},{opacity:.25,offset:.6},{opacity:0}],{duration:420/Math.min(speed,4)}))}
+const restBodyEl=mkImg('images/rest_body.webp',0.42366,0.18233,0.28415,11);restBodyEl.style.opacity=0;
+// ── 대기 상태도 낙하 역물 그림으로 표시 (마음에 안 들면 false 로 바꾸면 이전 방식으로 돌아감) ──
+const DROP_AS_REST=false;
+function restPose(k){ // 낙하 그림을 대기 자리·크기·각도로 옮기는 transform (자기 크기 대비 %라 화면 크기와 무관)
+ const D=DROPS[k],e=D.el,M=$('machine'),idx=PARTS.map((P,i)=>P.to===k?i:-1).filter(i=>i>=0),pe=partEls[idx[idx.length-1]];
+ const t=D.restC?{cx:D.restC[0]*M.offsetWidth,cy:D.restC[1]*M.offsetHeight,w:D.restC[2]*M.offsetWidth}:{cx:pe.offsetLeft+pe.offsetWidth/2,cy:pe.offsetTop+pe.offsetHeight/2,w:pe.offsetWidth};
+ const dx=(t.cx-(e.offsetLeft+e.offsetWidth/2))/e.offsetWidth*100,dy=(t.cy-(e.offsetTop+e.offsetHeight/2))/e.offsetHeight*100;
+ return `translate(${dx}%,${dy}%) rotate(${D.rest||0}deg) scale(${t.w/e.offsetWidth})`}
+const homePose=k=>`translate(0%,0%) rotate(${DROPS[k].rot||0}deg) scale(1)`;
+function applyRest(){if(!DROP_AS_REST||partsOk<NP||dropsOk<ND)return;partEls.forEach(e=>e.style.visibility='hidden');$('gimmick').style.display='none';
+ for(const k in DROPS){const e=DROPS[k].el;e.style.transform=restPose(k);e.style.opacity=1;e.style.zIndex=9}}
+{const iv=setInterval(()=>{if(partsOk>=NP&&dropsOk>=ND){clearInterval(iv);applyRest()}},100)}
+// ═══════════ 역물 내리기/올리기 (영상 큐와 수동 낙하가 같이 씀) ═══════════
+// extra=true: 대기 역물이 빠르게 떨어지며 사라지고 영상 속 역물로 이어짐. false: 우리가 만든 역물이 영상 위를 덮음
+let EXTRA=true,gState=null,gBusy=Promise.resolve();
+function gGeom(){const M=$('machine').getBoundingClientRect(),rect=el=>{const r=el.getBoundingClientRect();return {cx:r.left+r.width/2,cy:r.top+r.height/2,w:el.offsetWidth}};
+ const srcOf=k=>{const idx=PARTS.map((P,i)=>P.to===k?i:-1).filter(i=>i>=0);return idx[idx.length-1]};
+ const pr=partEls.map(rect),dr={},tg={};for(const k in DROPS){dr[k]=rect(DROPS[k].el);tg[k]=pr[srcOf(k)]}
+ const th=(DROPS.body.rest||0)*Math.PI/180,sc=tg.head.w/dr.head.w,vx=dr.body.cx-dr.head.cx,vy=dr.body.cy-dr.head.cy;
+ tg.body={cx:tg.head.cx+sc*(vx*Math.cos(th)-vy*Math.sin(th)),cy:tg.head.cy+sc*(vx*Math.sin(th)+vy*Math.cos(th)),w:dr.body.w*sc};
+ const tf=(a,b,rot)=>`translate(${b.cx-a.cx}px,${b.cy-a.cy}px) rotate(${rot}deg) scale(${b.w/a.w})`;
+ return {M,pr,dr,tg,tf,home:k=>`translate(0px,0px) rotate(${DROPS[k].rot||0}deg) scale(1)`,away:k=>tf(dr[k],tg[k],DROPS[k].rest||0)}}
+function gDown(kind,only,o){o=o||{};return gBusy=gBusy.then(async()=>{
+ if(gState||partsOk<NP||dropsOk<ND)return;
+ const G=gGeom(),T=170/speed,use=k=>!only||k===only,F=kind==='gold'?GOLD:SH,bl=n=>F+' blur('+n+'px)',ex=!!o.extra,anims=[];
+ if(!o.quiet){$('main').animate([{opacity:1},{opacity:0,offset:.3},{opacity:0,offset:.8},{opacity:1}],{duration:420/speed});await sleep(130)}
+ PARTS.forEach((P,i)=>{if(!use(P.to))return;anims.push(partEls[i].animate(ex?[{transform:'none',opacity:1,filter:bl(0)},{opacity:.9,filter:bl(6),offset:.35},{transform:G.tf(G.pr[i],G.dr[P.to],0),opacity:0,filter:bl(10)}]:[{transform:'none',opacity:1,filter:bl(0)},{opacity:1,filter:bl(5),offset:.25},{opacity:0,filter:bl(8),offset:.55},{transform:G.tf(G.pr[i],G.dr[P.to],0),opacity:0,filter:bl(8)}],{duration:ex?140/speed:T,delay:ex?0:P.delay/speed,easing:'cubic-bezier(.5,0,.9,1)',fill:'forwards'}))});
+ if(only==='hand')restBodyEl.style.opacity=1;
+ if(!ex)for(const k in DROPS){if(!use(k))continue;const D=DROPS[k],d=PARTS.find(P=>P.to===k).delay/speed;
+  anims.push(D.el.animate([{transform:G.away(k),opacity:0,filter:bl(8)},{opacity:0,filter:bl(8),offset:.2},{opacity:1,filter:bl(5),offset:.55},{transform:`translate(0px,${G.M.height*.006}px) rotate(${D.rot||0}deg) scale(1.03)`,opacity:1,filter:bl(1),offset:.85},{transform:G.home(k),opacity:1,filter:bl(0)}],{duration:T,delay:d,easing:'cubic-bezier(.5,0,.9,1)',fill:'forwards'}))}
+ await Promise.all(anims.map(a=>a.finished));
+ if(!o.quiet){shake(only?250:400);flash(1,200)}
+ gState={only,ex,anims,F};
+})}
+function gUp(){return gBusy=gBusy.then(async()=>{
+ if(!gState)return;const {only,ex,anims}=gState,G=gGeom(),use=k=>!only||k===only;
+ const RISE={hand:{d:0,t:750},body:{d:620,t:420},head:{d:620,t:420}},back=[],xf=[];
+ if(ex){ // 영상 속 역물이 올라가는 동안 대기 역물이 나타나며 제자리로
+  // 실기 영상 측정값: 손은 약 1.2초 동안 일정한 속도로 올라가고, 머리·몸은 0.6초 뒤부터 약 0.75초.
+  // 대기 역물이 영상 속 역물과 같은 길을 따라 올라오면서, 영상 속 역물이 액정 위로 빠져나가는 구간에 맞춰 서서히 나타남
+  const RX={hand:{d:0,t:1200},body:{d:600,t:750},head:{d:600,t:750}};
+  PARTS.forEach((P,i)=>{if(!use(P.to))return;const R=RX[P.to];back.push(partEls[i].animate([{transform:G.tf(G.pr[i],G.dr[P.to],0),opacity:0,filter:SH+' blur(4px)'},{opacity:0,filter:SH+' blur(4px)',offset:.4},{opacity:1,filter:SH+' blur(0px)',offset:.9},{transform:'none',opacity:1,filter:SH+' blur(0px)'}],{duration:R.t/speed,delay:R.d/speed,easing:'linear',fill:'both'}))});
+  await Promise.all(back.map(a=>a.finished));
+ }else{
+  for(const k in DROPS){if(!use(k))continue;const R=only?{d:0,t:650}:RISE[k];back.push(DROPS[k].el.animate([{transform:G.home(k),opacity:1},{transform:G.away(k),opacity:1}],{duration:R.t/speed,delay:R.d/speed,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'}))}
+  await Promise.all(back.map(a=>a.finished));
+  for(const k in DROPS){if(!use(k))continue;xf.push(DROPS[k].el.animate([{opacity:1},{opacity:0}],{duration:180/speed,fill:'forwards'}))}
+  PARTS.forEach((P,i)=>{if(!use(P.to))return;partEls[i].getAnimations().forEach(a=>a.cancel());xf.push(partEls[i].animate([{opacity:0},{opacity:1}],{duration:180/speed,fill:'forwards'}))});
+  await Promise.all(xf.map(a=>a.finished));
+ }
+ anims.concat(back,xf).forEach(a=>a.cancel());for(const k in DROPS)DROPS[k].el.style.opacity=0;restBodyEl.style.opacity=0;gState=null;
+})}
+// 영상에 역물 낙하가 찍힌 구간 (60프레임 단위로 실측): [머리·손이 닿는 시각, 손이 올라가기 시작하는 시각, 'hand'면 손만, 상승 속도 배율(기본 1), 머리가 손보다 늦게 올라가는 시간(기본 0.635)] (기준 시각, 초). 9999 = 그 영상 안에서는 올라가지 않음
+const CUES={'videos/direct7500.mp4':[[6.2,9999]],'videos/st_intro.mp4':[[0.18,9.53],[34.77,36.98,'hand',1.23]],'videos/uw_win_6000.mp4':[[0.25,7.88]],'videos/uw_win_9000.mp4':[[0.13,7.76]],'videos/uw_win_12000.mp4':[[0.22,7.87,0,1,0.6]],'videos/uw_win_15000.mp4':[[0.13,7.77]],'videos/uw_win_18000.mp4':[[0.2,7.84,0,1,0.57]],'videos/uw_win_21000.mp4':[[0.07,7.71]],'videos/judge_break_win.mp4':[[4.78,10.39],[14.15,9999,'hand']],'videos/battle_nishio_winfull.mp4':[[87.8,97.01],[107.32,9999,'hand']],'videos/battle_tsukiyama_winfull.mp4':[[118.62,127.81],[138.3,9999,'hand']],'videos/yokoku_hand.mp4':[[0.1,5.14,'hand']],'videos/st_win_rize.mp4':[[75.57,84.77],[109.33,111.54,'hand',1.21]],'videos/st_win_omedetou.mp4':[[5.72,6.7,'hand'],[19.07,9999]],'videos/st_hyper6000.mp4':[[0.23,2.62,'hand'],[7.07,8.44,'hand',1.24],[12.9,18.83]],'videos/revival_fukurou.mp4':[[38.1,42.77],[53.92,9999,'hand']],'videos/st_win_tsukiyama.mp4':[[53.8,9999]],'videos/climax_yamori_body.mp4':[[65.57,9999]],'videos/climax_yamori_win.mp4':[[0.57,12.74],[27.72,9999,'hand']],'videos/bonus.mp4':[[0.72,4.54,'hand']],'videos/bonus7500.mp4':[[3.72,7.51,'hand'],[18.12,21.91,'hand'],[31.25,35.04,'hand']],'videos/judge_shiro_body.mp4':[[43.87,9999]],'videos/judge_tail_win.mp4':[[0.32,5.94]],'videos/pre_long.mp4':[[70.15,72.98,'hand']]};
+// 실기 역물의 움직임(전 연출 공통으로 측정): 손은 닿기 0.17초 전에 대기 자리를 떠나 0.09초 전에 화면 안으로 들어오고, 머리·몸은 0.15초 전 → 0.07초 전.
+// 올라갈 때 손은 일정한 속도로 약 1.24초 뒤, 머리·몸은 손보다 0.635초 늦게 출발해 0.36초 뒤 화면 밖으로 나감
+function cueTimes(c){const d=c[0],u=c[1],r=c[3]||1,dh=c[4]||.635,o={hand:[d-.17,d-.09,u+.92/r,u+1.275/r]};   // 올라올 때는 영상 속 손이 화면 위로 거의 빠져나간 뒤에 대기 손이 이어서 나타남
+ if(c[2]!=='hand'){o.head=[d-.15,d-.07,u+dh+.16,u+dh+.42];o.body=o.head}return o}
+function runCues(v,src,base){base=base||0;const raw=TUNE.cues[src]||CUES[src]||[];if(!raw.length)return ()=>{};
+ if(!EXTRA||partsOk<NP||dropsOk<ND)return runCuesOld(v,src,base,raw);
+ // 영상 시각을 매 프레임 읽어 대기 역물의 위치·투명도를 직접 정함 → 건너뛰기·배속에도 영상 속 역물과 어긋나지 않음
+ const cs=raw.map(cueTimes),FR={hand:.55,head:.5,body:.5};let G=null,raf=0,dead=false;
+ const geo=()=>{partEls.forEach(e=>{e.style.transform='';e.style.opacity=''});const g=gGeom();G=PARTS.map((P,i)=>{const a=g.pr[i],b=g.dr[P.to],f=FR[P.to];return {dx:(b.cx-a.cx)*f,dy:(b.cy-a.cy)*f,s:(b.w/a.w-1)*f}});G.w=g.M.width};
+ const tick=()=>{if(dead)return;raf=requestAnimationFrame(tick);if(!G||Math.abs(G.w-$('machine').getBoundingClientRect().width)>1)geo();
+  const t=v.currentTime-base;let handAway=false,bodyAway=false;
+  PARTS.forEach((P,i)=>{let p=0,op=1;
+   for(const c of cs){const m=c[P.to];if(!m||t<m[0]||t>=m[3])continue;
+    if(t<m[1]){const q=(t-m[0])/(m[1]-m[0]);p=q*q;op=q<.5?1:1-(q-.5)/.5}
+    else if(t<m[2]){p=1;op=0}
+    else{const q=(t-m[2])/(m[3]-m[2]);p=(1-q)*.6;op=Math.min(1,q/.5)}
+    break}
+   const e=partEls[i],g=G[i];
+   if(p===0&&op===1){if(e.style.transform){e.style.transform='';e.style.opacity=''}}
+   else{e.style.transform=`translate(${(g.dx*p).toFixed(1)}px,${(g.dy*p).toFixed(1)}px) scale(${(1+g.s*p).toFixed(4)})`;e.style.opacity=op.toFixed(3);if(P.to==='hand')handAway=true;if(P.to==='body')bodyAway=true}});
+  restBodyEl.style.opacity=handAway&&!bodyAway?1:0};
+ tick();
+ return ()=>{dead=true;cancelAnimationFrame(raf);partEls.forEach(e=>{e.style.transform='';e.style.opacity=''});restBodyEl.style.opacity=0}}
+function runCuesOld(v,src,base,raw){const cs=raw.map(c=>({d:c[0],u:c[1],only:c[2]||undefined,st:0}));
+ const iv=setInterval(()=>{const t=v.currentTime-base;for(const c of cs){
+  if(c.st===0&&t>=c.d-(EXTRA?(c.only?.175:.31):.2)){c.st=1;gDown('',c.only,{quiet:true,extra:EXTRA})}
+  if(c.st===1&&t>=c.u-(EXTRA?.08:.25)){c.st=2;gUp()}}},25);
+ return ()=>{clearInterval(iv);if(gState)gUp()}}
+let gimmickOk=false;$('gimmick').onload=()=>{gimmickOk=true};$('gimmick').onerror=()=>{gimmickOk=false;$('gimmick').style.display='none'};if($('gimmick').complete&&$('gimmick').naturalWidth)gimmickOk=true;
+async function handDrop(win,kind,only){
+ se('hand');
+ if(await playClip(CLIP.hand))return;
+ if(DROP_AS_REST&&partsOk===NP&&dropsOk===ND){ // 같은 그림이 그대로 내려왔다 올라감 (바뀌는 순간 없음)
+  const T=170/speed,use=k=>!only||k===only,F=kind==='gold'?GOLD:SH,bl=n=>F+' blur('+n+'px)',ks=Object.keys(DROPS).filter(use);
+  $('main').animate([{opacity:1},{opacity:0,offset:.3},{opacity:0,offset:.8},{opacity:1}],{duration:420/speed});
+  await sleep(130);
+  const DL={hand:0,body:10,head:30};
+  const dn=ks.map(k=>{const D=DROPS[k];D.el.style.zIndex=D.z;return D.el.animate([{transform:restPose(k),filter:bl(0)},{filter:bl(7),offset:.4},{transform:`translate(0%,1.2%) rotate(${D.rot||0}deg) scale(1.03)`,filter:bl(2),offset:.85},{transform:homePose(k),filter:bl(0)}],{duration:T,delay:DL[k]/speed,easing:'cubic-bezier(.5,0,.9,1)',fill:'forwards'})});
+  await Promise.all(dn.map(a=>a.finished));shake(only?250:400);flash(1,200);await sleep(1000);
+  const RISE={hand:{d:0,t:750},body:{d:560,t:420},head:{d:620,t:420}};
+  const up=ks.map(k=>{const R=only?{d:0,t:650}:RISE[k];return DROPS[k].el.animate([{transform:homePose(k)},{transform:restPose(k)}],{duration:R.t/speed,delay:R.d/speed,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'})});
+  await Promise.all(up.map(a=>a.finished));
+  ks.forEach(k=>{DROPS[k].el.style.zIndex=9;DROPS[k].el.style.filter=SH});dn.concat(up).forEach(a=>a.cancel());applyRest();return;
+ }
+ if(partsOk===NP&&dropsOk===ND){await gDown(kind,only);await sleep(1000);await gUp();return}
+ if(gimmickOk){
+  const g=$('gimmick');g.classList.toggle('glow-gold',kind==='gold');
+  const a=g.animate([{transform:'translateY(0)'},{transform:'translateY(122%)',offset:.72},{transform:'translateY(110%)',offset:.86},{transform:'translateY(120%)'}],{duration:420/speed,easing:'cubic-bezier(.55,0,1,1)',fill:'forwards'});
+  await a.finished;shake(500);flash(1,200);await sleep(1400);
+  const b=g.animate([{transform:'translateY(120%)'},{transform:'translateY(0)'}],{duration:1100/speed,easing:'ease-in-out',fill:'forwards'});await b.finished;g.classList.remove('glow-gold');return;
+ }
+ const h=$('hand');const fb=$('handFallback');const el=h.style.display==='none'?fb:h;
+ if(el===fb)fb.style.display='block';
+ const a=el.animate([{transform:'translate(-50%,-55%)',opacity:1},{transform:'translate(-50%,-4%)',opacity:1,offset:.7},{transform:'translate(-50%,-4%)',opacity:1}],{duration:450/speed,fill:'forwards'});
+ await a.finished;shake(500);flash(1,200);await sleep(1400);
+ const b=el.animate([{transform:'translate(-50%,-4%)',opacity:1},{transform:'translate(-50%,-55%)',opacity:0}],{duration:900/speed,fill:'forwards'});await b.finished;fb.style.display='none';
+}
+
+// ═══════════ 통상 회전 ═══════════
+async function spinNormal(){
+ const res=take('res')||nextRes||drawNormal(),win=res==='zorome';nextRes=null;const pHit=SPEC.zorome*mult;
+ if(res!=='lose')slowOn();
+ S.spins++;S.cur++;S.used+=spinCost();render();   // 회전마다 바로 차감하고 그래프에 반영
+ // 예고 추첨
+ const holdEv=win?wpick(HOLD,x=>x[2]):chooseEvent(HOLD.slice(1),false,pHit,1,2);
+ let holdColor=holdEv?holdEv[0]:'';
+ const fRp=take('rushPre'),rushPre=win&&(fRp!==undefined?fRp:Math.random()<SPEC.rushIn); // 대당 시 7500+RUSH 여부는 미리 결정 (연출에 반영)
+ if(holdColor==='rainbow'&&!rushPre)holdColor='gold';
+ const lever=win?(Math.random()<.16?wpick(LEVER,x=>x[2]):null):chooseEvent(LEVER,false,pHit,1,2);
+ const custom=$('selCustom').value;
+ let hand=win?Math.random()<HAND_WIN_SHARE:Math.random()<loseRate(pHit,HAND_WIN_SHARE,HAND_REL);const fHand=take('hand');if(fHand!==undefined)hand=fHand;
+ let reachEv=win?wpick(N_REACH,x=>x[3]):chooseEvent(N_REACH,false,pHit);
+ // 영상이 준비된 리치만 사용 (코드로 그린 리치 연출과 게임 숫자가 영상 사이에 끼지 않게)
+ if(reachEv&&speed<20){const av=[];for(const e of N_REACH)if(await reachOK(e[0],win))av.push(e);
+  if(av.length){if(win||!av.includes(reachEv))reachEv=av[Math.floor(Math.random()*av.length)]}else if(!win)reachEv=null}   // 당첨은 보유 영상 중 고르게, 꽝은 영상 없는 것만 교체
+ // 뒤늦은 당첨: 꽝 영상이 끝나고 1초 뒤 역물이 떨어지며 당첨
+ const fReach=take('reach'),fLate=take('late'),fRev=take('revival'),fIntro=take('intro');if(fReach)reachEv=N_REACH.find(x=>x[0]===fReach)||reachEv;
+ let late=win&&speed<20&&(fLate!==undefined?fLate:Math.random()<LATE_B);
+ if(late&&!(fReach&&await reachOK(fReach,false))){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);if(av.length)reachEv=av[Math.floor(Math.random()*av.length)];else late=false}
+ // 꽝 뒤의 부활은 항상 올빼미 부활 영상으로 (코드로 만든 역물 낙하는 쓰지 않음). 뒤늦은 당첨으로 뽑힌 경우도 여기에 합침
+ let rev=win&&speed<20&&(late||(fRev!==undefined?fRev:Math.random()<REVIVAL))&&await probe('videos/revival_fukurou.mp4');if(rev)late=false;
+ // 긴 도입(병실 → 리제)은 항상 클라이맥스 야모리로 이어짐
+ const long=win&&!late&&!rev&&speed<20&&(fIntro?fIntro==='long':Math.random()<PRE_LONG.p)&&await probe(PRE_LONG.src)&&await reachOK('climax_yamori',true);
+ if(long)reachEv=N_REACH.find(x=>x[0]==='climax_yamori');
+ const normalReach=false;   // 코드로 그린 노멀 리치는 쓰지 않음 (영상 연출만)
+ renderHolds(holdColor&&holdColor!=='blink'?'':holdColor);
+ if(holdColor&&holdColor!=='blink'){await sleep(250);se('hold');renderHolds(holdColor);await sleep(400)}
+ // 선역물 커스텀: 변동 개시 때 낙하 (당첨 확률 연동)
+ if(custom!=='def'){const rel=custom==='ex'?1:(+custom/100);const drop=win?(custom==='ex'?rushPre:Math.random()<.5):Math.random()<loseRate(pHit,.5,rel);if(drop)await handDrop(win,custom==='ex'?'gold':'')}
+ startReels();await sleep(speed>=20?20:1200);
+ const t=win?rd():0;
+ let tenpai=win?(rushPre?t:[1,3,4,5][Math.floor(Math.random()*4)]):rd();
+ if(!win&&(tenpai===7||tenpai===8))tenpai=[1,3,5][Math.floor(Math.random()*3)];
+ if(!NUMS.includes(tenpai))tenpai=rd();
+ const cn=await clipNum(reachEv,win&&!late);if(cn)tenpai=cn.t;
+ const reach=win||reachEv||normalReach;
+ // 부활: 꽝 리치 영상이 끝난 뒤에 올빼미 연출로 되살아남
+ if(rev){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);const lr=(fReach&&av.find(x=>x[0]===fReach))||(av.length?av[Math.floor(Math.random()*av.length)]:null),RV='videos/revival_fukurou.mp4';
+  if(lr){const lf=await reachFirst(lr[0],false);if(hand)await playClip('videos/yokoku_hand.mp4',{next:lf});await doReach(lr,0,false,false,{quiet:true,next:RV})}
+  else if(hand)await playClip('videos/yokoku_hand.mp4',{next:RV});
+  await playClip(RV,{next:CLIP.bonus});return finishNormal(res,rushPre,true)}
+ if(!reach){await sleep(speed>=20?0:850);return finishNormal(res,rushPre)}   // 연출 없는 꽝: 통상 화면은 그대로 흐르고 추첨만 진행
+ const mid=win?tenpai:(cn&&cn.mid&&tenpai===cn.t?cn.mid:nx(tenpai));
+ // 영상 리치: 영상 안에 텐파이·결과 숫자가 다 들어 있으므로 게임 쪽 숫자 정지·리치 문구·당첨 연출 없이 영상만 이어 붙임
+ const vwin=win&&!late,first=reachEv?await reachFirst(reachEv[0],vwin):'';
+ if(first){
+  // 리치 전 도입: 70% 손떨 예고, 30% 긴 도입 연출(병실 → 손떨+리제 웃음 → 리제 먹음, 한 덩어리 영상)
+  if(hand){const ok=long?await playClip(PRE_LONG.src,{next:first}):await playClip('videos/yokoku_hand.mp4',{next:first});
+   if(!ok&&!(long&&await playClip('videos/yokoku_hand.mp4',{next:first})))await handDrop(win)}
+  await doReach(reachEv,tenpai,vwin,false,{quiet:true,next:vwin&&res==='zorome'?CLIP.bonus:null});
+  if(late){clearTimeout(hideT);await sleep(1000);await handDrop(true)}
+  stopSilent(0,tenpai);stopSilent(2,tenpai);stopSilent(1,mid);
+  return finishNormal(res,rushPre,win);
+ }
+ // 손떨 예고 영상: 변동 중(리치 전)에 재생. 영상이 없으면 아래의 코드 낙하로 대신함
+ if(hand&&await playClip('videos/yokoku_hand.mp4'))hand=false;
+ stopReel(0,tenpai);await sleep(300);stopReel(2,tenpai);await sleep(200);
+ if(lever){se('lever');fx('PUSH','big t-'+lever[0]);await sleep(900);clearFx()}
+ if(hand&&!reachEv)await handDrop(win);
+ if(reachEv){if(hand){await sleep(600);await handDrop(win)}await doReach(reachEv,tenpai,win)}
+ else{se('reach');fx('リーチ','big t-white');await sleep(1500);clearFx()}
+ stopReel(1,mid);await sleep(400);
+ return finishNormal(res,rushPre);
+}
+async function finishNormal(res,rushPre,quiet){
+ if(res==='lose'){render();save();return}
+ S.hits++;const at=S.cur;S.cur=0;
+ if(res==='charge'){
+  const up=Math.random()<SPEC.chargeUp,has75=up&&await probe(CLIP.bonus7500);
+  if(!(await playClip(CLIP.charge,{next:has75?CLIP.bonus7500:null}))){fx('喰種チャージ','big t-red');await sleep(1200);clearFx()}
+  S.out+=300;
+  if(up){   // 차지 경유 7500: 기존 7500 보너스 영상(정산 → ST 진입)을 그대로 사용
+   if(has75){await play7500(S.out,7200);addHist(at+'회전','차지→7500 RUSH',true);return enterRush(true)}
+   await flash(3);fx('昇格!!<br>7500+RUSH','big t-rainbow');se('win');await sleep(1800);clearFx();S.out+=7200;addHist(at+'회전','차지→7500 RUSH',true);return enterRush()}
+  addHist(at+'회전','喰種チャージ 300',false);return;
+ }
+ if(!quiet){se('win');await flash(3);
+  if(!(await playClip(CLIP.zorome))){fx('大当り','big t-gold');await sleep(1500);clearFx()}}
+ // 영상 속 시각(초). bonus: 22 즉시 7500 분기 / 41 정산 시작 / 93 judgement 시작.  bonus7500: 52 정산 시작 / 182 ST 시작
+ const base=S.out,lin=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a)));
+ const fDir=take('direct'),nb=take('noBonus'),fJ=take('judge');
+ const direct=rushPre&&(fDir!==undefined?fDir:Math.random()<DIRECT_7500)&&await probe(CLIP.bonus)&&await probe(CLIP.bonus7500);
+ if(direct){
+  if(!nb)await playClip(CLIP.bonus,{to:BT.branch,next:'videos/direct7500.mp4'});
+  await playClip('videos/direct7500.mp4',{next:JT.win});await playClip(JT.win,{next:CLIP.bonus7500});
+  await play7500(base,7500);addHist(at+'회전','즉시 7500 + RUSH',true);return enterRush(true);
+ }
+ let jsel=(fJ&&JB.find(x=>x.k===fJ))||await pickJudge(rushPre);
+ if(!nb&&!(await playClip(CLIP.bonus,{to:BT.judge,next:fJ&&jsel?jsel.body:null,skip:[[BT.pay,Math.min(BT.jintro,BT.judge)]],onTime:t=>{const o=base+Math.round(3000*lin(t,BT.pay,Math.min(BT.jintro,BT.judge)-3));if(o!==S.out){S.out=o;render()}}}))){fx('HYPER喰種BONUS','mid t-red');const c=fx('0','big t-gold');for(let v=0;v<=3000;v+=150){c.textContent=v.toLocaleString();await sleep(45)}await sleep(500);clearFx()}
+ S.out=base+3000;render();
+ let jfrom;if(!fJ&&!nb&&speed<20){const c=await chooseMode(rushPre);if(c){jsel=c.j;jfrom=c.from}}
+ const ok=await judgement(rushPre,jsel,jfrom);
+ if(ok){const p=await play7500(base+3000,4500);addHist(at+'회전','7500 + RUSH',true);return enterRush(p)}
+ addHist(at+'회전','3000 (RUSH 실패)',false);
+}
+// 긴 도입 연출: 손떨 대신 30% 확률, 항상 클라이맥스 야모리 리치로 이어짐
+const PRE_LONG={src:'videos/pre_long.mp4',p:.30};
+const LATE_B=0.10, LATE_J=0.12;   // 배틀 꽝 1초 뒤 역물 낙하로 당첨(통상 당첨 중 비율) / judgement 실패 후 계수 중 낙하로 당첨(RUSH 당첨 중 비율), 추정값
+const LATE=Object.assign({j0:5.0,j1:13.0},TUNE.consts.LATE);   // judge_tail_lose 안에서 역전 낙하가 가능한 구간(초): 계수 시작 ~ 흰색·파란색 안내가 뜨기 전
+const REVIVAL=0.06; // 당첨 중 부활 연출 비율(추정)
+const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182},TUNE.consts.B75),DIRECT_7500=0.25;   // RUSH 당첨 중 25% = 첫 당첨의 12.5%
+// 7500 보너스 영상: 정산 구간 동안 획득 수를 올리고, ST 시작 시각에 RUSH 표시로 전환
+async function play7500(base,gain){
+ const lin=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a)));
+ const p=await playClip(CLIP.bonus7500,{next:STV.full,skip:[[B75.pay,B75.st]],onTime:t=>{const o=base+Math.round(gain*lin(t,B75.pay,B75.st-3));if(o!==S.out){S.out=o;render()}},marks:[[B75.st,()=>{S.out=base+gain;S.mode='rush';S.st=SPEC.st;render()}]]});
+ S.out=base+gain;render();return p;
+}
+// judgement: 상대별 본체(결과 직전까지) + 공통 결말(성공/실패). 본체만 보고는 결과를 알 수 없어요.
+const JB=[{k:'shachi',body:'videos/judge_shachi_body.mp4',pre:'videos/judge_ready.mp4',rel:.26,w:.15},{k:'yamori',body:'videos/judge_yamori_body.mp4',rel:.40,w:.30},{k:'shiro',body:'videos/judge_shiro_body.mp4',rel:.92,w:.25},
+ {k:'break',body:'videos/judge_break_body.mp4',win:'videos/judge_break_win.mp4',loseFrom:.63,rel:.45,w:.30}];
+const JT={win:'videos/judge_tail_win.mp4',lose:'videos/judge_tail_lose.mp4'};
+async function pickJudge(success){if(!(speed<20&&await probe(JT.win)&&await probe(JT.lose)))return null;const av=[];for(const j of JB)if(await probe(j.body))av.push(j);
+ if(!av.length)return null;
+ // 모드는 배틀 / 브레이크 50:50, 배틀이면 상대를 신뢰도에 맞춰 고름
+ const br=av.filter(x=>x.k==='break'),bt=av.filter(x=>x.k!=='break'),pool=(Math.random()<.5?br:bt);const use=pool.length?pool:av;
+ return wpick(use,x=>success?x.w*x.rel:x.w*(1-x.rel))}
+// 선택 화면: 두 본체 영상의 선택 장면을 멈춰 두고(왼쪽 = 배틀, 오른쪽 = 브레이크) 유저가 고름. 성공·실패는 이미 추첨으로 정해져 있음
+const SEL=Object.assign({shachi:[1.0,2.88],yamori:[2.0,8.05],shiro:[1.5,7.55],break:[4.0,8.08],t0:2.95,lead:.5},TUNE.consts.SEL);   // t0: 선택 시작(브레이크 쪽 화면이 뜬 뒤), lead: 확정 번쩍임 직전에 선택을 마감   // [선택 장면 시각, 영상 속 확정 순간]
+async function chooseMode(success){
+ const bt=[],br=[];for(const j of JB)if(await probe(j.body))(j.k==='break'?br:bt).push(j);if(!bt.length||!br.length)return null;
+ const jb=wpick(bt,x=>success?x.w*x.rel:x.w*(1-x.rel)),jk=br[0],out=j=>({j,from:Math.max(0,SEL[j.k][1]-SEL.lead)});
+ clearTimeout(hideT);prepSeq++;prepared=null;
+ const SRC='videos/judge_yamori_body.mp4';                                                    // 선택 화면의 소리·제한시간 게이지는 배틀(모드1) 영상의 것을 사용
+ if(auto||!(await probe(SRC))){return out(Math.random()<.5?jb:jk)}                             // 자동 회전 중에는 기다리지 않고 무작위
+ // 두 영상의 선택 화면은 같은 박자로 흐름 → 배틀 쪽(소리 있음)과 브레이크 쪽(무음)을 동시에 틀어 두고, 고른 쪽을 앞에 보여 줌. 제한시간이 끝나면 그때 고른 모드로 진행
+ const cur=VIDS.findIndex(v=>v.style.display==='block'),Lel=VIDS[cur===0?1:0],Rel=VIDS[cur===0?0:1];
+ const load=async(v,src,t)=>{v.src=src;v.muted=true;v.playbackRate=1;await new Promise(r=>{v.onloadedmetadata=r;v.onerror=r;setTimeout(r,2500)});const g=clipGeom(src,v);
+  await new Promise(r=>{v.onseeked=r;setTimeout(r,1500);try{v.currentTime=g.base+t}catch(e){r()}});v.pause();return g};
+ const gL=await load(Lel,SRC,SEL.t0),gR=await load(Rel,jk.body,SEL.t0+(SEL.break[1]-SEL.yamori[1]));
+ document.body.classList.add('inclip');bgPause();idleHide();
+ Lel.style.zIndex=7;Lel.style.display='block';Rel.style.zIndex=5;Rel.style.display='block';Lel.muted=muted;
+ try{await Lel.play()}catch(e){}Rel.play().catch(()=>{});
+ let pick='L';const show=()=>{Lel.style.zIndex=pick==='L'?7:5;Rel.style.zIndex=pick==='R'?7:5;$('selHint').textContent='모드 선택: 화면 왼쪽(배틀) · 오른쪽(브레이크) 클릭 또는 ←/→   지금: '+(pick==='L'?'배틀':'브레이크')};
+ show();$('selHint').style.display='block';
+ const tEnd=gL.base+SEL.yamori[1]-SEL.lead;
+ const res=await new Promise(done=>{const t0=performance.now();let over=false;
+  const fin=()=>{if(over)return;over=true;selHook=null;clearInterval(iv);clearTimeout(to);$('main').removeEventListener('pointerdown',onP);done(pick)};
+  const iv=setInterval(()=>{if(Lel.currentTime>=tEnd||Lel.ended)fin();else if(Math.abs((Rel.currentTime-gR.base)-(Lel.currentTime-gL.base)-(SEL.break[1]-SEL.yamori[1]))>.12){try{Rel.currentTime=gR.base+(Lel.currentTime-gL.base)+(SEL.break[1]-SEL.yamori[1])}catch(e){}}},40);
+  const to=setTimeout(fin,(SEL.yamori[1]-SEL.lead-SEL.t0)*1000+1500);                                         // 영상이 멈춰도 넘어가도록 안전장치
+  // 클릭·방향키는 선택만 바꿈(몇 번이든 가능). Space/SKIP 은 바로 결정. 화면이 뜬 직후 0.4초는 입력을 받지 않음(직전 연타 방지)
+  selHook=k=>{if(performance.now()-t0<400)return;if(k==='ok')return fin();if(k!==pick){pick=k;show()}};
+  const onP=e=>{const r=$('main').getBoundingClientRect();selHook((e.clientX-r.left)<r.width/2?'L':'R')};$('main').addEventListener('pointerdown',onP)});
+ Lel.pause();Rel.pause();$('selHint').style.display='none';inputLock=performance.now()+1200;skipReq=false;pushReq=false;       // 결정 직후 1.2초는 건너뛰기 입력 무시
+ vidI=VIDS.indexOf(res==='L'?Lel:Rel);                                                                          // 고른 쪽 화면을 그대로 둔 채 다음 재생이 반대쪽 화면에서 준비됨
+ return out(res==='L'?jb:jk)}
+async function judgement(success,j,jfrom){
+ if(j===undefined)j=await pickJudge(success);
+ const fJl=take('jlate');
+ if(j&&success&&(fJl!==undefined?fJl:Math.random()<LATE_J)){   // 실패로 보인 뒤 계수 중 아무 때나 역물이 떨어지며 역전 (안내 문구가 뜨기 전까지)
+  const tl={src:JT.lose,from:j.loseFrom||undefined};await playClip(j.body,{from:jfrom,next:j.pre||JT.lose});if(j.pre)await playClip(j.pre,{next:JT.lose});
+  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.random()*Math.max(0,LATE.j1-LATE.j0)).toFixed(2)});clearTimeout(hideT);await handDrop(true);return true}
+ if(j){const tail=success?{src:(j.win&&await probe(j.win))?j.win:JT.win}:{src:JT.lose,from:j.loseFrom||undefined}   /* 배틀 실패는 조정한 시작점(+0.6)부터 */;
+  await playClip(j.body,{from:jfrom,next:j.pre||tail});if(j.pre)await playClip(j.pre,{next:tail});
+  await playClip(tail.src,{from:tail.from,next:success?CLIP.bonus7500:null});return success}
+ const opp=success?wpick(JUDGE,x=>x[2]):wpick(JUDGE,x=>x[2]*(1-x[1])/x[1]);
+ if(await playClip(success?CLIP.judge_win:CLIP.judge_lose))return success;
+ fx('7500ジャッジメントバトル','mid t-red');fx('VS '+opp[0],'big t-'+(opp[1]>.7?'gold':'white'));await sleep(2200);clearFx();
+ fx('<div class="bar"><i></i></div>','sm');const bar=$('fx').querySelector('.bar i');bar.style.transition='width '+(3000/speed)+'ms linear';await sleep(40);bar.style.width=success?'100%':'82%';await sleep(3200);clearFx();
+ if(success){await flash(2);se('win');fx('7500 獲得!!<br>HYPER喰種RUSH 突入','big t-rainbow');await sleep(2200)}else{fx('敗北…<br>3000個 獲得','mid t-white');await sleep(1800)}
+ clearFx();return success;
+}
+
+// ═══════════ RUSH ═══════════
+// 영상 ST는 회전 버튼 없이 자동으로 이어짐: 돌입 → 5회전 영상 → (당첨이면 보너스 → 다시 5회전) → 종료까지
+async function stAuto(){while(S.mode==='rush'&&speed<20&&await probe(STV.full))await stVideo()}
+async function enterRush(skipIntro){await enterRush0(skipIntro);await stAuto()}
+async function enterRush0(skipIntro){
+ S.mode='rush';S.st=SPEC.st;S.chain=1;S.rushGain=0;S.rushes++;bgm('bgmRush');render();
+ if(skipIntro)return;
+ if(!(await playClip(CLIP.rush_in,{next:STV.full}))){fx('HYPER喰種RUSH','big t-red');fx('ST 5回 · 1/7.7','sm t-white');await sleep(2000);clearFx()}
+}
+// ── 영상 ST: 5회 전부 꽝인 풀영상을 틀고, 각 회전 시작점(4·3·2·1·LAST)에서 1/7.7 추첨 → 당첨이면 그 자리에서 고지 영상으로 전환 ──
+const ST=Object.assign({b1:.55,b2:20.15,b3:32.45,b4:105.7,b5:117.75,end:129.7},TUNE.consts.ST);   // st_full 안의 회전 시작 시각(초)
+const STV={full:'videos/st_full.mp4',wins:[{k:'rize',src:'videos/st_win_rize.mp4',intro:false,w:.5},{k:'tsukiyama',src:'videos/st_win_tsukiyama.mp4',intro:false,w:.2},{k:'omedetou',src:'videos/st_win_omedetou.mp4',intro:false,w:.3,any:true}]};
+async function stVideo(){
+ const B=[ST.b1,ST.b2,ST.b3,ST.b4,ST.b5],wins=[];for(const w of STV.wins)if(await probe(w.src))wins.push(w);
+ let hit=-1;for(let i=0;i<B.length;i++)if((forceWin&&i===0)||Math.random()<SPEC.rushP){hit=i;break}
+ const fHit=take('stHit'),fW=take('stWin');if(fHit!==undefined)hit=fHit;
+ if(forceWin){forceWin=false;$('bForce').classList.remove('on')}
+ const w=hit>=0&&wins.length?((fW&&wins.find(x=>x.k===fW))||wpick(wins,x=>x.w)):null;let to=hit>=0?B[hit]:ST.end;
+ // 오메데토는 회전 시작점이 아니라 그 회전의 연출 도중 아무 때나 끼어듦 (긴 회전일수록 폭이 넓음)
+ if(w&&w.any){const a=B[hit]+1.5,e=(B[hit+1]||ST.end)-1.5;if(e>a)to=+(a+Math.random()*(e-a)).toFixed(2)}
+ S.st=SPEC.st;render();
+ const marks=B.map((t,i)=>[t,()=>{S.st=SPEC.st-1-i;S.spins++;render()}]).filter(m=>m[0]<to-.02);
+ const skip=B.map((t,i)=>[t+1,(B[i+1]||ST.end)-.6]).filter(x=>x[1]<=to+.01);
+ await playClip(STV.full,{to,marks,skip,next:hit<0?'videos/rush_result.mp4':(w?w.src:null)});
+ if(hit<0){S.st=0;render();await endRush();render();save();return}
+ S.spins++;S.st=SPEC.st-1-hit;S.hits++;S.chain++;render();
+ const played=w?await playClip(w.src,{to:w.to,next:w.intro?null:'videos/st_intro.mp4'}):false;   // to: 역물이 떨어지기 직전. 낙하는 st_intro 가 이어서 보여 줌
+ if(!played){se('win');await flash(3)}
+ await rushBonus(played&&w.intro);S.st=SPEC.st;render();save();
+}
+async function spinRush(){
+ if(speed<20&&await probe(STV.full))return stAuto();
+ S.spins++;const win=forceWin||Math.random()<SPEC.rushP;if(forceWin){forceWin=false;$('bForce').classList.remove('on')}
+ S.st--;render();
+ const ev=win?wpick(R_REACH,x=>x[3]):chooseEvent(R_REACH,false,SPEC.rushP);
+ const holdEv=win?(Math.random()<.35?(Math.random()<.2?'rainbow':'red'):''):(Math.random()<loseRate(SPEC.rushP,.3,.9)?'red':'');
+ renderHolds(holdEv);if(holdEv){se('hold');await sleep(300)}
+ startReels();await sleep(speed>=20?20:500);
+ let t=rd();const cn=await clipNum(ev,win);if(cn)t=cn.t;
+ if(!ev){let a=rd(),b=rd();if(a===b)b=nx(b);stopReel(0,a);await sleep(120);stopReel(2,b);await sleep(120);stopReel(1,rd());await sleep(200)}
+ let rr='';const midR=win?t:(cn&&cn.mid&&t===cn.t?cn.mid:nx(t));
+ if(!ev){}
+ else if(await reachFirst(ev[0],win)){rr=await doReach(ev,t,win,true,{quiet:true});stopSilent(0,t);stopSilent(2,t);stopSilent(1,midR)}   // 영상 리치: 숫자 정지·문구 없이 영상만
+ else{stopReel(0,t);await sleep(150);stopReel(2,t);rr=await doReach(ev,t,win,true);stopReel(1,midR);await sleep(300)}
+ if(win){
+  S.hits++;S.chain++;if(!rr){se('win');await flash(3)}
+  await rushBonus(rr==='full'&&INTRO_IN.has(ev[0]));S.st=SPEC.st;
+ }
+ if(S.st<=0&&S.mode==='rush')await endRush();
+ render();save();
+}
+// RUSH 중 당첨: 3000 지급 → 추가 3000 도전을 실패할 때까지 반복 (성공률 SPEC.loop)
+const RES=Object.assign({n:1.45,p:2.8,off:8.2},TUNE.consts.RES);   // rush_result 안에서 횟수·획득 수가 확정되는 시각, 덮개를 치우는 시각
+const HYPER6000=0.03; // 3000 → HYPER 6000 희귀 보너스 비율(추정)
+const UWT=Object.assign({t2:15.78,t1:25.31},TUNE.consts.UWT); // uw_try 안에서 "2"·"1" 단계의 정적이 끝나는 시각(초)
+const UW_FL=(TUNE.consts.UW_FL)||[3.7,9.2,15.8,18.7,25.33,28.2];   // uw_try 안에서 흰 링이 터지는 시각(초), 영상 밝기에서 뽑은 값
+const UW_LIT_OFF=(TUNE.consts.UW_LIT_OFF)||0;const UW_LIT_FROM=6.0;   // '2' 카운트가 뜨는 시각(초): 이때부터 밝기 곡선을 따라감
+   // 역물 밝기 곡선을 영상에 맞춰 앞뒤로 미는 값(초)
+const UW_STAGE=[.08,.17];                                     // 성공 시 낙하 단계 비율: "2" 8%, "1" 17%, 나머지 75%는 LAST
+const UW={try:'videos/uw_try.mp4',lose:'videos/uw_lose.mp4',pay:'videos/uw_pay.mp4',amts:[6000,9000,12000,15000,18000,21000]};
+async function uwWinClip(total){const ok=[];for(const a of UW.amts)if(await probe('videos/uw_win_'+a+'.mp4'))ok.push(a);if(!ok.length)return '';
+ const le=ok.filter(a=>a<=total);return 'videos/uw_win_'+(le.length?le[le.length-1]:ok[0])+'.mp4'}
+const INTRO_IN=new Set(['amon']); // 당첨 영상에 보너스 도입부(우타~3000)까지 들어 있는 연출
+async function rushBonus(skipIntro){
+ const base=S.out,rb=S.rushGain,lin=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a)));
+ const set=g=>{if(S.out!==base+g){S.out=base+g;S.rushGain=rb+g;render()}};
+ let gain=3000;
+ const fHy=take('hyper'),fUw=take('uw'),uwOnly=take('uwOnly');if(uwOnly)skipIntro=true;
+ const hyper=!skipIntro&&speed<20&&(fHy!==undefined?fHy:Math.random()<HYPER6000)&&await probe('videos/st_hyper6000.mp4');
+ const eps=[];if(!hyper)for(const n of [2,3,4,5,6])if(await probe('videos/st_ep_'+n+'.mp4'))eps.push(n);
+ const ep=eps.length&&!uwOnly?'videos/st_ep_'+(eps.includes(S.chain)?S.chain:eps[Math.floor(Math.random()*eps.length)])+'.mp4':'';
+ const real=speed<20&&await probe(UW.try)&&await probe(UW.lose);
+ let wins=0;if(real){if(fUw)wins=fUw.length;else while(Math.random()<SPEC.loop)wins++}            // 추가 3000 성공 횟수를 미리 정해 두고 영상을 끊김 없이 이어 붙임
+ const first=hyper?'videos/st_hyper6000.mp4':(ep||(real?UW.try:''));
+ if(!skipIntro&&!(await playClip('videos/st_intro.mp4',{next:first}))&&!(await playClip(CLIP.zorome))){fx('HYPER喰種BONUS 3000','big t-gold');await sleep(1400);clearFx()}
+ if(hyper){gain=6000;await playClip('videos/st_hyper6000.mp4',{next:real?UW.try:null,skip:[[59,169]],onTime:t=>set(Math.round(6000*lin(t,59,166)))})}
+ else if(ep)await playClip(ep,{next:real?UW.try:null,skip:'all',onTime:(t,d)=>set(Math.round(3000*lin(t,3,d-3)))});
+ set(gain);
+ if(!real){while(Math.random()<SPEC.loop){await kumaxLoop();gain+=3000;set(gain)}}
+ else for(let i=0;;i++){
+  const win=i<wins,wc=win?await uwWinClip(gain+3000):'';
+  // 성공은 2·1·LAST 어느 단계의 정적 끝에서든 떨어질 수 있음 (뒤로 갈수록 확률 큼). 실패는 항상 끝까지 감
+  let cut=null;if(win){const r=Math.random();cut=r<UW_STAGE[0]?UWT.t2:(r<UW_STAGE[0]+UW_STAGE[1]?UWT.t1:null);if(fUw)cut=fUw[i]==='t2'?UWT.t2:(fUw[i]==='t1'?UWT.t1:null)}
+  // 판정 중 상단 역물의 밝기: 실기를 찍은 영상에서 프레임 단위로 잰 밝기 곡선을 그대로 따라감
+  await playClip(UW.try,cut!=null?{to:cut,onTime:gLit,next:wc||UW.pay}:{onTime:gLit,next:win?(wc||UW.pay):UW.lose});gDim(false);
+  if(!win){await playClip(UW.lose,{next:CLIP.rush_in});break}
+  const prev=gain;gain+=3000;
+  if(!(await playClip(wc,{next:UW.pay}))){fx('上乗せ成功!! '+fmt(gain),'big t-rainbow');se('win');await sleep(1300);clearFx()}
+  await playClip(UW.pay,{next:UW.try,skip:'all',onTime:(t,d)=>set(prev+Math.round(3000*lin(t,1,d-3)))});set(gain);
+ }
+ set(gain);addHist('RUSH '+(S.chain-1)+'연',fmt(gain),true);
+ if(real)await playClip(CLIP.rush_in,{next:STV.full});
+}
+async function kumaxLoop(){
+ if(!(await playClip(CLIP.loop))){fx('上乗せ3000ジャッジ','mid t-red');await sleep(900);clearFx();await handDrop(true,'gold');fx('喰MAX!! +3000','big t-rainbow');se('win');await sleep(1300);clearFx()}
+}
+async function endRush(){
+ S.maxChain=Math.max(S.maxChain,S.chain);
+{const O=$('resOv'),N=$('resN'),P=$('resP');N.textContent=S.chain;P.textContent=(S.rushGain+7500).toLocaleString('en-US').replace(/,/g,'');N.className=P.className='';O.style.display='block';
+  // 영상 속 숫자가 굴러가다 확정되는 순간(횟수 1.45초, 획득 2.8초)에 실제 값으로 덮고, 좌타 안내로 바뀌기 전(8.2초)에 치움
+  var resOk=await playClip('videos/rush_result.mp4',{marks:[[RES.n,()=>N.className='on'],[RES.p,()=>P.className='on'],[RES.off,()=>{O.style.display='none'}]]});O.style.display='none'}
+ if(!resOk&&!(await playClip(CLIP.rush_end))){fx('RUSH 終了','mid t-white');fx(S.chain+'連  TOTAL '+fmt(S.rushGain+7500),'big t-gold');await sleep(2800);clearFx()}
+ S.mode='normal';S.st=0;bgm('bgm');
+}
+
+// ═══════════ 조작 ═══════════
+async function spin(){if(selHook)return selHook('ok');if(busy){pushReq=true;skipReq=true;return}busy=true;stopAll=false;FORCE={};try{
+ if(!AC)ac();if(!bgmNow)bgm('bgm');
+ S.holds=[1,1,1].slice(0,auto?4:3);
+ if(S.mode==='rush')await spinRush();else await spinNormal();
+}catch(e){console.error(e)}finally{busy=false;slowOff();if(S.mode==='normal'){document.body.classList.remove('inclip');clearTimeout(hideT);VIDS.forEach(v=>{if(v.paused)v.style.display='none'});bgResume()}idleArm();render()}if(auto)setTimeout(spin,speed>=20?0:350/speed)}
+$('bSpin').onclick=spin;
+$('bAuto').onclick=()=>{auto=!auto;$('bAuto').classList.toggle('on',auto);if(auto&&!busy)spin()};
+$('bForce').onclick=()=>{forceWin=!forceWin;$('bForce').classList.toggle('on',forceWin)};
+$('bRush').onclick=async()=>{if(busy||S.mode==='rush')return;busy=true;try{S.hits++;S.out+=7500;addHist(S.cur+'회전','RUSH 직행',true);S.cur=0;await enterRush()}finally{busy=false;render()}};
+document.querySelectorAll('.spd').forEach(b=>b.onclick=()=>{userSpeed=+b.dataset.spd;if(!slowed)speed=userSpeed;document.querySelectorAll('.spd').forEach(x=>x.classList.toggle('on',x===b))});
+$('selMult').onchange=e=>mult=+e.target.value;
+$('bReset').onclick=()=>{if(busy)return;Object.assign(S,{spins:0,cur:0,hits:0,rushes:0,out:0,used:0,maxChain:0,hist:[],g:[[0,0]]});save();render()};
+$('tHand').onclick=async()=>{if(busy)return;busy=true;try{await handDrop(true)}finally{busy=false}};
+$('tHandOnly').onclick=async()=>{if(busy)return;busy=true;try{await handDrop(true,'','hand')}finally{busy=false}};
+$('tExtra').onclick=()=>{EXTRA=!EXTRA;$('tExtra').classList.toggle('on',EXTRA)};
+const tClip=async src=>{if(busy)return;busy=true;try{await playClip(src)}finally{busy=false}};
+$('tClipHand').onclick=()=>tClip('videos/bonus.mp4');$('tClip7500').onclick=()=>tClip('videos/bonus7500.mp4');$('tClipAll').onclick=()=>tClip('videos/climax_yamori_win.mp4');
+$('tJudge').onclick=async()=>{if(busy)return;busy=true;try{await judgement(Math.random()<.5)}finally{busy=false}};
+$('tRB').onclick=async()=>{if(busy)return;busy=true;try{if(S.mode!=='rush'){S.mode='rush';S.chain=1;S.rushGain=0;S.st=SPEC.st}S.chain++;S.hits++;await rushBonus();S.st=SPEC.st}finally{busy=false;render()}};
+$('tLoop').onclick=async()=>{if(busy)return;busy=true;try{await kumaxLoop()}finally{busy=false}};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;if(e.code==='Space'||e.code==='Enter'){e.preventDefault();if(e.repeat)return;spin()}else if(selHook&&(e.code==='ArrowLeft'||e.code==='ArrowRight')){e.preventDefault();selHook(e.code==='ArrowLeft'?'L':'R')}else if(e.key==='m'||e.key==='M'){muted=!muted;applyMute()}else if(e.key==='r'||e.key==='R'){recToggle()}else if(e.key==='t'||e.key==='T'){tuneToggle()}});
+let fullView=false;try{fullView=localStorage.getItem('g999Full')==='1'}catch(e){}
+function applyView(){document.body.classList.toggle('full',fullView);$('bView').textContent=fullView?'액정 확대 보기':'기기 전체 보기';try{localStorage.setItem('g999Full',fullView?'1':'0')}catch(e){}}
+$('bView').onclick=()=>{fullView=!fullView;applyView()};applyView();
+$('main').insertBefore($('vid'),$('main').firstChild); // 영상은 액정 창 영역 기준으로 배치
+setTimeout(()=>{for(let i=0;i<3;i++)setNum(i,[2,3,5][i])},600);
+renderHolds('');applyMute();render();
+</script>
+<div id="wcol">
+<div class="wg" id="wA"><div class="hd" id="wAh" title="접기/펼치기"><span>PLAY</span><i></i></div><div class="bd">
+<button id="wPlay" class="wide" title="회전 (Space)">▶ PLAY</button>
+<button id="wAuto" title="누를 때마다: 자동 x1 → x2 → x4 → x8 → 끄기">AUTO OFF</button>
+<button id="wSkip" title="건너뛰기 / PUSH (Space)">SKIP</button>
+<label id="wRate" title="1,000엔(250발)으로 도는 횟수">회전율</label>
+<button id="wSnd" title="소리 (M)">🔊 소리</button>
+<button id="wView" class="wide" title="화면: 액정 확대 → 전체 기기 → 최대 화면"></button>
+</div></div>
+<div class="wg" id="wB"><div class="hd" id="wBh" title="접기/펼치기"><span>RECORD</span><i></i></div><div class="bd">
+<canvas id="wData" width="400" height="388"></canvas>
+<button id="wReset" title="기록 초기화">기록 초기화</button>
+</div></div>
+</div>
+<script>
+(()=>{const q=id=>document.getElementById(id);
+ // 조정 화면·녹화 등 작업용 기능은 실전용에서 끔
+ tuneToggle=()=>{};recToggle=()=>{};
+ q('wRate').appendChild(q('inCost'));
+ q('wB').querySelector('.bd').insertBefore(q('gCv'),q('wReset'));q('gCv').width=400;q('gCv').height=170;
+ q('wPlay').onclick=()=>{q('wPlay').blur();spin()};
+ q('wSkip').onclick=()=>{q('wSkip').blur();pressSkip()};
+ // AUTO: 한 버튼으로 x1 → x2 → x4 → x8 → 끄기
+ const SP=[1,2,4,8];let ai=-1;
+ const setSpd=x=>{userSpeed=x;if(!slowed)speed=x};
+ q('wAuto').onclick=()=>{q('wAuto').blur();ai=ai+1>=SP.length?-1:ai+1;
+  if(ai<0){auto=false;setSpd(1)}else{setSpd(SP[ai]);auto=true;if(!busy&&!selHook)spin()}paint()};
+ q('wSnd').onclick=()=>{q('wSnd').blur();muted=!muted;applyMute();paint()};
+ const VW=[['v-zoom','액정 확대'],['v-full','전체 기기'],['v-max','최대 화면']];let vi=0;try{vi=Math.max(0,VW.findIndex(v=>v[0]===localStorage.getItem('g999View')))}catch(e){}
+ const setView=()=>{document.body.classList.remove('full','v-zoom','v-full','v-max');document.body.classList.add(VW[vi][0]);q('wView').textContent='화면: '+VW[vi][1];try{localStorage.setItem('g999View',VW[vi][0])}catch(e){}};
+ q('wView').onclick=()=>{q('wView').blur();vi=(vi+1)%VW.length;setView()};setView();
+ // 위젯 2개를 따로 접기/펼치기. 모바일은 데이터 위젯이 접힌 채로 시작
+ const mob=matchMedia('(max-width:760px)').matches,fold={a:false,b:mob};try{Object.assign(fold,JSON.parse(localStorage.getItem('g999Fold2')||'{}'))}catch(e){}
+ const setFold=()=>{document.body.classList.toggle('aOff',fold.a);document.body.classList.toggle('bOff',fold.b);q('wAh').lastChild.textContent=fold.a?'▸':'◂';q('wBh').lastChild.textContent=fold.b?'▸':'◂';try{localStorage.setItem('g999Fold2',JSON.stringify(fold))}catch(e){}};
+ q('wAh').onclick=()=>{fold.a=!fold.a;setFold()};q('wBh').onclick=()=>{fold.b=!fold.b;setFold();draw()};setFold();
+ // ── 대박 기록: 첫 당첨마다 한 칸 (시작 회전수, 연속 횟수) ──
+ let H=[];try{H=JSON.parse(localStorage.getItem('g999Hist')||'[]')}catch(e){}
+ let lastHits=S.hits,lastCur=S.cur;
+ const saveH=()=>{try{localStorage.setItem('g999Hist',JSON.stringify(H.slice(-60)))}catch(e){}};
+ const _render=render;render=function(){_render();
+  let ns=false;if(S.hits>lastHits){const d=S.hits-lastHits;if(lastCur>0||!H.length){H.push([lastCur,d]);ns=!seqOn}else H[H.length-1][1]+=d;saveH()}
+  else if(S.hits<lastHits){H=[];saveH()}       // 기록 초기화
+  payTrack(ns);lastHits=S.hits;lastCur=S.cur;draw()};
+ q('wReset').onclick=()=>{q('wReset').blur();q('bReset').onclick()};
+ // ── 액정 오른쪽 아래 당첨금 표시: 첫 당첨부터 통상으로 돌아와 다시 회전할 때까지의 획득 구슬 ──
+ const pay=document.createElement('div');pay.id='wPay';pay.title='접기/펼치기';pay.innerHTML='<u>TOTAL</u><b>0</b><i>pt</i>';{const bx=document.createElement('div');bx.id='wPayBox';bx.appendChild(pay);q('machine').appendChild(bx)}
+ let seqOn=false,seqBase=0,lastOut=S.out,payFold=false;try{payFold=localStorage.getItem('g999Pay')==='0'}catch(e){}
+ pay.classList.toggle('fold',payFold);
+ pay.addEventListener('pointerdown',e=>{e.stopPropagation();payFold=!payFold;pay.classList.toggle('fold',payFold);try{localStorage.setItem('g999Pay',payFold?'0':'1')}catch(e){}});
+ function payTrack(newSeq){if(newSeq){seqOn=true;seqBase=lastOut}else if(seqOn&&S.mode==='normal'&&S.cur>0)seqOn=false;
+  lastOut=S.out;pay.classList.toggle('on',seqOn);if(seqOn)pay.querySelector('b').textContent=Math.max(0,Math.round(S.out-seqBase)).toLocaleString()}
+ // ── 7세그먼트 숫자 ──
+ const SEG={0:'abcdef',1:'bc',2:'abged',3:'abgcd',4:'fgbc',5:'afgcd',6:'afgedc',7:'abc',8:'abcdefg',9:'abfgcd','-':'g',' ':''};
+ function seg(x,X,Y,w,h,ch,on,off){const t=Math.max(2,w*.17),sk=h*.09,P={a:[[t,0],[w-t,0],[w-t*1.6,t],[t*1.6,t]],g:[[t,h/2-t/2],[w-t,h/2-t/2],[w-t,h/2+t/2],[t,h/2+t/2]],d:[[t*1.6,h-t],[w-t*1.6,h-t],[w-t,h],[t,h]],
+   f:[[0,t*.6],[t,t*1.5],[t,h/2-t*.6],[0,h/2-t*.1]],b:[[w,t*.6],[w,h/2-t*.1],[w-t,h/2-t*.6],[w-t,t*1.5]],e:[[0,h/2+t*.1],[t,h/2+t*.6],[t,h-t*1.5],[0,h-t*.6]],c:[[w,h/2+t*.1],[w,h-t*.6],[w-t,h-t*1.5],[w-t,h/2+t*.6]]};
+  const lit=SEG[ch]||'';for(const k in P){x.fillStyle=lit.includes(k)?on:off;x.beginPath();P[k].forEach((p,i)=>{const px=X+p[0]+(h-p[1])/h*sk,py=Y+p[1];i?x.lineTo(px,py):x.moveTo(px,py)});x.closePath();x.fill()}}
+ function num(x,X,Y,str,n,w,h,on){const off='#1b1b1b',gap=w*.3;let cx=X+n*(w+gap)-gap,k=0;   // 오른쪽 정렬, 빈 자리는 꺼진 8
+  for(const ch of String(str).split('').reverse()){
+   if(ch==='.'){x.fillStyle=on;x.fillRect(cx+gap*.2,Y+h-w*.22,w*.22,w*.22);continue}
+   cx-=w;if(ch==='/'){x.strokeStyle=on;x.lineWidth=w*.2;x.beginPath();x.moveTo(cx+w*.1,Y+h);x.lineTo(cx+w*.95,Y);x.stroke()}else seg(x,cx,Y,w,h,ch,on,off);cx-=gap;k++}
+  for(;k<n;k++){cx-=w;seg(x,cx,Y,w,h,' ',on,off);cx-=gap}}
+ const RED='#ff3b12',GRN='#4dffa6';
+ function draw(){if(fold.b)return;const c=q('wData'),x=c.getContext('2d'),W=c.width;x.clearRect(0,0,W,c.height);x.fillStyle='#000';x.fillRect(0,0,W,c.height);
+  const lab=(t,X,Y)=>{x.fillStyle='#e8e8e8';x.font='700 19px "Malgun Gothic","Noto Sans KR",sans-serif';x.textAlign='left';x.fillText(t,X,Y)};
+  lab('대박',8,20);num(x,10,28,S.hits,4,24,46,RED);
+  lab('대박 확률',196,20);num(x,196,28,S.hits?('1/'+(S.spins/S.hits).toFixed(1)):'-/---.-',6,24,46,RED);
+  x.fillStyle='#333';x.fillRect(0,86,W,1);
+  lab('시작',8,108);num(x,10,116,S.cur,4,24,46,GRN);
+  lab('총 회전수',196,108);num(x,196,116,S.spins,6,24,46,GRN);
+  // 히스토리: 최근 10번의 첫 당첨 (칸 높이 = 연속 횟수, 아래 = 연속 · 시작 회전수)
+  x.fillStyle='#2a2a2a';x.fillRect(0,174,W,24);x.fillStyle='#fff';x.font='700 15px "Malgun Gothic","Noto Sans KR",sans-serif';x.textAlign='center';x.fillText('히스토리',W/2,191);
+  const L=H.slice(-10),n=10,x0=34,cw=(W-x0-6)/n,y0=206,rh=13;
+  for(let r=0;r<10;r++){x.fillStyle='#8a8a8a';x.font='600 9px sans-serif';x.textAlign='center';x.fillText(10-r,16,y0+r*rh+9);
+   for(let i=0;i<n;i++){const e=L[i],on=e&&Math.min(10,e[1])>=10-r;x.fillStyle=on?'#19f29a':'#2b2b2b';x.fillRect(x0+i*cw+2,y0+r*rh,cw-4,rh-3)}}
+  x.fillStyle='#bbb';x.font='600 12px sans-serif';x.fillText('連続',17,y0+10*rh+14);
+  L.forEach((e,i)=>{const cx=x0+i*cw+cw/2;x.fillStyle='#fff';x.font='italic 700 17px sans-serif';x.fillText(e[1],cx,y0+10*rh+15);x.fillStyle='#ddd';x.font='italic 600 13px sans-serif';x.fillText(e[0],cx,y0+10*rh+32)})}
+ // 좁은 위젯용 수지 그래프: 0선, 수지 곡선, 현재·최고·최저 값
+ gDraw=function(){const c=q('gCv'),x=c.getContext('2d'),W=c.width,Hh=c.height,g=(S.g&&S.g.length?S.g:[[0,0]]),pl=6,pr=6,pt=24,pb=8;
+  let x1=Math.max(1,g[g.length-1][0]),lo=0,hi=0;for(const p of g){if(p[1]<lo)lo=p[1];if(p[1]>hi)hi=p[1]}if(hi-lo<1000){hi+=500;lo-=500}
+  const X=v=>pl+(W-pl-pr)*v/x1,Y=v=>pt+(Hh-pt-pb)*(hi-v)/(hi-lo);x.fillStyle='#000';x.fillRect(0,0,W,Hh);
+  x.strokeStyle='#3a3a3a';x.lineWidth=1;x.setLineDash([4,4]);x.beginPath();x.moveTo(pl,Y(0));x.lineTo(W-pr,Y(0));x.stroke();x.setLineDash([]);
+  // 경계선: 변동폭에 맞춰 1,000 · 2,500 · 5,000 · 10,000 · 20,000 · 50,000 … 단위 (선이 6개를 넘지 않게)
+  let st=1000;for(const c of [1000,2500,5000,10000,20000,50000,100000,200000,500000,1000000]){st=c;if((hi-lo)/c<=6)break}
+  x.font='600 12px "Malgun Gothic",system-ui,sans-serif';x.textAlign='left';
+  for(let v=Math.ceil(lo/st)*st;v<=hi;v+=st){if(!v)continue;x.strokeStyle=v>0?'rgba(255,210,122,.38)':'rgba(127,196,255,.38)';x.lineWidth=1;x.beginPath();x.moveTo(pl,Y(v)+.5);x.lineTo(W-pr,Y(v)+.5);x.stroke();
+   x.fillStyle=v>0?'rgba(255,210,122,.8)':'rgba(127,196,255,.8)';x.fillText((v>0?'+':'')+v.toLocaleString(),pl+2,Y(v)-3)}
+  x.strokeStyle='#39c2ff';x.lineWidth=2;x.lineJoin='round';x.beginPath();g.forEach((p,i)=>i?x.lineTo(X(p[0]),Y(p[1])):x.moveTo(X(p[0]),Y(p[1])));x.stroke();
+  const f=v=>(v>0?'+':'')+Math.round(v).toLocaleString(),cur=g[g.length-1][1];x.font='700 19px "Malgun Gothic",system-ui,sans-serif';
+  x.textAlign='left';x.fillStyle=cur>=0?'#ffd27a':'#7fc4ff';x.fillText('차구슬 '+f(cur),pl,17);
+  x.textAlign='right';x.fillStyle='#8a8a8a';x.font='600 14px "Malgun Gothic",system-ui,sans-serif';x.fillText('최고 '+f(hi>0?Math.max(...g.map(p=>p[1])):0)+'  최저 '+f(Math.min(...g.map(p=>p[1]))),W-pr,16)};
+ function paint(){if(!auto&&ai>=0){ai=-1;setSpd(1)}   // 다른 이유로 자동이 꺼졌으면 버튼도 맞춤
+  q('wAuto').textContent=ai<0?'AUTO OFF':'AUTO x'+SP[ai];q('wAuto').classList.toggle('sel',ai>=0);q('wSnd').textContent=muted?'🔇 끔':'🔊 소리'}
+ paint();setInterval(paint,250);draw();gDraw();
+ // 시작하자마자 대기 영상을 띄움 (정지 배경 그림이 보이는 시간을 없앰)
+ setTimeout(()=>{try{if(!busy)idleShow(true)}catch(e){}},200);
+})();
+</script>
+</body>
+</html>
