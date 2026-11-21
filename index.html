@@ -537,9 +537,9 @@ if(IOS){const unlock=()=>{for(const v of document.querySelectorAll('video')){if(
    try{v.muted=true;const p=v.play();if(p)p.then(()=>{if((v.currentSrc||'')===s0){v.pause();v.muted=m}}).catch(()=>{if((v.currentSrc||'')===s0)v.muted=m});else v.muted=m}catch(e){v.muted=m}}
   dbg('unlock');removeEventListener('touchend',unlock,true);removeEventListener('click',unlock,true)};addEventListener('touchend',unlock,true);addEventListener('click',unlock,true)}
 // 건너뛰기 요청: Space · SKIP 버튼 (화면 클릭은 PUSH 창에서만 반응)
-let nextRes=null;
+let nextRes=null,skipAt=0,skipIdle=false;
 // SKIP 버튼: 연출 중이면 건너뛰기/PUSH. 통상 대기 중이면 꽝 회전을 한꺼번에 넘기고 다음 당첨 회전부터 보여 줌 (회전수·투입 구슬은 그대로 계산)
-function pressSkip(){if(selHook)return selHook('ok');if(busy){pushReq=true;skipReq=true;return}
+function pressSkip(){if(selHook)return selHook('ok');if(busy){pushReq=true;skipReq=true;skipAt=performance.now();skipIdle=!curPlay;return}
  if(S.mode!=='normal')return;let r=drawNormal(),n=0;while(r==='lose'&&n<200000){S.spins++;S.cur++;S.used+=spinCost();n++;r=drawNormal()}
  if(r==='lose'){render();save();return}nextRes=r;render();spin()}
 let skipReq=false,stopReq=false,stopAll=false;let LAT=.09; // 재생 시작 지연(초) 추정값, 재생할 때마다 실제 값으로 보정
@@ -614,7 +614,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
  v.muted=muted;v.playbackRate=1 /* 연출 영상은 배속하지 않음 (배속은 통상 회전에만 적용) */;
  if(!started){try{await v.play()}catch(e){v.style.display='none';return false}}
  v.style.zIndex=6;v.style.display='block';old.style.zIndex=5;old.pause();old.style.display='none';   // 새 영상이 준비된 뒤에 교체 → 이음매에 빈 화면 없음
- const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);skipReq=false;stopReq=false;let iv=0;
+ const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);{const age=performance.now()-skipAt;if(!(skipReq&&(age<400||(skipIdle&&age<2000))))skipReq=false;skipIdle=false}stopReq=false;let iv=0;
  curPlay={v,g,src};let pushed=false,pushShown=false;pushReq=false;
  if(opt.next)prepClip(opt.next);
  // 다음 영상은 재생을 누른 뒤 실제로 움직이기까지 시간이 걸림(LAT). 그만큼 먼저 눌러 두고, 앞 영상이 끝나는 순간 화면만 바꿈
@@ -632,9 +632,9 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
   // Space: 정해 둔 구간(정산·ST 회전)은 그 끝으로, 그 밖의 연출은 끝나기 1초 전으로 건너뜀 (마지막 1초는 건너뛸 수 없음)
   const pw=PUSH[g.n],pEnd=pw?Math.min(pw[1],t1-g.base-.03):0,inPush=!!pw&&!pushed&&t>=pw[0]&&t<pEnd-.1;
   if(inPush!==pushShown){pushShown=inPush;$('pushHint').style.display=inPush?'block':'none'}
-  if(pushReq){pushReq=false;if(inPush){pushed=true;skipReq=false;inputLock=performance.now()+1500;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
+  if(pushReq){pushReq=false;if(inPush){pushed=true;skipReq=false;inputLock=performance.now()+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
   if(skipReq&&performance.now()<inputLock)skipReq=false;
-  if(skipReq){skipReq=false;inputLock=performance.now()+450;const e1=t1-g.base-1;if(sk){try{v.currentTime=g.base+sk[1]}catch(e){}return}else if(t<e1-.05){try{v.currentTime=g.base+e1}catch(e){}return}}
+  if(skipReq){skipReq=false;inputLock=performance.now()+200;const e1=t1-g.base-1;if(sk){try{v.currentTime=g.base+sk[1]}catch(e){}return}else if(t<e1-.05){try{v.currentTime=g.base+e1}catch(e){}return}}
   for(const m of marks)if(!m[2]&&t>=m[0]){m[2]=true;try{m[1]()}catch(e){console.error(e)}}
   if(opt.onTime)try{opt.onTime(t,g.dur)}catch(e){}
   const tEnd=Math.min(t1,v.duration||1e9);if(!preDone&&(tEnd-v.currentTime)/(v.playbackRate||1)<=LAT)pre();
@@ -1027,7 +1027,7 @@ async function chooseMode(success){
   // 클릭·방향키는 선택만 바꿈(몇 번이든 가능). Space/SKIP 은 바로 결정. 화면이 뜬 직후 0.4초는 입력을 받지 않음(직전 연타 방지)
   selHook=k=>{if(performance.now()-t0<400)return;if(k==='ok')return fin();if(k!==pick){pick=k;show()}};
   const onP=e=>{const r=$('main').getBoundingClientRect();selHook((e.clientX-r.left)<r.width/2?'L':'R')};$('main').addEventListener('pointerdown',onP)});
- Lel.pause();Rel.pause();$('selHint').style.display='none';inputLock=performance.now()+1200;skipReq=false;pushReq=false;       // 결정 직후 1.2초는 건너뛰기 입력 무시
+ Lel.pause();Rel.pause();$('selHint').style.display='none';inputLock=performance.now()+700;skipReq=false;pushReq=false;       // 결정 직후 0.7초는 건너뛰기 입력 무시
  vidI=VIDS.indexOf(res==='L'?Lel:Rel);                                                                          // 고른 쪽 화면을 그대로 둔 채 다음 재생이 반대쪽 화면에서 준비됨
  return out(res==='L'?jb:jk)}
 async function judgement(success,j,jfrom){
@@ -1153,7 +1153,7 @@ async function endRush(){
 }
 
 // ═══════════ 조작 ═══════════
-async function spin(){if(selHook)return selHook('ok');if(busy){pushReq=true;skipReq=true;return}busy=true;stopAll=false;FORCE={};try{
+async function spin(){if(selHook)return selHook('ok');if(busy){pushReq=true;skipReq=true;skipAt=performance.now();skipIdle=!curPlay;return}busy=true;stopAll=false;FORCE={};try{
  if(!AC)ac();if(!bgmNow)bgm('bgm');
  S.holds=[1,1,1].slice(0,auto?4:3);
  if(S.mode==='rush')await spinRush();else await spinNormal();
