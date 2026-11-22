@@ -728,6 +728,8 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
  function parts(n,L,hue,sat){if(typeof partEls==='undefined'||typeof gFxInit!=='function')return;gFxInit();const d=Math.max(0,Math.min(.55,(1-L)*.6)),tn=ptint(n),to=sat>0?Math.min(.8,sat*Math.min(1,L)):0;
   PART[n].forEach((i,k)=>{const e=dimEls[i],mv=!!partEls[i].style.transform;if(e){const v=mv?0:d;if(Math.abs(v-(e._l==null?-1:e._l))>.004){e._l=v;e.style.transition='none';e.style.opacity=v.toFixed(3)}}
    const t=tn[k],tv=mv?0:to;t.col('hsl('+hue+',100%,58%)');if(Math.abs(tv-(t._l||0))>.004){t._l=tv;t.style.opacity=tv.toFixed(3)}})}
+ // LED 표는 원본 클립의 파일 시각 기준 → 지금 재생 중인 파일(웹용은 앞이 잘려 있음)의 시각을 원본 시각으로 바꿈
+ const ledT=(n,v)=>{const c=(typeof CLIPS!=='undefined'&&CLIPS[n])||{},o=window.LEDIN&&LEDIN[n];return v.currentTime-(c.in||0)+(o!=null?o:(c.in||0))};
  const dec=(s,i)=>{const q=(BI[s[i*2]]<<6)|BI[s[i*2+1]];return [(q>>8)/15,((q>>3)&31)*11.25,(q&7)/7]};
  // 빛의 회전 (실기 60프레임 영상 실측). 경로: 왼쪽 기둥 아래→위 → 중앙 상단 왼→오 → 오른쪽 기둥 위→아래 (시계 방향), 경로 위치 s = 0~1
  //  종류 2 무지개: 전부 켜진 채 6색(하늘→초록→노랑→빨강→자홍→파랑)이 0.7초에 한 바퀴. 색이 바뀌는 경계가 경로를 0.36초에 훑고 지나감
@@ -754,20 +756,20 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
    const on=x=>x<0?.2:x<.12?.2+(x/.12)*.2:x<.22?.4+((x-.12)/.1)*.2:x<.38?.6+((x-.22)/.16)*.4:1.01,sOn=on(tau),sOff=tau<1.22?.2:on(tau-1.22);
    CH.forEach(([n,ax,from,to,s0,s1])=>hShow(n,ax,from,to,s0,s1,sOff,sOn,Math.round(hue),sat))}}
  function tick(now){requestAnimationFrame(tick);const t=now/1000,dt=Math.min(.1,t-pt);pt=t;let G,D=null,fi=0;
-  let Dc=null;if(curPlay&&window.LEDDATA){const d=LEDDATA[cname(curPlay.src)];if(d){fi=Math.floor(curPlay.v.currentTime*d.fps);if(fi>=0&&fi*2+1<d.z.left.length){D=d.z;Dc=d}}}
+  let Dc=null;if(curPlay&&window.LEDDATA){const d=LEDDATA[cname(curPlay.src)];if(d){fi=Math.floor(ledT(cname(curPlay.src),curPlay.v)*d.fps);if(fi>=0&&fi*2+1<d.z.left.length){D=d.z;Dc=d}}}
   if(drop>0)G=.7+.3*drop*(Math.sin(t*40)>0?1:.35);
   else if(curPlay)G=.65;
   else G=.45;   // 표가 없는 화면은 흔들림 없이 일정하게
   kick*=Math.pow(.01,dt);if(kick<.01)kick=0;
   // 회전 구간인지: 표에 적힌 [시작프레임,끝프레임,종류(1 흰빛·표의 색 / 2 무지개)]
   let rot=0;if(D&&Dc.rot)for(const r of Dc.rot)if(fi>=r[0]&&fi<r[1]){rot=r[2];break}
-  chase(rot,curPlay?curPlay.v.currentTime:t,D,fi);
+  chase(rot,curPlay?ledT(cname(curPlay.src),curPlay.v):t,D,fi);
   // 통상(실기 관찰): 기둥·중앙 상단·테두리는 스테이지 테마색으로 고정, 머리(흰색)·손(주황)·꽃(빨강)은 변화 없이 켜짐, 스위치+레버만 회전 시작 때 잠깐 점멸. 스테이지가 바뀔 때 기둥이 잠깐 꺼졌다 켜짐
   const cpN=curPlay?+(cname(curPlay.src).match(/^normal_(\d)/)||[])[1]||0:0;   // 조정 목록에서 통상 배경을 직접 재생할 때도 같은 규칙
   let NM=null;if(!D&&ov==null&&!drop&&(cpN||(!curPlay&&typeof S!=='undefined'&&S.mode==='normal'))){let th=null;
    if(cpN||(typeof bgCur!=='undefined'&&bgCur>=0&&bgList&&bgList[bgCur])){const k=cpN||+(bgList[bgCur].match(/normal_(\d)/)||[])[1];th=THEME[k]||null;if(k!==bgSeen){if(bgSeen)dipT=t;bgSeen=k}}
    // 버튼은 꺼짐. 레버도 평소 꺼져 있다가, 배경 영상에서 4번째 보류 구슬이 위에서 내려오는 순간(미리 찾아 둔 시각표 LEDSW)에만 0.5초간 빠르게 여러 번 반짝임. 시각표가 없으면 회전 시작에 반응
-   let hd=t-swT<.5?t-swT:-1;const ev=window.LEDSW&&bgSeen&&LEDSW['normal_'+bgSeen];if(ev){const ct=cpN?curPlay.v.currentTime:BG.currentTime;hd=-1;for(let i=0;i<ev.length&&ev[i]<=ct;i++)if(ct-ev[i]<.5)hd=ct-ev[i]}
+   let hd=t-swT<.5?t-swT:-1;const ev=window.LEDSW&&bgSeen&&LEDSW['normal_'+bgSeen];if(ev){const ct=cpN?ledT('normal_'+cpN,curPlay.v):ledT('normal_'+bgSeen,BG);hd=-1;for(let i=0;i<ev.length&&ev[i]<=ct;i++)if(ct-ev[i]<.5)hd=ct-ev[i]}
    const f=Math.min(1,Math.abs(t-dipT-.7)/.7),lev=hd>=0&&Math.sin(hd*75)>0?[.85,0,0]:[.04,0,0],P=th?[.85*f,th[0],th[1]]:[.8*f,0,0];
    NM={left:P,right:P,top:P,border:[P[0]*.55,P[1],P[2]],head:[.95,0,0],hand:[.95,15,.75],flower:[.95,0,0],button:[.04,0,0],lever:lev}}
   for(const n of names){let L,hue=0,sat=0;
