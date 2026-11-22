@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>999lite v.1</title>
+<title>999 v.1</title>
 <style>
 :root{--bg:#0b0709;--panel:#1a1014;--line:#4a2530;--ink:#f3e9ea;--dim:#a88c92;--ac:#e0213a;--gold:#f2c14e}
 *{box-sizing:border-box}
@@ -1590,10 +1590,6 @@ renderHolds('');applyMute();render();
  // 시작하자마자 대기 영상을 띄움 (정지 배경 그림이 보이는 시간을 없앰)
  setTimeout(()=>{try{if(!busy)idleShow(true)}catch(e){}},200);
 })();
-</script>
-<script>
-// 방문 집계: 웹 주소(http/https)로 열었을 때만. 폴더에서 직접 연 경우에는 보내지 않음
-if(/^https?:$/.test(location.protocol)){const g=document.createElement('script');g.async=true;g.src='https://gc.zgo.at/count.js';g.setAttribute('data-goatcounter','https://999lite.goatcounter.com/count');document.body.appendChild(g)}
 </script>
 </body>
 </html>
