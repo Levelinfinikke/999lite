@@ -252,6 +252,12 @@ body.aOff #wA .hd,body.bOff #wB .hd{height:30px;padding:0 4px 0 8px}
 #wPay i{padding-right:.5em;font:italic 900 1.6cqw/1 Impact,"Arial Black",sans-serif;color:#ffd84a;text-shadow:0.06cqw 0.1cqw 0 #2a0500}
 #wPay u{font:italic 800 1.02cqw/1 "Arial Black",Impact,sans-serif;text-decoration:none;color:#fff;letter-spacing:.14em;align-self:flex-start;margin-right:0.38cqw;text-shadow:0 0 0.26cqw #e0213a}
 #wPay.fold{padding:.26cqw .64cqw}#wPay.fold b,#wPay.fold i{display:none}
+/* 모바일 전용 SKIP: 화면 오른쪽 아래 */
+#mSkip{display:none;position:fixed;right:max(10px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:130;width:76px;height:76px;padding:0;border-radius:50%;clip-path:none;
+ background:radial-gradient(circle at 50% 35%,rgba(224,27,44,.92),rgba(120,8,18,.92));border:2px solid #ff5364;color:#fff;font:900 15px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;letter-spacing:.08em;
+ box-shadow:0 4px 16px rgba(0,0,0,.6);touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+#mSkip:active{transform:scale(.94);filter:brightness(1.2)}
+@media (max-width:760px),(pointer:coarse){#mSkip{display:block}}
 /* 모바일: 기기 화면 왼쪽 위에 겹쳐 놓음 (기기는 화면 폭 전체 사용) */
 @media (max-width:760px){body{--ww:0px!important}#wcol{left:4px;top:4px;width:200px;max-height:calc(100vh - 8px)}.wg{border-left:1px solid #2b6fb0;background:linear-gradient(180deg,rgba(16,18,26,.88),rgba(6,7,11,.88))}
  #wcol button,#wcol label{height:36px}#wcol #wPlay{height:44px}body.aOff #wA,body.bOff #wB{margin:0}}
@@ -1239,6 +1245,7 @@ renderHolds('');applyMute();render();
 <button id="wReset" title="기록 초기화">기록 초기화</button>
 </div></div>
 </div>
+<button id="mSkip" title="건너뛰기 / PUSH">SKIP</button>
 <div id="dl"><h1>999<i>lite</i></h1><p id="dlMsg">게임 영상을 기기에 내려받는 중이에요.<br>한 번 받아 두면 다음부터는 바로 시작돼요.</p><div id="dlBar"><i></i></div><div id="dlTxt">준비 중…</div><button id="dlGo" class="go" style="display:none">▶ 시작</button><button id="dlSkip">받지 않고 바로 시작 (스트리밍)</button></div>
 <script>
 // ── 모바일 + 웹 주소: 영상을 전부 저장소에 받아 둔 뒤 시작 (sw.js 가 저장된 영상을 내어 줌) ──
@@ -1288,6 +1295,7 @@ renderHolds('');applyMute();render();
  q('wB').querySelector('.bd').insertBefore(q('gCv'),q('wReset'));q('gCv').width=400;q('gCv').height=170;
  q('wPlay').onclick=()=>{q('wPlay').blur();spin()};
  q('wSkip').onclick=()=>{q('wSkip').blur();pressSkip()};
+ q('mSkip').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();pressSkip()});   // 누르는 즉시 반응
  // AUTO: 한 버튼으로 x1 → x2 → x4 → x8 → 끄기
  const SP=[1,2,4,8];let ai=-1;
  const setSpd=x=>{userSpeed=x;if(!slowed)speed=x};
