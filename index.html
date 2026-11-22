@@ -568,7 +568,7 @@ try{if(!localStorage.getItem('ghoulFix6')){TUNE.cues={};localStorage.setItem('gh
 try{if(!localStorage.getItem('ghoulFix7')){for(const [k,e] of [['st_win_rize',-61.58],['st_win_tsukiyama',-12.7],['st_win_omedetou',-3.22]])TUNE.trim[k]=[(TUNE.trim[k]||[0,0])[0]||0,e];localStorage.setItem('ghoulFix7','1');saveTune()}}catch(e){} // ST 당첨 영상 3개: 마지막 역물 낙하 직전에서 끝나도록 끝 자르기 (이 브라우저에 저장된 값에도 한 번 적용)
 // 영상 속 PUSH·連打·押せ 가 떠 있는 구간 [시작, 넘어갈 지점] (기준 시각 초, 999 = 그 영상의 끝). 이 구간에서 클릭/Space/SKIP 하면 바로 결과로 넘어감
 // 배틀 모드 본체는 구간이 둘: ① 상대 캐릭터 선택 화면 → 누르면 상대가 정해지는 순간으로, ② 마지막 PUSH → 결과로
-const PUSH=Object.assign({judge_yamori_body:[[10.6,15.6],[40.3,999]],judge_shiro_body:[[10.1,15.1],[39.8,999]],judge_shachi_body:[[5.4,10.44]],judge_ready:[2.9,999],judge_break_body:[25.0,999],revival_fukurou:[34.3,37.4]},TUNE.consts.PUSH);
+const PUSH=Object.assign({judge_yamori_body:[[10.6,15.6],[40.3,999]],judge_shiro_body:[[10.1,15.1],[39.8,999]],judge_shachi_body:[[5.4,10.44]],judge_ready:[2.9,999],revival_fukurou:[34.3,37.4]},TUNE.consts.PUSH);
 // 요청받은 이동량을 이 브라우저에 저장된 값에도 한 번만 더함 (judge_tail_lose 시작 +0.3, st_win_omedetou 시작 +5.5)
 try{if(!localStorage.getItem('ghoulFix2')){let raw={};try{raw=(JSON.parse(localStorage.getItem('g999Tune')||'{}').trim)||{}}catch(e){}
  for(const [k,d] of [['judge_tail_lose',.3],['st_win_omedetou',5.5]])if(raw[k])TUNE.trim[k]=[+((raw[k][0]||0)+d).toFixed(3),raw[k][1]||0];
@@ -631,7 +631,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
  if(!started){try{await v.play()}catch(e){v.style.display='none';return false}}
  v.style.zIndex=6;v.style.display='block';old.style.zIndex=5;old.pause();old.style.display='none';   // 새 영상이 준비된 뒤에 교체 → 이음매에 빈 화면 없음
  const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);{const age=performance.now()-skipAt;if(!(skipReq&&(age<400||(skipIdle&&age<2000))))skipReq=false;skipIdle=false}stopReq=false;let iv=0;
- curPlay={v,g,src};let pushShown=false;pushReq=false;const pws=(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
+ curPlay={v,g,src};let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
  if(opt.next)prepClip(opt.next);
  // 다음 영상은 재생을 누른 뒤 실제로 움직이기까지 시간이 걸림(LAT). 그만큼 먼저 눌러 두고, 앞 영상이 끝나는 순간 화면만 바꿈
  let preDone=false;
@@ -648,6 +648,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
   // Space: 정해 둔 구간(정산·ST 회전)은 그 끝으로, 그 밖의 연출은 끝나기 1초 전으로 건너뜀 (마지막 1초는 건너뛸 수 없음)
   const pw=pws.find(w=>!w.done&&t>=w[0]&&t<Math.min(w[1],t1-g.base-.03)-.1),pEnd=pw?Math.min(pw[1],t1-g.base-.03):0,inPush=!!pw;
   if(inPush!==pushShown){pushShown=inPush;$('pushHint').style.display=inPush?'block':'none'}
+  if(opt.noskip)pushReq=false;   // 브레이크 모드: 화면 클릭(PUSH)은 불가, SKIP 버튼·Space 는 가능
   if(pushReq){pushReq=false;if(inPush){pw.done=true;skipReq=false;inputLock=performance.now()+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
   if(skipReq&&performance.now()<inputLock)skipReq=false;
   if(skipReq){const now=performance.now(),e1=t1-g.base-1,nx=sr.find(x=>x[0]>t),go=(to,lock)=>{skipReq=false;inputLock=now+lock;try{v.currentTime=g.base+to}catch(e){}};
@@ -1085,13 +1086,13 @@ async function judgement(success,j,jfrom){
  if(j===undefined)j=await pickJudge(success);
  const fJl=take('jlate');
  if(j&&success&&(fJl!==undefined?fJl:Math.random()<LATE_J)){   // 실패로 보인 뒤 계수 중 아무 때나 역물이 떨어지며 역전 (안내 문구가 뜨기 전까지)
-  const tl={src:JT.lose,from:j.loseFrom||undefined};await playClip(j.body,{from:jfrom,next:j.pre||JT.lose});if(j.pre)await playClip(j.pre,{next:JT.lose});
+  const tl={src:JT.lose,from:j.loseFrom||undefined};await playClip(j.body,{from:jfrom,next:j.pre||JT.lose,noskip:j.k==='break'});if(j.pre)await playClip(j.pre,{next:JT.lose});
   await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.random()*Math.max(0,LATE.j1-LATE.j0)).toFixed(2),next:'videos/direct7500.mp4'});
   // 실패 계수 도중 → 즉시 7500 영상 → 7500 확정(전체 낙하) → 7500 보너스. 3000 도중의 즉시 7500 분기와 같은 순서
   if(await playClip('videos/direct7500.mp4',{next:JT.win}))await playClip(JT.win,{next:CLIP.bonus7500});else if(!(await playClip(JT.win,{next:CLIP.bonus7500}))){clearTimeout(hideT);await handDrop(true)}return true}
- if(j){const tail=success?{src:(j.win&&await probe(j.win))?j.win:JT.win}:{src:JT.lose,from:j.loseFrom||undefined}   /* 배틀 실패는 조정한 시작점(+0.6)부터 */;
-  await playClip(j.body,{from:jfrom,next:j.pre||tail});if(j.pre)await playClip(j.pre,{next:tail});
-  await playClip(tail.src,{from:tail.from,next:success?CLIP.bonus7500:null});return success}
+ if(j){const tail=success?{src:(j.win&&await probe(j.win))?j.win:JT.win}:{src:JT.lose,from:j.loseFrom||undefined}   /* 배틀 실패는 조정한 시작점(+0.6)부터 */,ns=j.k==='break';   // 브레이크 모드는 화면 클릭 불가
+  await playClip(j.body,{from:jfrom,next:j.pre||tail,noskip:ns});if(j.pre)await playClip(j.pre,{next:tail});
+  await playClip(tail.src,{from:tail.from,next:success?CLIP.bonus7500:null,noskip:ns});return success}
  const opp=success?wpick(JUDGE,x=>x[2]):wpick(JUDGE,x=>x[2]*(1-x[1])/x[1]);
  if(await playClip(success?CLIP.judge_win:CLIP.judge_lose))return success;
  fx('7500ジャッジメントバトル','mid t-red');fx('VS '+opp[0],'big t-'+(opp[1]>.7?'gold':'white'));await sleep(2200);clearFx();
