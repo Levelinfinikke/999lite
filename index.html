@@ -558,7 +558,8 @@ if(IOS){const unlock=()=>{for(const v of document.querySelectorAll('video')){if(
 // 건너뛰기 요청: Space · SKIP 버튼 (화면 클릭은 PUSH 창에서만 반응)
 let nextRes=null,skipPend=false,loadT=0,skipFast=false,skipAt=0,skipIdle=false,chargeSkip=false,skipNext=false;
 // SKIP 버튼: 연출 중이면 건너뛰기/PUSH. 통상 대기 중이면 꽝 회전을 한꺼번에 넘기고 다음 당첨 회전부터 보여 줌 (회전수·투입 구슬은 그대로 계산)
-function pressSkip(){if(selHook)return selHook('ok');
+function pressSkip(){if(auto){auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}   // SKIP 을 누르면 자동 회전은 꺼짐
+ if(selHook)return selHook('ok');
  if(busy&&skipPend&&!curPlay)return;   // SKIP 으로 다음 당첨을 부른 직후 영상을 불러오는 중: 추가로 누른 건 버림(불러온 영상이 바로 건너뛰어지지 않게)
  if(busy&&chargeSkip&&curPlay&&cname(curPlay.src)==='charge'){chargeSkip=false;stopReq=true;skipNext=true;return}   // 차지(승격 없음) 중 SKIP: 차지를 바로 끝내고 다음 당첨까지 넘김
  if(busy){pushReq=true;skipReq=true;skipAt=performance.now();skipIdle=!curPlay;return}
@@ -570,7 +571,7 @@ function loadHint(on){let e=$('loadHint');if(!e){e=document.createElement('div')
 let skipReq=false,stopReq=false,stopAll=false;let LAT=.09; // 재생 시작 지연(초) 추정값, 재생할 때마다 실제 값으로 보정
 // ── 조정값: 클립별 시작·끝 이동(초), 역물 큐, 분기 시각. 브라우저에 저장되고 조정 화면에서 바꿈 ──
 const CLIPS=window.CLIPS||{};                       // videos/clips.js: {이름:{in:앞 여유, dur:기준 길이}}
-const TUNE_DEFAULT={"trim":{"judge_yamori_body":[0.4,0.4],"judge_tail_win":[0.1,0.6],"battle_nishio_body":[0.1,0],"judge_tail_lose":[0.6,0],"judge_ready":[0,0.5],"judge_break_win":[0,-2.551],"direct7500":[-0.015,-0.068],"bonus7500":[0.6,2],"st_ep_2":[0,0.1],"st_ep_3":[-2,-0.1],"st_ep_4":[0.234,0],"st_hyper6000":[0.1,-1],"uw_try":[0.185,0],"uw_lose":[0.051,-0.8],"uw_win_21000":[0.087,0],"rush_in":[0.1,1.3],"bonus":[0.568,0],"st_win_omedetou":[5.5,-3.22],"st_win_rize":[0,-61.58],"st_win_tsukiyama":[0,-12.7],"yokoku_hand":[0,0.2],"pre_long":[39.417,0],"judge_shachi_body":[-2,0],"uw_win_6000":[0.015,0],"uw_win_9000":[0.017,0],"uw_win_12000":[0.017,0],"uw_win_15000":[-0.017,0],"uw_win_18000":[-0.051,0],"st_full":[1.798,0],"revival_fukurou":[-2,0],"battle_nishio_winfull":[0,-0.1],"battle_tsukiyama_body":[1,0]},"cues":{},"consts":{"BT":{"branch":22.8,"judge":98.7},"UWT":{"t2":14.78,"t1":24.81}}}; // 2026-11-21 조정값 7차 반영 (final)
+const TUNE_DEFAULT={"trim":{"judge_yamori_body":[0.4,0.4],"judge_tail_win":[0.1,0.6],"battle_nishio_body":[0.1,0],"judge_tail_lose":[0.6,0],"judge_ready":[0,0.5],"judge_break_win":[0,-2.551],"direct7500":[-0.015,-0.068],"bonus7500":[0.6,2],"st_ep_2":[0,0.1],"st_ep_3":[-2,-0.1],"st_ep_4":[0.234,0],"st_hyper6000":[0.1,-1],"uw_try":[0.185,0],"uw_lose":[0.051,-0.8],"uw_win_21000":[0.087,0],"rush_in":[0.1,1.3],"bonus":[0.568,0],"st_win_omedetou":[5.5,-3.22],"st_win_rize":[0,-61.58],"st_win_tsukiyama":[0,-12.7],"yokoku_hand":[0,0.2],"pre_long":[39.417,0],"judge_shachi_body":[-2,0],"uw_win_6000":[0.015,0],"uw_win_9000":[0.017,0],"uw_win_12000":[0.017,0],"uw_win_15000":[-0.017,0],"uw_win_18000":[-0.051,0],"st_full":[1.798,0],"revival_fukurou":[0.02,0],"battle_nishio_winfull":[0,-0.1],"battle_tsukiyama_body":[1,0]},"cues":{},"consts":{"BT":{"branch":22.8,"judge":98.7},"UWT":{"t2":14.78,"t1":24.81}}}; // 2026-11-21 조정값 7차 반영 (final)
 let TUNE=(()=>{let t={};try{t=JSON.parse(localStorage.getItem('g999Tune')||'{}')}catch(e){}
  return {trim:Object.assign({},TUNE_DEFAULT.trim,t.trim),cues:Object.assign({},TUNE_DEFAULT.cues,t.cues),consts:Object.assign({},TUNE_DEFAULT.consts,t.consts)}})();
 const saveTune=()=>{try{localStorage.setItem('g999Tune',JSON.stringify(TUNE))}catch(e){}};
@@ -580,7 +581,8 @@ try{if(!localStorage.getItem('ghoulFix7')){for(const [k,e] of [['st_win_rize',-6
 // 배틀 모드 본체는 구간이 둘: ① 상대 캐릭터 선택 화면 → 누르면 상대가 정해지는 순간으로, ② 마지막 PUSH → 결과로
 const PUSH=Object.assign({judge_yamori_body:[[10.6,15.6],[40.3,999]],judge_shiro_body:[[10.1,15.1],[39.8,999]],judge_shachi_body:[[5.4,10.44]],judge_ready:[2.9,999],revival_fukurou:[34.3,37.4]},TUNE.consts.PUSH);
 // 요청받은 이동량을 이 브라우저에 저장된 값에도 한 번만 더함 (judge_tail_lose 시작 +0.3, st_win_omedetou 시작 +5.5)
-try{localStorage.setItem('ghoulFix2','1')}catch(e){}   // (옛 이전 처리: 기본값에 이미 들어 있어 더 이상 더하지 않음)
+try{localStorage.setItem('ghoulFix2','1')}catch(e){}
+try{if(!localStorage.getItem('ghoulFix9')){TUNE.trim.revival_fukurou=[0.02,(TUNE.trim.revival_fukurou||[0,0])[1]||0];localStorage.setItem('ghoulFix9','1');saveTune()}}catch(e){} // 올빼미 부활: 숫자(676) 장면을 잘라 내고 번쩍이며 붉은 꽃이 피는 순간부터   // (옛 이전 처리: 기본값에 이미 들어 있어 더 이상 더하지 않음)
 // 오류 복구: 새 브라우저에서 옛 이전 처리가 기본값에 한 번 더 더해져 오메데토 시작이 11초(손이 내려오는 앞부분이 잘림), 배틀 실패 시작이 0.9초가 된 경우 되돌림
 try{if(!localStorage.getItem('ghoulFix8')){const T=TUNE.trim;if(T.st_win_omedetou&&Math.abs(T.st_win_omedetou[0]-11)<.01)T.st_win_omedetou[0]=5.5;if(T.judge_tail_lose&&Math.abs(T.judge_tail_lose[0]-.9)<.01)T.judge_tail_lose[0]=.6;localStorage.setItem('ghoulFix8','1');saveTune()}}catch(e){}
 try{if(!localStorage.getItem('ghoulFix5')){delete TUNE.trim.st_bonus_intro;delete TUNE.trim.st_intro;delete TUNE.cues['videos/st_bonus_intro.mp4'];localStorage.setItem('ghoulFix5','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // st_intro 는 새로 자른 클립
@@ -988,7 +990,7 @@ async function spinNormal(){
  if(rev){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);const lr=(fReach&&av.find(x=>x[0]===fReach))||(av.length?av[Math.floor(Math.random()*av.length)]:null),RV='videos/revival_fukurou.mp4';
   if(lr){const lf=await reachFirst(lr[0],false);if(hand)await playClip('videos/yokoku_hand.mp4',{next:lf});await doReach(lr,0,false,false,{quiet:true,next:RV})}
   else if(hand)await playClip('videos/yokoku_hand.mp4',{next:RV});
-  await playClip(RV,{next:CLIP.bonus});return finishNormal(res,rushPre,true)}
+  await playClip(RV,{next:CLIP.bonus});return finishNormal(res,rushPre,true,true)}
  if(!reach){await sleep(speed>=20?0:850);return finishNormal(res,rushPre)}   // 연출 없는 꽝: 통상 화면은 그대로 흐르고 추첨만 진행
  const mid=win?tenpai:(cn&&cn.mid&&tenpai===cn.t?cn.mid:nx(tenpai));
  // 영상 리치: 영상 안에 텐파이·결과 숫자가 다 들어 있으므로 게임 쪽 숫자 정지·리치 문구·당첨 연출 없이 영상만 이어 붙임
@@ -1012,7 +1014,7 @@ async function spinNormal(){
  stopReel(1,mid);await sleep(400);
  return finishNormal(res,rushPre);
 }
-async function finishNormal(res,rushPre,quiet){
+async function finishNormal(res,rushPre,quiet,rev){   // rev: 올빼미 부활로 온 당첨
  if(res==='lose'){render();save();return}
  S.hits++;const at=S.cur;S.cur=0;
  if(res==='charge'){
@@ -1030,7 +1032,7 @@ async function finishNormal(res,rushPre,quiet){
  // 영상 속 시각(초). bonus: 22 즉시 7500 분기 / 41 정산 시작 / 93 judgement 시작.  bonus7500: 52 정산 시작 / 182 ST 시작
  const base=S.out,lin=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a)));
  const fDir=take('direct'),nb=take('noBonus'),fJ=take('judge');
- const direct=rushPre&&(fDir!==undefined?fDir:Math.random()<DIRECT_7500)&&await probe(CLIP.bonus)&&await probe(CLIP.bonus7500);
+ const direct=rushPre&&(fDir!==undefined?fDir:Math.random()<(rev?DIRECT_REV:DIRECT_7500))&&await probe(CLIP.bonus)&&await probe(CLIP.bonus7500);
  if(direct){
   if(!nb)await playClip(CLIP.bonus,{to:BT.branch,next:'videos/direct7500.mp4'});
   await playClip('videos/direct7500.mp4',{next:JT.win});await playClip(JT.win,{next:CLIP.bonus7500});
@@ -1046,10 +1048,11 @@ async function finishNormal(res,rushPre,quiet){
 }
 // 긴 도입 연출: 손떨 대신 30% 확률, 항상 클라이맥스 야모리 리치로 이어짐
 const PRE_LONG={src:'videos/pre_long.mp4',p:.30};
-const LATE_B=0.10, LATE_J=0.12;   // 배틀 꽝 1초 뒤 역물 낙하로 당첨(통상 당첨 중 비율) / judgement 실패 후 계수 중 낙하로 당첨(RUSH 당첨 중 비율), 추정값
+const LATE_B=0.10, LATE_J=0.3771;   // 배틀 꽝 1초 뒤 역물 낙하로 당첨(통상 당첨 중 비율) / judgement 성공 중 실패로 보였다가 계수 중 역전하는 비율 (일반 당첨의 RUSH 당첨 중 33% = 0.3771 × judge 까지 가는 87.5%)
 const LATE=Object.assign({j0:5.0,j1:13.0},TUNE.consts.LATE);   // judge_tail_lose 안에서 역전 낙하가 가능한 구간(초): 계수 시작 ~ 흰색·파란색 안내가 뜨기 전
 const REVIVAL=0.06; // 당첨 중 부활 연출 비율(추정)
-const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182},TUNE.consts.B75),DIRECT_7500=0.25;   // RUSH 당첨 중 25% = 첫 당첨의 12.5%
+const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182},TUNE.consts.B75),DIRECT_7500=0.125,DIRECT_REV=0.6;   // DIRECT_REV: 올빼미 부활 뒤에는 즉시 7500 이 크게 늘어남 (RUSH 당첨 중 60%)
+//   // RUSH 당첨 중 12.5% (줄인 12.5%p 는 judge 실패 후 역전 LATE_J 로 옮김)
 // 7500 보너스 영상: 정산 구간 동안 획득 수를 올리고, ST 시작 시각에 RUSH 표시로 전환
 async function play7500(base,gain){
  const lin=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a)));
