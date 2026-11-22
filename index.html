@@ -197,7 +197,7 @@ select:hover,input:hover{border-color:#55555f}
 /* ── 999 v.1: 기기가 화면을 꽉 채우고, 왼쪽에 접을 수 있는 위젯 2개(조작 / 데이터) ── */
 #panel,#panel2,#tuneBtn,#recBtn,#muteBtn,#skipBtn,#tune{display:none!important}
 html,body{background:#050506}
-body{padding:0;--ww:236px}
+body{padding:0;--ww:0px}   /* 위젯은 기기 위에 겹쳐 뜸: 기기 화면을 옆으로 밀지 않음 */
 body.aOff.bOff{--ww:0px}
 #layout{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:0;height:100%;padding-left:var(--ww)}
 #cab{width:min(calc(100vw - var(--ww)),calc(100vh * var(--ar)))}
@@ -208,10 +208,13 @@ body.v-zoom{--ar:1.15;--mw:100%;--tx:0%;--ty:-11%}
 body.v-max{--ar:1.189;--mw:157.64%;--tx:-18.126%;--ty:-27.15%}
 #wcol{position:fixed;left:0;top:0;z-index:120;width:236px;max-height:100vh;overflow-y:auto;display:flex;flex-direction:column;align-items:flex-start;gap:5px;scrollbar-width:none;pointer-events:none}
 #wcol>*{pointer-events:auto}
-.wg{position:relative;width:100%;background:linear-gradient(180deg,rgba(16,18,26,.96),rgba(6,7,11,.96));border:1px solid #2b6fb0;border-left:0;box-shadow:0 0 0 1px #000,6px 0 24px rgba(0,0,0,.5)}
+.wg{position:relative;width:100%;background:linear-gradient(180deg,rgba(16,18,26,.9),rgba(6,7,11,.9));border:1px solid #2b6fb0;border-left:0;box-shadow:0 0 0 1px #000,6px 0 24px rgba(0,0,0,.5)}
 .wg::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,#1b4fa0,#39c2ff,#1b4fa0)}
 .wg .hd{display:flex;align-items:center;justify-content:space-between;height:24px;padding:2px 4px 0 8px;font:700 10.5px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;letter-spacing:.14em;color:#8fb8e6;cursor:pointer;user-select:none}
 .wg .hd i{font-style:normal;color:#8a93a3;padding:0 6px}
+.wg .hd{touch-action:none;cursor:grab}.wg.drag .hd{cursor:grabbing}
+.wg.free{position:fixed;width:236px;border-left:1px solid #2b6fb0;z-index:121}.wg.drag{opacity:.85;box-shadow:0 0 0 1px #39c2ff,0 8px 30px rgba(0,0,0,.6)}
+@media (max-width:760px){.wg.free{width:200px}}
 .wg .bd{padding:3px 7px 7px}
 #wA .bd{display:grid;grid-template-columns:1fr 1fr;gap:5px}
 #wcol button,#wcol label{height:32px;min-width:0;padding:0 6px;margin:0;font:700 12px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;letter-spacing:.03em;color:#e9edf5;background:#1a1d26;border:1px solid #3a3f4d;border-radius:3px;clip-path:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;overflow:hidden}
@@ -547,13 +550,13 @@ if(IOS){const unlock=()=>{for(const v of document.querySelectorAll('video')){if(
    try{v.muted=true;const p=v.play();if(p)p.then(()=>{if((v.currentSrc||'')===s0){v.pause();v.muted=m}}).catch(()=>{if((v.currentSrc||'')===s0)v.muted=m});else v.muted=m}catch(e){v.muted=m}}
   dbg('unlock');removeEventListener('touchend',unlock,true);removeEventListener('click',unlock,true)};addEventListener('touchend',unlock,true);addEventListener('click',unlock,true)}
 // 건너뛰기 요청: Space · SKIP 버튼 (화면 클릭은 PUSH 창에서만 반응)
-let nextRes=null,skipAt=0,skipIdle=false,chargeSkip=false,skipNext=false;
+let nextRes=null,skipFast=false,skipAt=0,skipIdle=false,chargeSkip=false,skipNext=false;
 // SKIP 버튼: 연출 중이면 건너뛰기/PUSH. 통상 대기 중이면 꽝 회전을 한꺼번에 넘기고 다음 당첨 회전부터 보여 줌 (회전수·투입 구슬은 그대로 계산)
 function pressSkip(){if(selHook)return selHook('ok');
  if(busy&&chargeSkip&&curPlay&&cname(curPlay.src)==='charge'){chargeSkip=false;stopReq=true;skipNext=true;return}   // 차지(승격 없음) 중 SKIP: 차지를 바로 끝내고 다음 당첨까지 넘김
  if(busy){pushReq=true;skipReq=true;skipAt=performance.now();skipIdle=!curPlay;return}
  if(S.mode!=='normal')return;let r=drawNormal(),n=0;while(r==='lose'&&n<200000){S.spins++;S.cur++;S.used+=spinCost();n++;r=drawNormal()}
- if(r==='lose'){render();save();return}nextRes=r;render();spin()}
+ if(r==='lose'){render();save();return}nextRes=r;skipFast=true;render();spin()}
 let skipReq=false,stopReq=false,stopAll=false;let LAT=.09; // 재생 시작 지연(초) 추정값, 재생할 때마다 실제 값으로 보정
 // ── 조정값: 클립별 시작·끝 이동(초), 역물 큐, 분기 시각. 브라우저에 저장되고 조정 화면에서 바꿈 ──
 const CLIPS=window.CLIPS||{};                       // videos/clips.js: {이름:{in:앞 여유, dur:기준 길이}}
@@ -931,9 +934,10 @@ async function handDrop(win,kind,only){
 
 // ═══════════ 통상 회전 ═══════════
 async function spinNormal(){
- const res=take('res')||nextRes||drawNormal(),win=res==='zorome';nextRes=null;const pHit=SPEC.zorome*mult;
+ const res=take('res')||nextRes||drawNormal(),win=res==='zorome',fast=skipFast;nextRes=null;skipFast=false;const pHit=SPEC.zorome*mult;
  if(res!=='lose')slowOn();
  S.spins++;S.cur++;S.used+=spinCost();render();   // 회전마다 바로 차감하고 그래프에 반영
+ if(fast&&res==='charge')return finishNormal(res,false);   // SKIP 으로 온 차지: 통상 화면을 거치지 않고 바로 차지 연출
  // 예고 추첨
  const holdEv=win?wpick(HOLD,x=>x[2]):chooseEvent(HOLD.slice(1),false,pHit,1,2);
  let holdColor=holdEv?holdEv[0]:'';
@@ -1235,15 +1239,15 @@ setTimeout(()=>{for(let i=0;i<3;i++)setNum(i,[2,3,5][i])},600);
 renderHolds('');applyMute();render();
 </script>
 <div id="wcol">
-<div class="wg" id="wA"><div class="hd" id="wAh" title="접기/펼치기"><span>PLAY</span><i></i></div><div class="bd">
-<button id="wPlay" class="wide" title="회전 (Space)">▶ PLAY</button>
+<div class="wg" id="wA"><div class="hd" id="wAh" title="누르면 접기/펼치기 · 끌면 이동 · 두 번 누르면 원래 자리"><span>PLAY</span><i></i></div><div class="bd">
+<button id="wPlay" class="wide" title="회전 (Enter)">▶ PLAY</button>
 <button id="wAuto" title="누를 때마다: 자동 x1 → x2 → x4 → x8 → 끄기">AUTO OFF</button>
-<button id="wSkip" title="건너뛰기 / PUSH (Space)">SKIP</button>
+<button id="wSkip" title="건너뛰기 / PUSH / 다음 당첨까지 (Space)">SKIP</button>
 <label id="wRate" title="1,000엔(250발)으로 도는 횟수">회전율</label>
 <button id="wSnd" title="소리 (M)">🔊 소리</button>
 <button id="wView" class="wide" title="화면: 액정 확대 → 전체 기기 → 최대 화면"></button>
 </div></div>
-<div class="wg" id="wB"><div class="hd" id="wBh" title="접기/펼치기"><span>RECORD</span><i></i></div><div class="bd">
+<div class="wg" id="wB"><div class="hd" id="wBh" title="누르면 접기/펼치기 · 끌면 이동 · 두 번 누르면 원래 자리"><span>RECORD</span><i></i></div><div class="bd">
 <canvas id="wData" width="400" height="388"></canvas>
 <button id="wReset" title="기록 초기화">기록 초기화</button>
 </div></div>
@@ -1298,6 +1302,9 @@ renderHolds('');applyMute();render();
  q('wB').querySelector('.bd').insertBefore(q('gCv'),q('wReset'));q('gCv').width=400;q('gCv').height=170;
  q('wPlay').onclick=()=>{q('wPlay').blur();spin()};
  q('wSkip').onclick=()=>{q('wSkip').blur();pressSkip()};
+ // Space = SKIP (통상 대기 중에는 다음 당첨까지 넘김, 연출 중에는 건너뛰기·PUSH). 1회 회전은 PLAY 버튼 / Enter
+ addEventListener('keydown',e=>{if(e.code!=='Space'||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||''))return;e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;
+  if(!busy&&!selHook&&S.mode!=='normal')return spin();pressSkip()},true);
  q('mSkip').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();pressSkip()});   // 누르는 즉시 반응
  // 화면을 확대(핀치 줌)해도 보이는 화면의 오른쪽 아래에 같은 크기로 붙어 있게: 보이는 영역(visualViewport)에 맞춰 위치·배율을 계속 맞춤
  const ms=q('mSkip'),SZ=44,MG=12;
@@ -1323,7 +1330,23 @@ renderHolds('');applyMute();render();
  // 위젯 2개를 따로 접기/펼치기. 모바일은 데이터 위젯이 접힌 채로 시작
  const mob=matchMedia('(max-width:760px)').matches,fold={a:false,b:mob};try{Object.assign(fold,JSON.parse(localStorage.getItem('g999Fold2')||'{}'))}catch(e){}
  const setFold=()=>{document.body.classList.toggle('aOff',fold.a);document.body.classList.toggle('bOff',fold.b);q('wAh').lastChild.textContent=fold.a?'▸':'◂';q('wBh').lastChild.textContent=fold.b?'▸':'◂';try{localStorage.setItem('g999Fold2',JSON.stringify(fold))}catch(e){}};
- q('wAh').onclick=()=>{fold.a=!fold.a;setFold();fitMax()};q('wBh').onclick=()=>{fold.b=!fold.b;setFold();draw();fitMax()};setFold();
+ q('wAh').onclick=()=>{if(q('wA').dataset.moved)return;fold.a=!fold.a;setFold();fitMax();keepIn(q('wA'))};q('wBh').onclick=()=>{if(q('wB').dataset.moved)return;fold.b=!fold.b;setFold();draw();fitMax();keepIn(q('wB'))};setFold();
+ // ── 위젯 끌어서 옮기기: 제목 줄을 잡고 끌면 원하는 곳으로. 위치는 기억. 제목 줄을 두 번 누르면 원래 자리로 ──
+ let POS={};try{POS=JSON.parse(localStorage.getItem('g999Pos')||'{}')}catch(e){}
+ const savePos=()=>{try{localStorage.setItem('g999Pos',JSON.stringify(POS))}catch(e){}};
+ function keepIn(el){if(!el.classList.contains('free'))return;const r=el.getBoundingClientRect(),x=Math.max(0,Math.min(innerWidth-Math.min(r.width,80),r.left)),y=Math.max(0,Math.min(innerHeight-28,r.top));el.style.left=x+'px';el.style.top=y+'px'}
+ function setFree(el,x,y){el.classList.add('free');el.style.left=x+'px';el.style.top=y+'px'}
+ for(const [id,hd] of [['wA','wAh'],['wB','wBh']]){const el=q(id),h=q(hd);
+  if(POS[id]){setFree(el,POS[id][0],POS[id][1]);keepIn(el)}
+  let sx=0,sy=0,ox=0,oy=0,down=false,moving=false;
+  h.addEventListener('pointerdown',e=>{if(e.button)return;down=true;moving=false;sx=e.clientX;sy=e.clientY;const r=el.getBoundingClientRect();ox=r.left;oy=r.top;h.setPointerCapture(e.pointerId)});
+  h.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(!moving&&Math.hypot(dx,dy)<6)return;
+   if(!moving){moving=true;setFree(el,ox,oy);el.classList.add('drag')}
+   const r=el.getBoundingClientRect(),x=Math.max(0,Math.min(innerWidth-Math.min(r.width,80),ox+dx)),y=Math.max(0,Math.min(innerHeight-28,oy+dy));el.style.left=x+'px';el.style.top=y+'px'});
+  let lastTap=0;const up=()=>{if(!down)return;down=false;el.classList.remove('drag');if(moving){POS[id]=[parseFloat(el.style.left),parseFloat(el.style.top)];savePos();el.dataset.moved='1';setTimeout(()=>delete el.dataset.moved,0);return}
+   const now=performance.now();if(now-lastTap<380){lastTap=0;delete POS[id];savePos();el.classList.remove('free');el.style.left=el.style.top=''}else lastTap=now};   // 빠르게 두 번 누르면 원래 자리로
+  h.addEventListener('pointerup',up);h.addEventListener('pointercancel',up);}
+ addEventListener('resize',()=>{keepIn(q('wA'));keepIn(q('wB'))});
  // ── 대박 기록: 첫 당첨마다 한 칸 (시작 회전수, 연속 횟수) ──
  let H=[];try{H=JSON.parse(localStorage.getItem('g999Hist')||'[]')}catch(e){}
  let lastHits=S.hits,lastCur=S.cur,lastKind='';
