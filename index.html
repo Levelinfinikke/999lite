@@ -1174,7 +1174,7 @@ const UWT=Object.assign({t2:15.78,t1:25.31},TUNE.consts.UWT); // uw_try 안에�
 const UW_FL=(TUNE.consts.UW_FL)||[3.7,9.2,15.8,18.7,25.33,28.2];   // uw_try 안에서 흰 링이 터지는 시각(초), 영상 밝기에서 뽑은 값
 const UW_LIT_OFF=(TUNE.consts.UW_LIT_OFF)||0;const UW_LIT_FROM=6.0;   // '2' 카운트가 뜨는 시각(초): 이때부터 밝기 곡선을 따라감
    // 역물 밝기 곡선을 영상에 맞춰 앞뒤로 미는 값(초)
-const UW_STAGE=[.08,.17,.12];   // 성공 시 낙하 단계: '2' 8%, '1' 17%, 실패 화면 도중 역전 12%, 나머지 63%는 LAST                                     // 성공 시 낙하 단계 비율: "2" 8%, "1" 17%, 나머지 75%는 LAST
+const UW_STAGE=[.08,.17,.25];   // 성공 시 낙하 단계: '2' 8%, '1' 17%, 실패 화면 도중 역전 25%, 나머지 50%는 LAST                                     // 성공 시 낙하 단계 비율: "2" 8%, "1" 17%, 나머지 75%는 LAST
 const UW={try:'videos/uw_try.mp4',lose:'videos/uw_lose.mp4',pay:'videos/uw_pay.mp4',amts:[6000,9000,12000,15000,18000,21000]};
 async function uwWinClip(total){const ok=[];for(const a of UW.amts)if(await probe('videos/uw_win_'+a+'.mp4'))ok.push(a);if(!ok.length)return '';
  const le=ok.filter(a=>a<=total);return 'videos/uw_win_'+(le.length?le[le.length-1]:ok[0])+'.mp4'}
