@@ -1049,7 +1049,8 @@ async function finishNormal(res,rushPre,quiet,rev){   // rev: 올빼미 부활�
 // 긴 도입 연출: 손떨 대신 30% 확률, 항상 클라이맥스 야모리 리치로 이어짐
 const PRE_LONG={src:'videos/pre_long.mp4',p:.30};
 const LATE_B=0.10, LATE_J=0.3771;   // 배틀 꽝 1초 뒤 역물 낙하로 당첨(통상 당첨 중 비율) / judgement 성공 중 실패로 보였다가 계수 중 역전하는 비율 (일반 당첨의 RUSH 당첨 중 33% = 0.3771 × judge 까지 가는 87.5%)
-const LATE=Object.assign({j0:5.0,j1:13.0},TUNE.consts.LATE);   // judge_tail_lose 안에서 역전 낙하가 가능한 구간(초): 계수 시작 ~ 흰색·파란색 안내가 뜨기 전
+if(TUNE.consts.LATE&&TUNE.consts.LATE.j0===5&&TUNE.consts.LATE.j1===13)delete TUNE.consts.LATE;   // 옛 기본값이 저장돼 있으면 새 실측값으로
+const LATE=Object.assign({j0:.7,j1:14.07},TUNE.consts.LATE);   // judge_tail_lose 안에서 역전 낙하가 가능한 구간(초): 계수가 보이는 첫 장면 ~ 흰색·파란색 안내 카드가 뜨는 프레임(14.083초) 바로 앞
 const REVIVAL=0.06; // 당첨 중 부활 연출 비율(추정)
 const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182},TUNE.consts.B75),DIRECT_7500=0.125,DIRECT_REV=0.6;   // DIRECT_REV: 올빼미 부활 뒤에는 즉시 7500 이 크게 늘어남 (RUSH 당첨 중 60%)
 //   // RUSH 당첨 중 12.5% (줄인 12.5%p 는 judge 실패 후 역전 LATE_J 로 옮김)
@@ -1102,7 +1103,7 @@ async function judgement(success,j,jfrom){
  const fJl=take('jlate');
  if(j&&success&&(fJl!==undefined?fJl:Math.random()<LATE_J)){   // 실패로 보인 뒤 계수 중 아무 때나 역물이 떨어지며 역전 (안내 문구가 뜨기 전까지)
   const tl={src:JT.lose,from:j.loseFrom||undefined};await playClip(j.body,{from:jfrom,next:j.pre||JT.lose,noskip:j.k==='break'});if(j.pre)await playClip(j.pre,{next:JT.lose});
-  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.random()*Math.max(0,LATE.j1-LATE.j0)).toFixed(2),next:{src:'videos/direct7500.mp4',from:.03}});
+  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.sqrt(Math.random())*Math.max(0,LATE.j1-LATE.j0)).toFixed(3),next:{src:'videos/direct7500.mp4',from:.03}});
   // 실패 계수 도중 → 즉시 7500 영상 → 7500 확정(전체 낙하) → 7500 보너스. 3000 도중의 즉시 7500 분기와 같은 순서
   // 부활 때만: 즉시 7500 영상 맨 앞의 '3000' 프레임(0.03초까지)을 잘라 냄
   if(await playClip('videos/direct7500.mp4',{from:.03,next:JT.win}))await playClip(JT.win,{next:CLIP.bonus7500});else if(!(await playClip(JT.win,{next:CLIP.bonus7500}))){clearTimeout(hideT);await handDrop(true)}return true}
