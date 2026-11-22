@@ -97,6 +97,11 @@ body.inclip #reels,body.inclip #holds{visibility:hidden}
   radial-gradient(circle at 12% 62%,rgba(255,255,255,.07) 0 .35cqw,transparent .4cqw),radial-gradient(circle at 88% 62%,rgba(255,255,255,.07) 0 .35cqw,transparent .4cqw),
   radial-gradient(circle at 30% 62%,rgba(255,255,255,.05) 0 .28cqw,transparent .33cqw),radial-gradient(circle at 70% 62%,rgba(255,255,255,.05) 0 .28cqw,transparent .33cqw)}
 #frameImg{position:absolute;inset:0;width:100%;height:100%;z-index:10;pointer-events:none;display:none}
+#frameImg.dim{filter:brightness(.5)}
+.led{position:absolute;z-index:10;pointer-events:none;opacity:0;will-change:opacity;transition:opacity .07s linear}
+.led.b{mix-blend-mode:screen}
+.led.t{mix-blend-mode:color}
+.led.p{mix-blend-mode:multiply;z-index:14}
 #holds{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);display:flex;gap:1.6cqw;z-index:4;align-items:center}
 .hold{width:4.2cqw;height:4.2cqw;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#bbb 40%,#555);box-shadow:0 0 .8cqw rgba(0,0,0,.6)}
 .hold.cur{width:5.6cqw;height:5.6cqw;margin-right:1.4cqw}
@@ -340,6 +345,7 @@ body.aOff #wA>.hd{height:30px;padding:0 4px 0 8px}
 <div id="tune"></div>
 <button id="recBtn" title="화면+소리 녹화 (R)">⏺ 녹화</button>
 <script src="videos/clips.js"></script>
+<script src="images/led_data.js"></script>
 <script>
 'use strict';
 // ═══════════ 스펙 (출처: 공략 사이트 공개 수치) ═══════════
@@ -571,7 +577,7 @@ function loadHint(on){let e=$('loadHint');if(!e){e=document.createElement('div')
 let skipReq=false,stopReq=false,stopAll=false;let LAT=.09; // 재생 시작 지연(초) 추정값, 재생할 때마다 실제 값으로 보정
 // ── 조정값: 클립별 시작·끝 이동(초), 역물 큐, 분기 시각. 브라우저에 저장되고 조정 화면에서 바꿈 ──
 const CLIPS=window.CLIPS||{};                       // videos/clips.js: {이름:{in:앞 여유, dur:기준 길이}}
-const TUNE_DEFAULT={"trim":{"judge_yamori_body":[0.4,0.4],"judge_tail_win":[0.1,0.6],"battle_nishio_body":[0.1,0],"judge_tail_lose":[0.6,0],"judge_ready":[0,0.5],"judge_break_win":[0,-2.551],"direct7500":[-0.015,-0.068],"bonus7500":[0.6,2],"st_ep_2":[0,0.1],"st_ep_3":[-2,-0.1],"st_ep_4":[0.234,0],"st_hyper6000":[0.1,-1],"uw_try":[0.185,0],"uw_lose":[0.051,-0.8],"uw_win_21000":[0.087,0],"rush_in":[0.1,1.3],"bonus":[0.568,0],"st_win_omedetou":[5.5,-3.22],"st_win_rize":[0,-61.58],"st_win_tsukiyama":[0,-12.7],"yokoku_hand":[0,0.2],"pre_long":[39.417,0],"judge_shachi_body":[-2,0],"uw_win_6000":[0.015,0],"uw_win_9000":[0.017,0],"uw_win_12000":[0.017,0],"uw_win_15000":[-0.017,0],"uw_win_18000":[-0.051,0],"st_full":[1.798,0],"revival_fukurou":[0.02,0],"battle_nishio_winfull":[0,-0.1],"battle_tsukiyama_body":[1,0]},"cues":{},"consts":{"BT":{"branch":22.8,"judge":98.7},"UWT":{"t2":14.78,"t1":24.81}}}; // 2026-11-21 조정값 7차 반영 (final)
+const TUNE_DEFAULT={"trim":{"judge_yamori_body":[0.4,0.4],"judge_tail_win":[0.1,0.6],"battle_nishio_body":[0.1,0],"judge_tail_lose":[0.6,0],"judge_ready":[0,0.5],"judge_break_win":[0,-2.551],"direct7500":[-0.2,-0.068],"bonus7500":[0.6,2],"st_ep_2":[0,0.1],"st_ep_3":[-2,-0.1],"st_ep_4":[0.234,0],"st_hyper6000":[0.1,-1],"uw_try":[0.185,0],"uw_lose":[0.051,-0.8],"uw_win_21000":[0.087,0],"rush_in":[0.1,1.3],"bonus":[0.568,0],"st_win_omedetou":[5.5,-3.22],"st_win_rize":[0,-61.58],"st_win_tsukiyama":[0,-12.7],"yokoku_hand":[0,0.2],"pre_long":[39.417,0],"judge_shachi_body":[-2,0],"uw_win_6000":[0.015,0],"uw_win_9000":[0.017,0],"uw_win_12000":[0.017,0],"uw_win_15000":[-0.017,0],"uw_win_18000":[-0.051,0],"st_full":[1.798,0],"revival_fukurou":[0.02,0],"battle_nishio_winfull":[0,-0.1],"battle_tsukiyama_body":[1,0]},"cues":{},"consts":{"BT":{"branch":22.8,"judge":98.7},"UWT":{"t2":14.78,"t1":24.81}}}; // 2026-11-21 조정값 7차 반영 (final)
 let TUNE=(()=>{let t={};try{t=JSON.parse(localStorage.getItem('g999Tune')||'{}')}catch(e){}
  return {trim:Object.assign({},TUNE_DEFAULT.trim,t.trim),cues:Object.assign({},TUNE_DEFAULT.cues,t.cues),consts:Object.assign({},TUNE_DEFAULT.consts,t.consts)}})();
 const saveTune=()=>{try{localStorage.setItem('g999Tune',JSON.stringify(TUNE))}catch(e){}};
@@ -582,6 +588,8 @@ try{if(!localStorage.getItem('ghoulFix7')){for(const [k,e] of [['st_win_rize',-6
 const PUSH=Object.assign({judge_yamori_body:[[10.6,15.6],[40.3,999]],judge_shiro_body:[[10.1,15.1],[39.8,999]],judge_shachi_body:[[5.4,10.44]],judge_ready:[2.9,999],revival_fukurou:[34.3,37.4]},TUNE.consts.PUSH);
 // 요청받은 이동량을 이 브라우저에 저장된 값에도 한 번만 더함 (judge_tail_lose 시작 +0.3, st_win_omedetou 시작 +5.5)
 try{localStorage.setItem('ghoulFix2','1')}catch(e){}
+try{if(!localStorage.getItem('ghoulFix11')){TUNE.trim.direct7500=[-0.2,(TUNE.trim.direct7500||[0,0])[1]||0];localStorage.setItem('ghoulFix11','1');saveTune()}}catch(e){}
+// ↑ direct7500: 앞 자르기 -0.2 (이 브라우저에 저장된 값에도 한 번 적용)
 try{if(!localStorage.getItem('ghoulFix9')){TUNE.trim.revival_fukurou=[0.02,(TUNE.trim.revival_fukurou||[0,0])[1]||0];localStorage.setItem('ghoulFix9','1');saveTune()}}catch(e){} // 올빼미 부활: 숫자(676) 장면을 잘라 내고 번쩍이며 붉은 꽃이 피는 순간부터   // (옛 이전 처리: 기본값에 이미 들어 있어 더 이상 더하지 않음)
 // 오류 복구: 새 브라우저에서 옛 이전 처리가 기본값에 한 번 더 더해져 오메데토 시작이 11초(손이 내려오는 앞부분이 잘림), 배틀 실패 시작이 0.9초가 된 경우 되돌림
 try{if(!localStorage.getItem('ghoulFix8')){const T=TUNE.trim;if(T.st_win_omedetou&&Math.abs(T.st_win_omedetou[0]-11)<.01)T.st_win_omedetou[0]=5.5;if(T.judge_tail_lose&&Math.abs(T.judge_tail_lose[0]-.9)<.01)T.judge_tail_lose[0]=.6;localStorage.setItem('ghoulFix8','1');saveTune()}}catch(e){}
@@ -591,6 +599,7 @@ try{if(!localStorage.getItem('ghoulFix3')){TUNE.trim.yokoku_hand=[(TUNE.trim.yok
 try{if(!localStorage.getItem('ghoulFix1')){delete TUNE.trim.amon_winfull;delete TUNE.cues['videos/amon_winfull.mp4'];localStorage.setItem('ghoulFix1','1');saveTune()}}catch(e){} // 아몬 결전 클립을 새로 잘라서 옛 조정값 폐기
 const cname=src=>src.split('/').pop().replace('.mp4','');
 // 기준 시각(0 = 원래 자른 시작점) ↔ 파일 시각. base=파일 앞 여유, dur=기준 길이, tin/tout=사용자 이동량
+function D75F(){return Math.max(.03,(TUNE.trim.direct7500||[0])[0]||0)}
 function clipGeom(src,v){const n=cname(src),c=CLIPS[n]||{},tr=TUNE.trim[n]||[0,0],base=c.in||0;
  return {n,base,dur:c.dur!=null?c.dur:Math.max(0,((v&&v.duration)||0)-base),tin:tr[0]||0,tout:tr[1]||0}}
 const NORMALS=[1,2,3,4,5].map(n=>'videos/normal_'+n+'.mp4');let bgList=null,bgCur=-1,bgEnd=1e9;const BG=$('bgVid');
@@ -689,7 +698,93 @@ function setNum(i,n){const src=IMG.num(n);reelEls[i].innerHTML=imgOk[src]?'<div 
 $('hand').onerror=()=>{$('hand').style.display='none'};
 function fx(html,cls){const d=document.createElement('div');d.className='banner '+(cls||'mid');d.innerHTML=html;$('fx').appendChild(d);return d}
 function clearFx(){$('fx').innerHTML=''}
-async function flash(n=1,ms=120){const f=$('flash');for(let i=0;i<n;i++){f.style.transition='none';f.style.opacity=.9;await sleep(30);f.style.transition='opacity '+(ms/speed)+'ms';f.style.opacity=0;await sleep(ms)}}
+// 기기 LED: 테두리를 어둡게 하고 LED 부분만 구역별로 연출에 맞춰 밝힘
+// 구역: left·right(양쪽 기둥) top(중앙 상단) flower(꽃) button(가운데 버튼) lever(아래 레버 램프) border(스크린 테두리) head·hand(상단 역물). 실기 표의 switch 값은 button·lever 가 함께 씀
+// 기본 동작 — 대기: 느린 숨쉬기 / 연출 중: 밝게 일렁임 / 역물 낙하: 점멸 / 번쩍임: 순간 최대.  LED.set(구역,값) 으로 구역별 고정, null 로 해제
+const LED_BOX={"left":{"c":[0.0,0.0,0.2655,0.7192],"b":[0.0,0.0,0.549,0.8985]},"right":{"c":[0.7204,0.0,0.2796,0.7176],"b":[0.4356,0.0,0.5644,0.8969]},"top":{"c":[0.2642,0.0,0.4768,0.1251],"b":[0.0,0.0,1.0,0.3044]},"flower":{"c":[0.3621,0.5542,0.2861,0.1141],"b":[0.0773,0.3749,0.8544,0.4727]},"button":{"c":[0.4162,0.652,0.1952,0.0709],"b":[0.1314,0.4727,0.7635,0.4295]},"lever":{"c":[0.4716,0.7946,0.1095,0.1231],"b":[0.1881,0.6145,0.6765,0.3855]},"border":{"c":[0.0696,0.2934,0.8711,0.4234],"b":[0.0,0.1141,1.0,0.782]}};
+// 실기 영상에서 읽은 구역별 LED 색 표(images/led_data.js)가 있는 클립은 그 표를 영상 시각에 맞춰 그대로 재생 (없으면 위 기본 동작)
+const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);let ok=0,need=0,kick=0,drop=0,ov=null,pt=0;const fix={};
+ const B64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_',BI={};for(let i=0;i<64;i++)BI[B64[i]]=i;
+ const THEME={1:[249,.85],2:[292,.85],3:[62,.85],4:[215,.85],5:[270,.8]};let bgSeen=0,dipT=-9,swT=-9;   // 스테이지별 테마색 [색상,채도]: 1 도시(파랑) 2 극장(보라) 3 카페(노랑) 은 실기 관찰, 4·5 는 배경 색에 맞춘 추정
+ const DEF={flower:'#ff3050'},up=()=>{if(++ok===need){$('frameImg').classList.add('dim');requestAnimationFrame(tick)}};
+ const pre=u=>{need++;const m=new Image();m.onload=up;m.src=u};
+ // 색 입히기: 그림의 투명도는 그대로 두고 색만 한 가지로 바꾸는 SVG 필터 (CSS 마스크는 file:// 에서 막혀서 쓰지 않음)
+ const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg');svg.setAttribute('width',0);svg.setAttribute('height',0);svg.style.position='absolute';document.body.appendChild(svg);let fid=0;
+ const flood=(e,col)=>{const f=document.createElementNS(NS,'filter'),id='ledf'+(fid++);f.id=id;f.setAttribute('color-interpolation-filters','sRGB');
+  const a=document.createElementNS(NS,'feFlood'),b=document.createElementNS(NS,'feComposite');a.setAttribute('flood-color',col);b.setAttribute('in2','SourceAlpha');b.setAttribute('operator','in');f.append(a,b);svg.appendChild(f);
+  e.style.filter='url(#'+id+')';e._c=col;e.col=c=>{if(c!==e._c){e._c=c;a.setAttribute('flood-color',c)}};return e};
+ for(const [n,B] of Object.entries(LED_BOX)){const z=Zs[n]={lc:-1,lb:-1,lt:-1,lk:-1,q:-1},cu='images/led_'+n+'.webp',bu='images/led_'+n+'_b.webp';pre(cu);pre(bu);
+  const mk=(tag,cls,q)=>{const e=document.createElement(tag);e.className='led'+cls;Object.assign(e.style,{left:q[0]*100+'%',top:q[1]*100+'%',width:q[2]*100+'%',height:q[3]*100+'%'});return e};
+  z.c=mk('img','',B.c);z.c.alt='';z.c.src=cu;z.t=mk('img',' t',B.c);z.t.alt='';z.t.src=cu;flood(z.t,'#fff');z.b=mk('img',' b',B.b);z.b.alt='';z.b.src=bu;flood(z.b,DEF[n]||'#d4e2ff');
+  z.k=mk('img','',B.c);z.k.alt='';z.k.src=cu;flood(z.k,'#000');   // 소등용: LED 자리를 검게 덮어 기기 그림에 남은 밝은 부분까지 끔
+  $('frameImg').after(z.k,z.c,z.t,z.b);
+  // 회전하는 빛(무지개·오른쪽 노림 연출)용 겹: 기둥·중앙 상단 위를 밝은 띠가 지나감. 띠 모양은 CSS 그라데이션 마스크(파일을 읽지 않아 file:// 에서도 동작)
+  if(n==='left'||n==='top'||n==='right'){const h={c:mk('img','',B.c),t:mk('img',' t',B.c),b:mk('img',' b',B.b)};h.c.alt=h.t.alt=h.b.alt='';h.c.src=h.t.src=cu;h.b.src=bu;flood(h.t,'#fff');flood(h.b,'#fff');
+   for(const e of [h.c,h.t,h.b])e.style.transition='none';z.b.after(h.c,h.t,h.b);z.h=h;z.ho=0}}
+ const PART={head:[0,1,2],hand:[3]},PT={};   // 상단 역물: 몸통·머리는 head, 손은 hand 를 따름
+ function ptint(n){if(PT[n])return PT[n];const a=[];for(const i of PART[n]){const P=PARTS[i],el=partEls[i],e=document.createElement('img');e.alt='';e.src=P.src;e.className='led p';
+   Object.assign(e.style,{left:P.bbox[0]*100+'%',top:P.bbox[1]*100+'%',width:(P.bbox[2]-P.bbox[0])*100+'%',height:'auto'});flood(e,'#fff');$('machine').appendChild(e);a.push(e)}
+  return (PT[n]=a)}
+ function parts(n,L,hue,sat){if(typeof partEls==='undefined'||typeof gFxInit!=='function')return;gFxInit();const d=Math.max(0,Math.min(.55,(1-L)*.6)),tn=ptint(n),to=sat>0?Math.min(.8,sat*Math.min(1,L)):0;
+  PART[n].forEach((i,k)=>{const e=dimEls[i],mv=!!partEls[i].style.transform;if(e){const v=mv?0:d;if(Math.abs(v-(e._l==null?-1:e._l))>.004){e._l=v;e.style.transition='none';e.style.opacity=v.toFixed(3)}}
+   const t=tn[k],tv=mv?0:to;t.col('hsl('+hue+',100%,58%)');if(Math.abs(tv-(t._l||0))>.004){t._l=tv;t.style.opacity=tv.toFixed(3)}})}
+ const dec=(s,i)=>{const q=(BI[s[i*2]]<<6)|BI[s[i*2+1]];return [(q>>8)/15,((q>>3)&31)*11.25,(q&7)/7]};
+ // 빛의 회전 (실기 60프레임 영상 실측). 경로: 왼쪽 기둥 아래→위 → 중앙 상단 왼→오 → 오른쪽 기둥 위→아래 (시계 방향), 경로 위치 s = 0~1
+ //  종류 2 무지개: 전부 켜진 채 6색(하늘→초록→노랑→빨강→자홍→파랑)이 0.7초에 한 바퀴. 색이 바뀌는 경계가 경로를 0.36초에 훑고 지나감
+ //  종류 1 오른쪽 노림: 2.32초 주기. 왼쪽 기둥은 가운데~위만 켜짐(아래 절반은 꺼진 채). 켜짐이 시계 방향으로 번지고(왼쪽 0초 → 상단 0.12초 → 오른쪽 위 0.22초 → 오른쪽 아래 0.38초), 1.22초 뒤 같은 순서로 꺼짐
+ const CH=[['left','y',.72,0,0,.4],['top','x',.265,.74,.4,.6],['right','y',0,.72,.6,1]],RB=[180,320,100,240,20,160,300,80,220,0,140,280],RBT=1.0,RBD=.2,MGT=2.32;   // 무지개: 한 번에 140도씩 건너뛰는 12색(이웃한 색 차이를 크게), 색 하나 0.083초, 경계가 경로를 0.2초에 훑음
+ function hOff(z){if(z.ho){z.ho=0;for(const e of [z.h.c,z.h.t,z.h.b])e.style.opacity=0}}
+ // 구역 안에서 경로 위치 a~b 사이만 보이게 (가장자리는 살짝 부드럽게)
+ function hShow(n,ax,from,to,s0,s1,a,b,hue,sat){const z=Zs[n],h=z.h;a=Math.max(s0,a);b=Math.min(s1,b);if(b-a<.002)return hOff(z);
+  const pa=from+(to-from)*(a-s0)/(s1-s0),pb=from+(to-from)*(b-s0)/(s1-s0),lo=Math.min(pa,pb),hi=Math.max(pa,pb);
+  h.t.col('hsl('+hue+',100%,58%)');h.b.col('hsl('+hue+','+Math.round(sat*100)+'%,'+Math.round(92-sat*32)+'%)');
+  const inc=to>from,loEnd=(a<=s0+.001&&inc)||(b>=s1-.001&&!inc),hiEnd=(b>=s1-.001&&inc)||(a<=s0+.001&&!inc);   // 구역 끝까지 켜진 쪽은 번짐이 잘리지 않게 넉넉히
+  for(const [e,B] of [[h.c,LED_BOX[n].c],[h.t,LED_BOX[n].c],[h.b,LED_BOX[n].b]]){const e0=ax==='y'?B[1]:B[0],es=ax==='y'?B[3]:B[2],w=.012/es*100,q0=loEnd?-60:(lo-e0)/es*100,q1=hiEnd?160:(hi-e0)/es*100,
+    g='linear-gradient('+(ax==='y'?'to bottom':'to right')+',transparent '+(q0-w).toFixed(1)+'%,#000 '+(q0+w).toFixed(1)+'%,#000 '+(q1-w).toFixed(1)+'%,transparent '+(q1+w).toFixed(1)+'%)';
+   if(e._g!==g){e._g=g;e.style.webkitMaskImage=g;e.style.maskImage=g}}
+  h.c.style.opacity=1;h.t.style.opacity=sat>0?.9:0;h.b.style.opacity=1;z.ho=1}
+ const rotHue={};
+ function chase(type,vt,D,fi){
+  if(!type||type===3){CH.forEach(c=>hOff(Zs[c[0]]));return}
+  if(type===2){const step=RBT/12;
+   CH.forEach(([n,ax,from,to,s0,s1])=>{const k0=Math.floor((vt-s0*RBD)/step),k1=Math.floor((vt-s1*RBD)/step);rotHue[n]=RB[((k1%12)+12)%12];   // 바탕 = 아직 안 바뀐 색
+    if(k0===k1)return hOff(Zs[n]);const sf=(vt-k0*step)/RBD;hShow(n,ax,from,to,s0,s1,s0,sf,RB[((k0%12)+12)%12],1)})}
+  else{const tau=((vt%MGT)+MGT)%MGT,v=D?dec(D.right,fi):[1,0,1],hue=v[2]>0?v[1]:0,sat=v[2]>0?v[2]:1;
+   // 켜진 구간 = 꺼짐 경계(sOff)와 켜짐 경계(sOn) 사이
+   const on=x=>x<0?.2:x<.12?.2+(x/.12)*.2:x<.22?.4+((x-.12)/.1)*.2:x<.38?.6+((x-.22)/.16)*.4:1.01,sOn=on(tau),sOff=tau<1.22?.2:on(tau-1.22);
+   CH.forEach(([n,ax,from,to,s0,s1])=>hShow(n,ax,from,to,s0,s1,sOff,sOn,Math.round(hue),sat))}}
+ function tick(now){requestAnimationFrame(tick);const t=now/1000,dt=Math.min(.1,t-pt);pt=t;let G,D=null,fi=0;
+  let Dc=null;if(curPlay&&window.LEDDATA){const d=LEDDATA[cname(curPlay.src)];if(d){fi=Math.floor(curPlay.v.currentTime*d.fps);if(fi>=0&&fi*2+1<d.z.left.length){D=d.z;Dc=d}}}
+  if(drop>0)G=.7+.3*drop*(Math.sin(t*40)>0?1:.35);
+  else if(curPlay)G=.65;
+  else G=.45;   // 표가 없는 화면은 흔들림 없이 일정하게
+  kick*=Math.pow(.01,dt);if(kick<.01)kick=0;
+  // 회전 구간인지: 표에 적힌 [시작프레임,끝프레임,종류(1 흰빛·표의 색 / 2 무지개)]
+  let rot=0;if(D&&Dc.rot)for(const r of Dc.rot)if(fi>=r[0]&&fi<r[1]){rot=r[2];break}
+  chase(rot,curPlay?curPlay.v.currentTime:t,D,fi);
+  // 통상(실기 관찰): 기둥·중앙 상단·테두리는 스테이지 테마색으로 고정, 머리(흰색)·손(주황)·꽃(빨강)은 변화 없이 켜짐, 스위치+레버만 회전 시작 때 잠깐 점멸. 스테이지가 바뀔 때 기둥이 잠깐 꺼졌다 켜짐
+  const cpN=curPlay?+(cname(curPlay.src).match(/^normal_(\d)/)||[])[1]||0:0;   // 조정 목록에서 통상 배경을 직접 재생할 때도 같은 규칙
+  let NM=null;if(!D&&ov==null&&!drop&&(cpN||(!curPlay&&typeof S!=='undefined'&&S.mode==='normal'))){let th=null;
+   if(cpN||(typeof bgCur!=='undefined'&&bgCur>=0&&bgList&&bgList[bgCur])){const k=cpN||+(bgList[bgCur].match(/normal_(\d)/)||[])[1];th=THEME[k]||null;if(k!==bgSeen){if(bgSeen)dipT=t;bgSeen=k}}
+   // 버튼은 꺼짐. 레버도 평소 꺼져 있다가, 배경 영상에서 4번째 보류 구슬이 위에서 내려오는 순간(미리 찾아 둔 시각표 LEDSW)에만 0.5초간 빠르게 여러 번 반짝임. 시각표가 없으면 회전 시작에 반응
+   let hd=t-swT<.5?t-swT:-1;const ev=window.LEDSW&&bgSeen&&LEDSW['normal_'+bgSeen];if(ev){const ct=cpN?curPlay.v.currentTime:BG.currentTime;hd=-1;for(let i=0;i<ev.length&&ev[i]<=ct;i++)if(ct-ev[i]<.5)hd=ct-ev[i]}
+   const f=Math.min(1,Math.abs(t-dipT-.7)/.7),lev=hd>=0&&Math.sin(hd*75)>0?[.85,0,0]:[.04,0,0],P=th?[.85*f,th[0],th[1]]:[.8*f,0,0];
+   NM={left:P,right:P,top:P,border:[P[0]*.55,P[1],P[2]],head:[.95,0,0],hand:[.95,15,.75],flower:[.95,0,0],button:[.04,0,0],lever:lev}}
+  for(const n of names){let L,hue=0,sat=0;
+   if(fix[n]!=null)L=fix[n];
+   else if(D){let v;if(n==='top'){const b=dec(D.right,fi),a=D.left[fi*2]===D.right[fi*2]&&D.left[fi*2+1]===D.right[fi*2+1]?b:dec(D.left,fi);v=a[0]>b[0]?a:b}else v=dec(D[n==='button'||n==='lever'?'switch':n],fi);L=v[0]>0?.1+v[0]*1.1:.02;hue=v[1];sat=v[2]}
+   else if(ov!=null)L=ov;
+   else if(NM){L=NM[n][0];hue=NM[n][1];sat=NM[n][2]}
+   else L=G;
+   if(rot&&(n==='left'||n==='right'||n==='top')){if(rot===2){L=Math.max(L,1);hue=rotHue[n];sat=1}else if(rot===3){const vt=curPlay?curPlay.v.currentTime:t,dl=n==='left'?0:n==='top'?.014:.028;if((((vt-dl)%.0833)+.0833)%.0833<.034)L=.02}else L=.02}   // 종류 3: 전부 켜진 채 1/30초 꺼짐이 초당 12번, 왼쪽→상단→오른쪽 순으로 아주 빠르게 지나감(실측)   // 무지개: 바탕도 전부 켜고 색만 바뀜 / 오른쪽 노림: 바탕은 끄고 켜진 구간만 표시
+   L=Math.min(1.5,L+kick);
+   const z=Zs[n];if(!z){if(ov==null||fix[n]!=null)parts(n,L,hue,sat);continue}
+   const oc=Math.min(1,L)*(1-.32*sat),ob=Math.min(1,L*1.0),ot=sat*Math.min(1,L),   /* 색이 진할수록 흰 바탕을 조금 낮춰 색이 덜 바래 보이게 */ok_=L<.3?(.3-L)/.3*.45:0;if(Math.abs(ok_-z.lk)>.004){z.lk=ok_;z.k.style.opacity=ok_.toFixed(3)}
+   const q=sat>0?hue*8+Math.round(sat*7):-1;
+   if(q!==z.q){z.q=q;if(q<0)z.b.col(DEF[n]||'#d4e2ff');else{z.t.col('hsl('+hue+',100%,55%)');z.b.col('hsl('+hue+','+Math.round(sat*100)+'%,'+Math.round(90-sat*32)+'%)')}}
+   if(Math.abs(oc-z.lc)>.004){z.lc=oc;z.c.style.opacity=oc.toFixed(3)}if(Math.abs(ob-z.lb)>.004){z.lb=ob;z.b.style.opacity=ob.toFixed(3)}if(Math.abs(ot-z.lt)>.004){z.lt=ot;z.t.style.opacity=ot.toFixed(3)}}}
+ return {names,z:Zs,sw(){swT=pt},kick(v){kick=Math.max(kick,v)},drop(v){drop=v},ov(v){ov=v;if(v==null&&typeof dimEls!=='undefined')dimEls.forEach(e=>e._l=null)},set(n,v){if(n==='all')names.forEach(k=>fix[k]=v);else fix[n]=v}}})();
+async function flash(n=1,ms=120){const f=$('flash');for(let i=0;i<n;i++){LED.kick(.9);f.style.transition='none';f.style.opacity=.9;await sleep(30);f.style.transition='opacity '+(ms/speed)+'ms';f.style.opacity=0;await sleep(ms)}}
 function shake(ms=400){$('stage').animate([{transform:'translate(0,0)'},{transform:'translate(-1.2%,1%)'},{transform:'translate(1.2%,-1%)'},{transform:'translate(-.8%,.6%)'},{transform:'translate(0,0)'}],{duration:ms/speed,iterations:1})}
 
 // ═══════════ 상태 ═══════════
@@ -788,7 +883,7 @@ const MW=1552,MH=2454;
 const PARTS=[
  {src:'images/gimmick_3.webp',bbox:[0.43041,0.1793,0.54188,0.28729],z:11,to:'body',delay:20,back:150},
  {src:'images/gimmick_4.webp',bbox:[0.47423,0.26121,0.71263,0.29788],z:11,to:'body',delay:10,back:80},
- {src:'images/gimmick_2.webp',bbox:[0.2107,0.15159,0.4549,0.30155],z:12,to:'head',delay:30,back:320},
+ {src:'images/gimmick_2.webp',bbox:[0.2107,0.15159,0.4549,0.30155],z:12,to:'head',delay:30,back:320},   // 2c: 윗부분의 기계 조각을 지우고 절단선을 서서히 투명하게
  {src:'images/gimmick_5.webp',bbox:[0.45232,0.15281,0.8067,0.29381],z:13,to:'hand',delay:0,back:0}];
 // 낙하 상태 부품(정면 캡처에서 딴 것): [왼쪽, 위, 폭] (기기 대비 비율)
 const DROPS={body:{src:'images/drop_body.webp',box:[0.3617,0.322,0.2906],z:11,rot:0,rest:-52},head:{src:'images/drop_head.webp',box:[0.2575,0.196,0.2726],z:12,rot:0,rest:-28},hand:{src:'images/drop_hand.webp',box:[0.36,0.3822,0.3996],z:13,rot:0,rest:-10}};
@@ -796,17 +891,18 @@ const SH='drop-shadow(0 .4vh .8vh rgba(0,0,0,.6))',GOLD='drop-shadow(0 0 2vh #ff
 function mkImg(src,x,y,w,z){const el=document.createElement('img');el.alt='';el.src=src;Object.assign(el.style,{position:'absolute',left:x*100+'%',top:y*100+'%',width:w*100+'%',zIndex:z,pointerEvents:'none',transformOrigin:'50% 50%',filter:SH});$('machine').appendChild(el);return el}
 let partsOk=0,dropsOk=0;const NP=PARTS.length,ND=Object.keys(DROPS).length;
 const partEls=PARTS.map(P=>{const el=mkImg(P.src,P.bbox[0],P.bbox[1],P.bbox[2]-P.bbox[0],P.z);el.style.visibility='hidden';el.onload=()=>{if(++partsOk===NP){$('gimmick').style.display='none';partEls.forEach(e=>e.style.visibility='visible')}};return el});
+// 대기 머리의 잘린 윗부분: 낙하 머리 그림을 대기 머리에 맞춰(회전 -46.6°, 배율 0.73 실측) 뒤에 붙임. 기기 테두리(z10) 아래라 평소에는 가려지고, 머리가 내려올 때만 보임
 for(const [k,D] of Object.entries(DROPS)){D.el=mkImg(D.src,D.box[0],D.box[1],D.box[2],D.z);D.el.style.opacity=0;if(D.rot)D.el.style.transform='rotate('+D.rot+'deg)';D.el.onload=()=>dropsOk++}
 // 추가 3000 판정용: 상단 역물을 어둡게 덮는 검은 실루엣과, 영상의 흰 링에 맞춰 번쩍이는 흰 실루엣 (역물 그림 자체는 건드리지 않음)
 const dimEls=[],flashEls=[];
 function gFxInit(){if(dimEls.length||typeof partEls==='undefined')return;partEls.forEach(el=>{for(const [arr,f,z] of [[dimEls,'brightness(0)',14],[flashEls,'brightness(0) invert(1)',15]]){const d=el.cloneNode();d.style.filter=f;d.style.opacity=0;d.style.zIndex=z;d.style.transform='none';$('machine').appendChild(d);arr.push(d)}})}
-function gDim(on){gFxInit();if(!on)flashEls.forEach(d=>d.style.opacity=0);dimEls.forEach(d=>{d.style.transition='opacity '+(on?2.2:.35)/Math.min(speed,4)+'s ease';d.style.opacity=on?.68:0})}
+function gDim(on){gFxInit();LED.ov(on?.12:null);if(!on)flashEls.forEach(d=>d.style.opacity=0);dimEls.forEach(d=>{d.style.transition='opacity '+(on?2.2:.35)/Math.min(speed,4)+'s ease';d.style.opacity=on?.68:0})}
 // 추가 3000 판정 영상(uw_try) 시각별 상단 역물 밝기(초당 30개, 0=암전 ~ z=가장 밝음). Live03 0:04:27~ 의 실기 역물을 측정한 값
 const UW_LIT='fecb98897673462111000000000000000000000000000000000111112222222222222222222222111100000000000000111112211222egffgffeeedca96544443354444444444433333333333333333333333333333444444455555245579ccccbbbdfikllkjiknpqqponpqqqrqrrrsssth00lb0o4fr7566778ckxkixlkxndcccddddeeeeeeeeedehqzdozamxbhotwxzzzzzzxurojf7gkortvxyzyxvtqokg99ilprtvxyywuromje78hloqsuwxxvtpnkga5bjmpsuwyyxvtqnlha7fknqtuwxyxvtrolid59hlnqsuwxwusqolieddeffghijjklhfgghiijkkllmmmnnnnnooooonnnnnnmmmmmmmmmmlllkkjjiiqvxyzzzzzywutuvwwwutrqsuvvvtsstututtutuuuuuk0bmb0nd2pg5445568huhfuihvja9aabbcddeeefffffffjrzfoydnwchoruvyzzzzyvspmif8ahlortuwxwuspnkgc5dhlortvwxwuspnkgb5dhloqsuwwvsqnlie94cgjnprtvwusqomjhc68gjmpsuwyxvtromjf8bimoqtuwyxvtroljfdeeffghhijkkhfgghhiijjjjkkkkllmmmmnnnooooooppppppppppoonnmlntwxyzzzzzzxtstuvvvtrpnqrsttrqqrsrrrrrrrsssssf1ki2mj5om7677789buj9tbkudaabbcccddddddddddddgwwduvcttckqswyzzzzzzzwspmhbcjnpsuwyzywtrolie7bhlnqsuwxwvsqnkhd6bhlnqtvwyxvtroljf7cfknpsuvxxvspmjif5bgknpruvxwurpmjgc6cgknprtvwvurpnliffghhijjkkllmhhiijjkkkkkkjjjjjkkkllmmnmmmmmmmllllllmmmmnnnnnoooooonnnnnnnnnnnnmmmllkkkjjj';
 function gLit(t){gFxInit();const i=Math.max(0,Math.min(UW_LIT.length-1,Math.floor((t+UW_LIT_OFF)*30)));let v=parseInt(UW_LIT[i],36)/35;
  // '2' 카운트가 뜨기 전에는 깜박임 없이 천천히 어두워진 채로 유지
- if(t+UW_LIT_OFF<UW_LIT_FROM){const dim0=.78*Math.min(1,t/2);for(const d of dimEls){d.style.transition='none';d.style.opacity=dim0}for(const d of flashEls)d.style.opacity=0;return}
- const dim=(1-v)*.78,fl=v>.82?(v-.82)/.18*.38:0;for(const d of dimEls){d.style.transition='none';d.style.opacity=dim}for(const d of flashEls)d.style.opacity=fl}
+ if(t+UW_LIT_OFF<UW_LIT_FROM){const dim0=.78*Math.min(1,t/2);for(const d of dimEls){d.style.transition='none';d.style.opacity=dim0}for(const d of flashEls)d.style.opacity=0;LED.ov(.4-.3*Math.min(1,t/2));return}
+ LED.ov(.08+v*1.1);const dim=(1-v)*.78,fl=v>.82?(v-.82)/.18*.38:0;for(const d of dimEls){d.style.transition='none';d.style.opacity=dim}for(const d of flashEls)d.style.opacity=fl}
 function gBlink(){gFxInit();flashEls.forEach(d=>d.animate([{opacity:0},{opacity:.9,offset:.25},{opacity:.25,offset:.6},{opacity:0}],{duration:420/Math.min(speed,4)}))}
 const restBodyEl=mkImg('images/rest_body.webp',0.42366,0.18233,0.28415,11);restBodyEl.style.opacity=0;
 // ── 대기 상태도 낙하 역물 그림으로 표시 (마음에 안 들면 false 로 바꾸면 이전 방식으로 돌아감) ──
@@ -885,32 +981,33 @@ function htTint(v){if(!htImg.complete||!htImg.naturalWidth)return;
   x.imageSmoothingEnabled=true;x.globalCompositeOperation='multiply';x.globalAlpha=1;x.drawImage(htImg,0,0,W,H);      // 머리 그림의 결·명암
   x.globalCompositeOperation='destination-in';x.globalAlpha=1;x.drawImage(htImg,0,0,W,H)   // 머리 그림의 윤곽으로 잘라 냄
  }catch(e){}}
-function cueTimes(c){const d=c[0],u=c[1],r=c[3]||1,dh=c[4]||.635,o={hand:[d-.17,d-.09,u+.92/r,u+1.275/r]};   // 올라올 때는 영상 속 손이 화면 위로 거의 빠져나간 뒤에 대기 손이 이어서 나타남
- if(c[2]!=='hand'){o.head=[d-.15,d-.07,u+dh+.16,u+dh+.42];o.body=o.head}return o}
+const RISE_DELAY=.15,HEAD_DELAY=.2;   // 대기 역물이 다시 올라와 자리 잡는 시각을 늦춤(초). 머리는 HEAD_DELAY 만큼 더 늦게
+function cueTimes(c){const d=c[0],u=c[1]+RISE_DELAY,r=c[3]||1,dh=c[4]||.635,o={hand:[d-.17,d-.09,u+.92/r,u+1.275/r]};   // 올라올 때는 영상 속 손이 화면 위로 거의 빠져나간 뒤에 대기 손이 이어서 나타남
+ if(c[2]!=='hand'){o.head=[d-.15,d-.07,u+dh+.16+HEAD_DELAY,u+dh+.42+HEAD_DELAY];o.body=o.head}return o}
 function runCues(v,src,base){base=base||0;const raw=TUNE.cues[src]||CUES[src]||[];if(!raw.length)return ()=>{};
  if(!EXTRA||partsOk<NP||dropsOk<ND)return runCuesOld(v,src,base,raw);
  // 영상 시각을 매 프레임 읽어 대기 역물의 위치·투명도를 직접 정함 → 건너뛰기·배속에도 영상 속 역물과 어긋나지 않음
  const cs=raw.map(cueTimes),FR={hand:.55,head:.5,body:.5};let G=null,raf=0,dead=false;
  const geo=()=>{partEls.forEach(e=>{e.style.transform='';e.style.opacity=''});const g=gGeom();G=PARTS.map((P,i)=>{const a=g.pr[i],b=g.dr[P.to],f=FR[P.to];return {dx:(b.cx-a.cx)*f,dy:(b.cy-a.cy)*f,s:(b.w/a.w-1)*f}});G.w=g.M.width};
  const tick=()=>{if(dead)return;raf=requestAnimationFrame(tick);if(!G||Math.abs(G.w-$('machine').getBoundingClientRect().width)>1)geo();
-  const t=v.currentTime-base;let handAway=false,bodyAway=false;
+  const t=v.currentTime-base;let handAway=false,bodyAway=false,mp=0;
   PARTS.forEach((P,i)=>{let p=0,op=1;
    for(const c of cs){const m=c[P.to];if(!m||t<m[0]||t>=m[3])continue;
     if(t<m[1]){const q=(t-m[0])/(m[1]-m[0]);p=q*q;op=q<.5?1:1-(q-.5)/.5}
     else if(t<m[2]){p=1;op=0}
     else{const q=(t-m[2])/(m[3]-m[2]);p=(1-q)*.6;op=Math.min(1,q/.5)}
     break}
-   const e=partEls[i],g=G[i];
+   const e=partEls[i],g=G[i];if(p>mp)mp=p;
    if(p===0&&op===1){if(e.style.transform){e.style.transform='';e.style.opacity=''}}
-   else{e.style.transform=`translate(${(g.dx*p).toFixed(1)}px,${(g.dy*p).toFixed(1)}px) scale(${(1+g.s*p).toFixed(4)})`;e.style.opacity=op.toFixed(3);if(P.to==='hand')handAway=true;if(P.to==='body')bodyAway=true}});
-  restBodyEl.style.opacity=handAway&&!bodyAway?1:0;
+   else{e.style.transform=`translate(${(g.dx*p).toFixed(1)}px,${(g.dy*p).toFixed(1)}px) scale(${(1+g.s*p).toFixed(4)})`;e.style.opacity=op.toFixed(3);if(P.to==='hand')handAway=true;if(P.to==='body')bodyAway=true}});   // 잘린 윗부분도 머리와 똑같이 움직임
+  restBodyEl.style.opacity=handAway&&!bodyAway?1:0;LED.drop(mp);
   // 머리 윗부분 이어 붙이기: 머리가 내려와 있는 동안만 보이고, 올라갈 때는 영상 속 머리와 같은 속도로 따라 올라가며 사라짐
-  let hop=0,hdy=0;for(const c of cs){const m=c.head;if(!m)continue;const d=m[1]+.07,uh=m[2]-.16;if(t<d-.05||t>=uh+.42)continue;
+  let hop=0,hdy=0;for(const c of cs){const m=c.head;if(!m)continue;const d=m[1]+.07,uh=m[2]-.16-RISE_DELAY-HEAD_DELAY;if(t<d-.05||t>=uh+.42)continue;
    if(t<d){const q=(t-(d-.05))/.05;hop=q;hdy=-(1-q)*.03}else if(t<uh){hop=1}else{hdy=-(t-uh)*HT.vy;hop=t<uh+.2?1:1-(t-uh-.2)/.22}break}
   if(hop>0){htInit();if(!vfc||!htOn||v.paused)htTint(v);htEl.style.opacity=hop.toFixed(3);htEl.style.transform=`translateY(${(hdy*$('machine').offsetHeight).toFixed(1)}px)`;htOn=true}else if(htOn){htOn=false;htEl.style.opacity=0}};
  let htOn=false;const vfc=!!v.requestVideoFrameCallback;if(vfc){const vf=()=>{if(dead)return;if(htOn)htTint(v);v.requestVideoFrameCallback(vf)};v.requestVideoFrameCallback(vf)}
  tick();
- return ()=>{dead=true;cancelAnimationFrame(raf);partEls.forEach(e=>{e.style.transform='';e.style.opacity=''});restBodyEl.style.opacity=0;if(htEl)htEl.style.opacity=0}}
+ return ()=>{dead=true;cancelAnimationFrame(raf);partEls.forEach(e=>{e.style.transform='';e.style.opacity=''});restBodyEl.style.opacity=0;LED.drop(0);if(htEl)htEl.style.opacity=0}}
 function runCuesOld(v,src,base,raw){const cs=raw.map(c=>({d:c[0],u:c[1],only:c[2]||undefined,st:0}));
  const iv=setInterval(()=>{const t=v.currentTime-base;for(const c of cs){
   if(c.st===0&&t>=c.d-(EXTRA?(c.only?.175:.31):.2)){c.st=1;gDown('',c.only,{quiet:true,extra:EXTRA})}
@@ -948,7 +1045,7 @@ async function handDrop(win,kind,only){
 }
 
 // ═══════════ 통상 회전 ═══════════
-async function spinNormal(){
+async function spinNormal(){LED.sw();
  const res=take('res')||nextRes||drawNormal(),win=res==='zorome',fast=skipFast;nextRes=null;skipFast=false;const pHit=SPEC.zorome*mult;
  if(res!=='lose')slowOn();
  S.spins++;S.cur++;S.used+=spinCost();render();   // 회전마다 바로 차감하고 그래프에 반영
@@ -1103,10 +1200,10 @@ async function judgement(success,j,jfrom){
  const fJl=take('jlate');
  if(j&&success&&(fJl!==undefined?fJl:Math.random()<LATE_J)){   // 실패로 보인 뒤 계수 중 아무 때나 역물이 떨어지며 역전 (안내 문구가 뜨기 전까지)
   const tl={src:JT.lose,from:j.loseFrom||undefined};await playClip(j.body,{from:jfrom,next:j.pre||JT.lose,noskip:j.k==='break'});if(j.pre)await playClip(j.pre,{next:JT.lose});
-  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.sqrt(Math.random())*Math.max(0,LATE.j1-LATE.j0)).toFixed(3),next:{src:'videos/direct7500.mp4',from:.03}});
+  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.sqrt(Math.random())*Math.max(0,LATE.j1-LATE.j0)).toFixed(3),next:{src:'videos/direct7500.mp4',from:D75F()}});
   // 실패 계수 도중 → 즉시 7500 영상 → 7500 확정(전체 낙하) → 7500 보너스. 3000 도중의 즉시 7500 분기와 같은 순서
   // 부활 때만: 즉시 7500 영상 맨 앞의 '3000' 프레임(0.03초까지)을 잘라 냄
-  if(await playClip('videos/direct7500.mp4',{from:.03,next:JT.win}))await playClip(JT.win,{next:CLIP.bonus7500});else if(!(await playClip(JT.win,{next:CLIP.bonus7500}))){clearTimeout(hideT);await handDrop(true)}return true}
+  if(await playClip('videos/direct7500.mp4',{from:D75F(),next:JT.win}))await playClip(JT.win,{next:CLIP.bonus7500});else if(!(await playClip(JT.win,{next:CLIP.bonus7500}))){clearTimeout(hideT);await handDrop(true)}return true}
  if(j){const tail=success?{src:(j.win&&await probe(j.win))?j.win:JT.win}:{src:JT.lose,from:j.loseFrom||undefined}   /* 배틀 실패는 조정한 시작점(+0.6)부터 */,ns=j.k==='break';   // 브레이크 모드는 화면 클릭 불가
   await playClip(j.body,{from:jfrom,next:j.pre||tail,noskip:ns});if(j.pre)await playClip(j.pre,{next:tail});
   await playClip(tail.src,{from:tail.from,next:success?CLIP.bonus7500:null,noskip:ns});return success}
