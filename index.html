@@ -547,9 +547,11 @@ if(IOS){const unlock=()=>{for(const v of document.querySelectorAll('video')){if(
    try{v.muted=true;const p=v.play();if(p)p.then(()=>{if((v.currentSrc||'')===s0){v.pause();v.muted=m}}).catch(()=>{if((v.currentSrc||'')===s0)v.muted=m});else v.muted=m}catch(e){v.muted=m}}
   dbg('unlock');removeEventListener('touchend',unlock,true);removeEventListener('click',unlock,true)};addEventListener('touchend',unlock,true);addEventListener('click',unlock,true)}
 // 건너뛰기 요청: Space · SKIP 버튼 (화면 클릭은 PUSH 창에서만 반응)
-let nextRes=null,skipAt=0,skipIdle=false;
+let nextRes=null,skipAt=0,skipIdle=false,chargeSkip=false,skipNext=false;
 // SKIP 버튼: 연출 중이면 건너뛰기/PUSH. 통상 대기 중이면 꽝 회전을 한꺼번에 넘기고 다음 당첨 회전부터 보여 줌 (회전수·투입 구슬은 그대로 계산)
-function pressSkip(){if(selHook)return selHook('ok');if(busy){pushReq=true;skipReq=true;skipAt=performance.now();skipIdle=!curPlay;return}
+function pressSkip(){if(selHook)return selHook('ok');
+ if(busy&&chargeSkip&&curPlay&&cname(curPlay.src)==='charge'){chargeSkip=false;stopReq=true;skipNext=true;return}   // 차지(승격 없음) 중 SKIP: 차지를 바로 끝내고 다음 당첨까지 넘김
+ if(busy){pushReq=true;skipReq=true;skipAt=performance.now();skipIdle=!curPlay;return}
  if(S.mode!=='normal')return;let r=drawNormal(),n=0;while(r==='lose'&&n<200000){S.spins++;S.cur++;S.used+=spinCost();n++;r=drawNormal()}
  if(r==='lose'){render();save();return}nextRes=r;render();spin()}
 let skipReq=false,stopReq=false,stopAll=false;let LAT=.09; // 재생 시작 지연(초) 추정값, 재생할 때마다 실제 값으로 보정
@@ -998,7 +1000,8 @@ async function finishNormal(res,rushPre,quiet){
  S.hits++;const at=S.cur;S.cur=0;
  if(res==='charge'){
   const up=Math.random()<SPEC.chargeUp,has75=up&&await probe(CLIP.bonus7500);
-  if(!(await playClip(CLIP.charge,{next:has75?CLIP.bonus7500:null}))){fx('喰種チャージ','big t-red');await sleep(1200);clearFx()}
+  chargeSkip=!up;const pc=await playClip(CLIP.charge,{next:has75?CLIP.bonus7500:null});chargeSkip=false;
+  if(!pc){fx('喰種チャージ','big t-red');await sleep(1200);clearFx()}
   S.out+=300;
   if(up){   // 차지 경유 7500: 기존 7500 보너스 영상(정산 → ST 진입)을 그대로 사용
    if(has75){await play7500(S.out,7200);addHist(at+'회전','차지→7500 RUSH',true);return enterRush(true)}
@@ -1207,7 +1210,7 @@ async function spin(){if(selHook)return selHook('ok');if(busy){pushReq=true;skip
  if(!AC)ac();if(!bgmNow)bgm('bgm');
  S.holds=[1,1,1].slice(0,auto?4:3);
  if(S.mode==='rush')await spinRush();else await spinNormal();
-}catch(e){console.error(e)}finally{busy=false;slowOff();if(S.mode==='normal'){document.body.classList.remove('inclip');clearTimeout(hideT);VIDS.forEach(v=>{if(v.paused)v.style.display='none'});bgResume()}idleArm();render()}if(auto)setTimeout(spin,speed>=20?0:350/speed)}
+}catch(e){console.error(e)}finally{busy=false;slowOff();if(skipNext){skipNext=false;if(S.mode==='normal')setTimeout(pressSkip,0)}if(S.mode==='normal'){document.body.classList.remove('inclip');clearTimeout(hideT);VIDS.forEach(v=>{if(v.paused)v.style.display='none'});bgResume()}idleArm();render()}if(auto)setTimeout(spin,speed>=20?0:350/speed)}
 $('bSpin').onclick=spin;
 $('bAuto').onclick=()=>{auto=!auto;$('bAuto').classList.toggle('on',auto);if(auto&&!busy)spin()};
 $('bForce').onclick=()=>{forceWin=!forceWin;$('bForce').classList.toggle('on',forceWin)};
@@ -1309,12 +1312,18 @@ renderHolds('');applyMute();render();
  q('wSnd').onclick=()=>{q('wSnd').blur();muted=!muted;applyMute();paint()};
  const VW=[['v-zoom','액정 확대'],['v-full','전체 기기'],['v-max','최대 화면']];let vi=0;try{vi=Math.max(0,VW.findIndex(v=>v[0]===localStorage.getItem('g999View')))}catch(e){}
  const setView=()=>{document.body.classList.remove('full','v-zoom','v-full','v-max');document.body.classList.add(VW[vi][0]);q('wView').textContent='화면: '+VW[vi][1];try{localStorage.setItem('g999View',VW[vi][0])}catch(e){}};
- q('wView').onclick=()=>{q('wView').blur();vi=(vi+1)%VW.length;setView()};setView();
+ // 최대 화면: 액정이 화면 높이를 꽉 채우는 배율은 그대로 두고, 남는 가로 공간만큼 양옆 기기를 더 보여 줌 (기기 전체 폭까지)
+ const MX={ar:1.189,mw:1.5764,tx:-.18126},MAXAR=MX.ar*MX.mw;   // 기본 최대 화면 비율, 그때 기기 폭 = 액정 칸 폭의 157.64%
+ const fitMax=()=>{const B=document.body.style;if(!document.body.classList.contains('v-max')){['--ar','--mw','--tx'].forEach(k=>B.removeProperty(k));return}
+  const ww=parseFloat(getComputedStyle(document.body).getPropertyValue('--ww'))||0,ar=Math.max(MX.ar,Math.min(MAXAR,(innerWidth-ww)/innerHeight));
+  B.setProperty('--ar',ar.toFixed(4));B.setProperty('--mw',(MAXAR/ar*100).toFixed(3)+'%');B.setProperty('--tx',((ar-MAXAR)/2/MAXAR*100).toFixed(3)+'%')};
+ addEventListener('resize',fitMax);
+ q('wView').onclick=()=>{q('wView').blur();vi=(vi+1)%VW.length;setView();fitMax()};setView();fitMax();
 
  // 위젯 2개를 따로 접기/펼치기. 모바일은 데이터 위젯이 접힌 채로 시작
  const mob=matchMedia('(max-width:760px)').matches,fold={a:false,b:mob};try{Object.assign(fold,JSON.parse(localStorage.getItem('g999Fold2')||'{}'))}catch(e){}
  const setFold=()=>{document.body.classList.toggle('aOff',fold.a);document.body.classList.toggle('bOff',fold.b);q('wAh').lastChild.textContent=fold.a?'▸':'◂';q('wBh').lastChild.textContent=fold.b?'▸':'◂';try{localStorage.setItem('g999Fold2',JSON.stringify(fold))}catch(e){}};
- q('wAh').onclick=()=>{fold.a=!fold.a;setFold()};q('wBh').onclick=()=>{fold.b=!fold.b;setFold();draw()};setFold();
+ q('wAh').onclick=()=>{fold.a=!fold.a;setFold();fitMax()};q('wBh').onclick=()=>{fold.b=!fold.b;setFold();draw();fitMax()};setFold();
  // ── 대박 기록: 첫 당첨마다 한 칸 (시작 회전수, 연속 횟수) ──
  let H=[];try{H=JSON.parse(localStorage.getItem('g999Hist')||'[]')}catch(e){}
  let lastHits=S.hits,lastCur=S.cur,lastKind='';
