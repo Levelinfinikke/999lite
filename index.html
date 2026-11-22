@@ -345,7 +345,7 @@ body.aOff #wA>.hd{height:30px;padding:0 4px 0 8px}
 <div id="tune"></div>
 <button id="recBtn" title="화면+소리 녹화 (R)">⏺ 녹화</button>
 <script src="videos/clips.js"></script>
-<script src="images/led_data.js"></script>
+<script src="images/led_data.js?v=15"></script><!-- LED 표를 바꿀 때마다 v 숫자를 올림: 브라우저가 예전 표를 붙잡고 있지 않게 -->
 <script>
 'use strict';
 // ═══════════ 스펙 (출처: 공략 사이트 공개 수치) ═══════════
@@ -450,18 +450,25 @@ function edgeAdd(tok,e,d){const c=constRef(tok);if(c&&e===1){c.obj[c.k]=+(c.obj[
 function edgeRow(label,tok,e){const c=constRef(tok)&&e===1;const id='e_'+tok.replace(/[^\w]/g,'_')+'_'+e;
  return '<div class="r"><span class="lab" title="'+tok+'">'+label+'</span><span class="v">'+(c?'':(edgeGet(tok,e)>0?'+':''))+edgeGet(tok,e).toFixed(3)+'</span>'+[[-.5,'−0.5'],[-.1,'−0.1'],[-F1,'−1f'],[F1,'+1f'],[.1,'+0.1'],[.5,'+0.5']].map(x=>'<button data-edge="'+tok+'|'+e+'|'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'}
 async function tunePlay(parts){ // parts: [{tok, mode:'tail'|'head'|'all'|'range', a,b}]
- if(busy&&!TK.running)return;TK.running=true;busy=true;stopAll=false;
+ // 한 번에 하나만: 게임이 돌고 있으면 깨끗이 멈춘 뒤(화면을 새로 열어) 이 영상을 틀고, 조정 재생이 돌고 있으면 그것을 끝낸 뒤 시작
+ if(busy&&!TK.running){try{sessionStorage.setItem('tunePending',JSON.stringify(parts))}catch(e){}return resetAll()}
+ const my=TK.tok=(TK.tok||0)+1;
+ if(TK.running){const t0=performance.now();while(TK.running&&performance.now()-t0<3000){stopAll=true;stopReq=true;window.__hold=false;await sleep(25)}if(my!==TK.tok)return}
+ if(auto){auto=false;const ab=$('bAuto');if(ab)ab.classList.remove('on')}
+ window.__hold=false;clearTimeout(hideT);if(prepared){clearTimeout(prepared.guard);prepared=null;prepSeq++}
+ for(const x of VIDS){try{x.pause()}catch(e){}x.style.display='none'}bgPause();idleHide();
+ TK.running=true;busy=true;stopAll=false;
  try{const plan=[];for(const p of parts){const src=tSrc(p.tok),g=await geomOf(src);if(!g){fx(p.tok+' 없음','mid t-white');await sleep(700);clearFx();continue}
    const c=constRef(p.tok),end=c?c.obj[c.k]:g.dur+g.tout,st=g.tin,W=3;
    let o;if(p.mode==='tail')o={from:Math.max(st,end-W),to:end};else if(p.mode==='head')o={from:st,to:Math.min(end,st+W)};else if(p.mode==='range')o={from:p.a,to:p.b};else o={from:st,to:end};
    plan.push({src,o})}
-  do{for(let i=0;i<plan.length&&!stopAll;i++){const nx=plan[i+1]||(TK.loop?plan[0]:null);await playClip(plan[i].src,Object.assign({},plan[i].o,{next:nx&&plan.length>1?{src:nx.src,from:nx.o.from}:null}))}}while(TK.loop&&!stopAll)}finally{TK.running=false;busy=false;stopAll=false;if(S.mode==='normal'){document.body.classList.remove('inclip');bgResume()}}}
+  do{for(let i=0;i<plan.length&&!stopAll;i++){const nx=plan[i+1]||(TK.loop?plan[0]:null);if(await playClip(plan[i].src,Object.assign({},plan[i].o,{next:nx&&plan.length>1?{src:nx.src,from:nx.o.from}:null})))TK.played=true}}while(TK.loop&&!stopAll)}finally{for(const x of VIDS){try{x.pause()}catch(e){}}TK.running=false;busy=false;stopAll=false;if(S.mode==='normal'&&my===TK.tok){document.body.classList.remove('inclip');bgResume()}}}
 function tuneDraw(){const T=$('tune');if(!T.classList.contains('on'))return;
  const have=n=>clipState['videos/'+n+'.mp4']!==undefined;const opt=(v,cur)=>'<option'+(v===cur?' selected':'')+'>'+v+'</option>';
  const list=Object.keys(CLIPS).length?Object.keys(CLIPS):ALLCLIPS;
  if(!TK.sel)TK.sel=list[0];if(!TK.a){TK.a=SEAMS[0][0];TK.b=SEAMS[0][1]}
  const src=tSrc(TK.sel),cues=TUNE.cues[src]||CUES[src]||[];
- let h='<div class="r"><b>연출 조정</b>&nbsp;<span class="now" id="tNow"></span><span style="flex:1"></span><button id="tPause">⏸</button><button id="tB1">◀1f</button><button id="tF1">1f▶</button><button id="tStop" title="재생 중인 연출을 모두 버리고 대기 화면으로">■ 초기화</button></div>';
+ let h='<div class="r"><b>연출 조정</b>&nbsp;<span class="now" id="tNow"></span><span style="flex:1"></span><button id="tPause" title="일시정지/재생 (K)">⏯</button><button data-seek="-5">−5s</button><button data-seek="-1" title="←">−1s</button><button id="tB1" title=",">◀1f</button><button id="tF1" title=".">1f▶</button><button data-seek="1" title="→">+1s</button><button data-seek="5">+5s</button><button id="tStop" title="재생 중인 연출을 모두 버리고 대기 화면으로">■ 초기화</button></div>';
  if(!Object.keys(CLIPS).length)h+='<div style="color:#fa8">videos/clips.js 가 없어요. cut_clips.bat 을 실행하면 앞뒤 2초 여유가 생겨 늘리는 조정도 가능해져요. 지금은 줄이기만 돼요.</div>';
  h+='<h4>① 이음매 (앞 클립 끝 3초 → 뒤 클립 처음 3초)</h4><div class="r"><select id="tSeam"><option value="">빠른 선택…</option>'+SEAMS.map((x,i)=>'<option value="'+i+'"'+(x[0]===TK.a&&x[1]===TK.b?' selected':'')+'>'+x[0]+' → '+x[1]+'</option>').join('')+'</select></div>';
  h+='<div class="r"><select id="tA">'+list.concat(['bonus@BT.branch','bonus@BT.judge','bonus7500@B75.st','st_full@ST.b1','st_full@ST.b2','st_full@ST.b3','st_full@ST.b4','st_full@ST.b5','st_full@ST.end','uw_try@UWT.t2','uw_try@UWT.t1']).map(n=>opt(n,TK.a)).join('')+'</select> → <select id="tB">'+list.map(n=>opt(n,TK.b)).join('')+'</select></div>';
@@ -469,20 +476,56 @@ function tuneDraw(){const T=$('tune');if(!T.classList.contains('on'))return;
  h+=edgeRow('앞 끝: '+TK.a,TK.a,1)+edgeRow('뒤 시작: '+TK.b,TK.b,0);
  h+='<h4>② 클립 하나</h4><div class="r"><select id="tSel">'+list.map(n=>opt(n,TK.sel)).join('')+'</select><button id="tAll">▶ 전체</button><button id="tHead">▶ 처음 3초</button><button id="tTail">▶ 끝 3초</button></div>';
  h+=edgeRow('시작',TK.sel,0)+edgeRow('끝',TK.sel,1)+'<div class="r"><button id="tSetIn">지금 위치를 시작으로</button><button id="tSetOut">지금 위치를 끝으로</button><button id="tZero">이 클립 0으로</button></div>';
- h+='<h4>③ 역물 낙하 (이 클립, 기준 시각 초)</h4>'+(cues.length?cues.map((c,i)=>'<div class="r"><span class="lab">'+(c[2]?'손만':'전체')+' #'+(i+1)+'</span>내려감 <span class="v">'+c[0].toFixed(2)+'</span><button data-cue="'+i+'|0|-0.05">−</button><button data-cue="'+i+'|0|0.05">+</button> 올라옴 <span class="v">'+c[1].toFixed(2)+'</span><button data-cue="'+i+'|1|-0.05">−</button><button data-cue="'+i+'|1|0.05">+</button><button data-cuep="'+i+'">▶</button></div>').join(''):'<div style="color:#999">이 클립에는 낙하 구간이 없어요.</div>');
- h+='<h4>④ 분기 시각 (bonus / bonus7500, 초)</h4>'+[['BT','branch','즉시 7500 분기'],['BT','pay','3000 정산 시작'],['BT','jintro','정산 건너뛰기 도착점(judgement 도입)'],['BT','judge','judgement 시작'],['B75','pay','7500 정산 시작'],['B75','st','ST 시작'],['ST','b1','ST 1회전째(4) 시작'],['ST','b2','ST 2회전째(3) 시작'],['ST','b3','ST 3회전째(2) 시작'],['ST','b4','ST 4회전째(1) 시작'],['ST','b5','ST LAST 시작'],['ST','end','ST 꽝 영상 끝'],['UWT','t2','추가 도전: "2"에서 낙하'],['UWT','t1','추가 도전: "1"에서 낙하'],['LATE','j0','judgement 역전 낙하: 가장 이른 시각'],['LATE','j1','judgement 역전 낙하: 가장 늦은 시각'],['RES','n','결과: 횟수 확정 시각'],['RES','p','결과: 획득 수 확정 시각'],['RES','off','결과: 숫자 덮개 치우는 시각']].map(x=>edgeRow(x[2],({BT:'bonus',B75:'bonus7500',ST:'st_full',UWT:'uw_try',LATE:'judge_tail_lose',RES:'rush_result'})[x[0]]+'@'+x[0]+'.'+x[1],1)).join('');
+ h+=vibPanel(TK.sel);
  h+='<h4>저장</h4><div class="r"><button id="tExp">내보내기 (ghoul_tune.json)</button><button id="tImp">가져오기</button><button id="tReset">전체 초기화</button><input type="file" id="tFile" accept=".json" style="display:none"></div><div style="color:#999">값은 바꾸는 즉시 이 브라우저에 저장되고 게임에 반영돼요.</div>';
  T.innerHTML=h}
+// ── 진동 찍기 ──  재생 중에 V 를 짧게 누르면 그 순간에 '쾅', 누르고 있으면 누른 동안이 '크레셴도'. 시각은 조정 화면에 보이는 초(클립 기준 시각)
+let VIBU={},vibDef=9;try{VIBU=JSON.parse(localStorage.getItem('ghoulVib')||'{}');for(const u of Object.values(VIBU))u.m=(u.m||[]).map(m=>Array.isArray(m)?{t:m,s:9}:m)}catch(e){}   // 찍은 진동 하나 = {t:[시각] 또는 [시작,끝], s:세기 1~9}
+const vibSave=()=>{try{localStorage.setItem('ghoulVib',JSON.stringify(VIBU))}catch(e){}window.VIBREV=(window.VIBREV||0)+1;tuneDraw()};
+const vibOf=n=>VIBU[n]||(VIBU[n]={off:false,m:[]});
+function vibPanel(n){const u=VIBU[n]||{off:false,m:[]};
+ let h='<h4>③ 진동 찍기 (이 클립)</h4><div style="color:#999">재생하면서 <b style="color:#fff">V</b> 짧게 = 쾅 · <b style="color:#fff">V</b> 누르고 있기 = 크레셴도(누른 동안). 이동: ← → 1초 · Shift+← → 5초 · , . 1프레임 · K 일시정지</div>';
+ h+='<div class="r"><span class="lab">새로 찍을 세기</span><span class="v">'+vibDef+'</span><button data-vdef="-1">−</button><button data-vdef="1">+</button><span style="color:#999;margin-left:6px">1(약) ~ 9(최대)</span></div>';
+ h+='<div class="r"><button id="vHit">지금 위치에 쾅</button><button id="vCres">'+(vibCres!=null?'크레셴도 끝 (시작 '+vibCres.toFixed(2)+')':'크레셴도 시작')+'</button><label style="margin-left:8px"><input type="checkbox" id="vOff"'+(u.off?' checked':'')+'> 이 클립의 기존 진동 끄기</label></div>';
+ h+=u.m.length?u.m.map((m,i)=>'<div class="r"><span class="lab">'+(m.t.length>1?'크레셴도':'쾅')+'</span><span class="v">'+m.t.map(x=>x.toFixed(2)).join(' ~ ')+'</span><button data-vgo="'+i+'">▶ 보기</button><button data-vnudge="'+i+'|-0.05" title="시각 0.05초 앞으로">◀</button><button data-vnudge="'+i+'|0.05" title="시각 0.05초 뒤로">▶</button>&nbsp;세기 <span class="v" style="min-width:1.2em">'+m.s+'</span><button data-vs="'+i+'|-1">−</button><button data-vs="'+i+'|1">+</button><button data-vdel="'+i+'">삭제</button></div>').join(''):'<div class="r" style="color:#777">아직 찍은 진동이 없어요.</div>';
+ const all=Object.entries(VIBU).filter(([k,v])=>v.m.length||v.off);
+ h+='<div class="r"><button id="vExp">전체 내보내기 ('+all.length+'개 클립, vib_marks.json + 복사)</button><button id="vClear">이 클립 찍은 것 지우기</button></div>';
+ return h}
+let vibCres=null,vDown=null;
+const vNow=()=>curPlay&&cname(curPlay.src)===TK.sel?+(curPlay.v.currentTime-curPlay.g.base).toFixed(2):null;
+function vAdd(t){const u=vibOf(TK.sel);u.m.push({t,s:vibDef});u.m.sort((a,b)=>a.t[0]-b.t[0]);vibSave()}
+// 일시정지: 멈춰 둔 동안에는 '영상이 멈췄으니 다음으로' 넘어가는 안전장치가 작동하지 않게 표시(__hold)
+function tPauseToggle(){const v=curPlay&&curPlay.v;if(!v)return;if(v.paused){window.__hold=false;v.play().catch(()=>{})}else{window.__hold=true;v.pause()}}
+function seekBy(dv){const v=curPlay&&curPlay.v;if(!v)return;v.currentTime=Math.max(0,v.currentTime+dv)}
+document.addEventListener('keydown',e=>{if(!$('tune').classList.contains('on')||e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||(typeof selHook!=='undefined'&&selHook))return;const v=curPlay&&curPlay.v;
+ if(e.code==='KeyV'){if(e.repeat||vDown)return;const t=vNow();if(t!=null)vDown={t,w:performance.now()};e.preventDefault()}
+ else if(e.code==='KeyK'){tPauseToggle();e.preventDefault()}
+ else if(e.code==='ArrowLeft'||e.code==='ArrowRight'){seekBy((e.code==='ArrowLeft'?-1:1)*(e.shiftKey?5:1));e.preventDefault()}
+ else if(e.code==='Comma'||e.code==='Period'){if(v){window.__hold=true;v.pause();v.currentTime=Math.max(0,v.currentTime+(e.code==='Comma'?-F1:F1))}e.preventDefault()}},true);
+document.addEventListener('keyup',e=>{if(e.code!=='KeyV'||!vDown)return;const d=vDown;vDown=null;const t=vNow();
+ if(t==null||performance.now()-d.w<250||t-d.t<.25)vAdd([d.t]);else vAdd([d.t,t])},true);
+$('tune').addEventListener('change',e=>{if(e.target.id==='vOff'){vibOf(TK.sel).off=e.target.checked;vibSave()}});
 $('tune').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ if(d.seek)return seekBy(+d.seek);
+ if(d.vdel){vibOf(TK.sel).m.splice(+d.vdel,1);return vibSave()}
+ if(d.vnudge){const [i,dv]=d.vnudge.split('|'),m=vibOf(TK.sel).m[+i];for(let k=0;k<m.t.length;k++)m.t[k]=+(m.t[k]+ +dv).toFixed(2);return vibSave()}
+ if(d.vs){const [i,dv]=d.vs.split('|'),m=vibOf(TK.sel).m[+i];m.s=Math.max(1,Math.min(9,m.s+ +dv));return vibSave()}
+ if(d.vdef){vibDef=Math.max(1,Math.min(9,vibDef+ +d.vdef));return tuneDraw()}
+ if(d.vgo){const m=vibOf(TK.sel).m[+d.vgo].t;return tunePlay([{tok:TK.sel,mode:'range',a:Math.max(0,m[0]-1.5),b:(m[1]||m[0])+1.5}])}
+ if(b.id==='vHit'){const t=vNow();if(t!=null)vAdd([t]);return}
+ if(b.id==='vCres'){const t=vNow();if(t==null)return;if(vibCres==null){vibCres=t;return tuneDraw()}const a=vibCres;vibCres=null;if(t-a>=.2)vAdd([a,t]);else tuneDraw();return}
+ if(b.id==='vClear'){delete VIBU[TK.sel];return vibSave()}
+ if(b.id==='vExp'){const out={};for(const [k,v] of Object.entries(VIBU))if(v.m.length||v.off)out[k]=v;const txt=JSON.stringify(out);try{navigator.clipboard.writeText(txt)}catch(_){}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download='vib_marks.json';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),2000);return}
  if(d.edge){const [tok,ed,dv]=d.edge.split('|');return edgeAdd(tok,+ed,+dv)}
  if(d.cue){const [i,k,dv]=d.cue.split('|');const src=tSrc(TK.sel);const cs=TUNE.cues[src]||(TUNE.cues[src]=(CUES[src]||[]).map(c=>c.slice()));cs[+i][+k]=+(cs[+i][+k]+ +dv).toFixed(2);saveTune();return tuneDraw()}
  if(d.cuep){const src=tSrc(TK.sel),c=(TUNE.cues[src]||CUES[src])[+d.cuep];return tunePlay([{tok:TK.sel,mode:'range',a:Math.max(0,c[0]-2),b:c[1]+2}])}
  const v=curPlay&&curPlay.v;
  switch(b.id){
   case 'tStop':resetAll();break;
-  case 'tPause':if(v){v.paused?v.play():v.pause()}break;
-  case 'tB1':if(v){v.pause();v.currentTime=Math.max(0,v.currentTime-F1)}break;
-  case 'tF1':if(v){v.pause();v.currentTime+=F1}break;
+  case 'tPause':tPauseToggle();break;
+  case 'tB1':if(v){window.__hold=true;v.pause();v.currentTime=Math.max(0,v.currentTime-F1)}break;
+  case 'tF1':if(v){window.__hold=true;v.pause();v.currentTime+=F1}break;
   case 'tPlaySeam':tunePlay([{tok:TK.a,mode:'tail'},{tok:TK.b,mode:'head'}]);break;
   case 'tAll':tunePlay([{tok:TK.sel,mode:'all'}]);break;
   case 'tHead':tunePlay([{tok:TK.sel,mode:'head'}]);break;
@@ -537,7 +580,8 @@ try{const i=sessionStorage.getItem('startAt');sessionStorage.removeItem('startAt
  Object.assign(b.style,{position:'fixed',left:'50%',top:'50%',transform:'translate(-50%,-50%)',zIndex:200,fontSize:'18px',padding:'16px 26px',background:'#e0263c',color:'#fff',border:'0',borderRadius:'10px',cursor:'pointer',boxShadow:'0 6px 30px #000'});
  b.onclick=()=>{b.remove();runEntry(+i)};document.body.appendChild(b)}}catch(e){}
 
-try{const t=sessionStorage.getItem('tuneOpen');sessionStorage.removeItem('tuneOpen');if(t){Object.assign(TK,JSON.parse(t));$('tune').classList.add('on');setTimeout(tuneDraw,50)}}catch(e){}
+try{const t=sessionStorage.getItem('tuneOpen');sessionStorage.removeItem('tuneOpen');if(t){Object.assign(TK,JSON.parse(t));$('tune').classList.add('on');setTimeout(tuneDraw,50)}
+ const pd=sessionStorage.getItem('tunePending');sessionStorage.removeItem('tunePending');if(pd)setTimeout(async()=>{await tunePlay(JSON.parse(pd));if(!TK.played){fx('한 번 더 눌러 주세요','mid t-white');setTimeout(clearFx,1500)}},700)}catch(e){}
 $('tuneBtn').onclick=tuneToggle;
 
 
@@ -588,6 +632,8 @@ try{if(!localStorage.getItem('ghoulFix7')){for(const [k,e] of [['st_win_rize',-6
 const PUSH=Object.assign({judge_yamori_body:[[10.6,15.6],[40.3,999]],judge_shiro_body:[[10.1,15.1],[39.8,999]],judge_shachi_body:[[5.4,10.44]],judge_ready:[2.9,999],revival_fukurou:[34.3,37.4]},TUNE.consts.PUSH);
 // 요청받은 이동량을 이 브라우저에 저장된 값에도 한 번만 더함 (judge_tail_lose 시작 +0.3, st_win_omedetou 시작 +5.5)
 try{localStorage.setItem('ghoulFix2','1')}catch(e){}
+try{if(!localStorage.getItem('ghoulFix12')){TUNE.trim.direct7500=[-0.2,-0.068];TUNE.trim.st_win_tsukiyama=[0,-12.7];TUNE.trim.revival_fukurou=[0.02,0];localStorage.setItem('ghoulFix12','1');saveTune()}}catch(e){}
+// ↑ 실수로 바뀐 조정값 3개를 원래대로 (이 브라우저에 저장된 값에도 한 번 적용)
 try{if(!localStorage.getItem('ghoulFix11')){TUNE.trim.direct7500=[-0.2,(TUNE.trim.direct7500||[0,0])[1]||0];localStorage.setItem('ghoulFix11','1');saveTune()}}catch(e){}
 // ↑ direct7500: 앞 자르기 -0.2 (이 브라우저에 저장된 값에도 한 번 적용)
 try{if(!localStorage.getItem('ghoulFix9')){TUNE.trim.revival_fukurou=[0.02,(TUNE.trim.revival_fukurou||[0,0])[1]||0];localStorage.setItem('ghoulFix9','1');saveTune()}}catch(e){} // 올빼미 부활: 숫자(676) 장면을 잘라 내고 번쩍이며 붉은 꽃이 피는 순간부터   // (옛 이전 처리: 기본값에 이미 들어 있어 더 이상 더하지 않음)
@@ -755,12 +801,28 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
    // 켜진 구간 = 꺼짐 경계(sOff)와 켜짐 경계(sOn) 사이
    const on=x=>x<0?.2:x<.12?.2+(x/.12)*.2:x<.22?.4+((x-.12)/.1)*.2:x<.38?.6+((x-.22)/.16)*.4:1.01,sOn=on(tau),sOff=tau<1.22?.2:on(tau-1.22);
    CH.forEach(([n,ax,from,to,s0,s1])=>hShow(n,ax,from,to,s0,s1,sOff,sOn,Math.round(hue),sat))}}
+ // 진동(시범): 표의 세기(0~9)만큼 기기 전체가 잘게 떨림. 휴대폰은 실제 진동도 함께(기기가 지원할 때)
+ let vbOn=0,vbPh=0,vbBuzz=0;const MC=$('machine'),vbC={};
+ // 조정 화면에서 찍은 진동(VIBU)을 프레임별 세기 표로 만듦: 쾅 = 정한 세기에서 0.6초 동안 줄어듦, 크레셴도 = 세기의 1/3 에서 정한 세기까지 천천히 세짐. '기존 진동 끄기'면 찍은 것만 사용
+ function vibTbl(n){const base=window.LEDVIB&&LEDVIB[n],u=typeof VIBU!=='undefined'&&VIBU[n];if(!u||(!u.m.length&&!u.off))return base||null;
+  const key=n+'|'+(window.VIBREV||0);if(vbC.k===key)return vbC.t;
+  const o=(window.LEDIN&&LEDIN[n]!=null?LEDIN[n]:((typeof CLIPS!=='undefined'&&CLIPS[n]||{}).in||0)),N=Math.max(base?base.length:0,...u.m.map(m=>Math.ceil(((m.t[1]||m.t[0])+o+1)*30))),a=new Uint8Array(N);
+  if(base&&!u.off)for(let i=0;i<base.length;i++)a[i]=+base[i];
+  for(const m of u.m){const i0=Math.round((m.t[0]+o)*30),S=m.s||9,lo=Math.max(1,Math.round(S/3));   // 세기 S: 쾅은 S 에서 줄어듦, 크레셴도는 S/3 에서 S 까지 올라감
+   if(m.t.length>1){const i1=Math.round((m.t[1]+o)*30);for(let i=i0;i<i1&&i<N;i++)a[i]=Math.max(a[i],Math.round(lo+(S-lo)*(i-i0)/Math.max(1,i1-i0-1)))}
+   else for(let k=0;k<18&&i0+k<N;k++)a[i0+k]=Math.max(a[i0+k],Math.round(S*Math.pow(1-k/18,.6)))}
+  vbC.k=key;vbC.t=a;return a}
+ function vib(tbl,fi){const a=tbl&&fi>=0&&fi<tbl.length&&!curPlay.v.paused?+tbl[fi]:0;
+  if(!a){if(vbOn){vbOn=0;MC.style.translate=''}return}
+  vbOn=1;vbPh^=1;const w=MC.offsetWidth,r=a/9*w*.006,dx=(vbPh?1:-1)*r*(.6+.4*Math.random()),dy=(Math.random()-.5)*r*1.2;MC.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px';
+  if(navigator.vibrate&&a>=5&&pt-vbBuzz>.25){vbBuzz=pt;try{navigator.vibrate(a>=8?120:60)}catch(e){}}}
  function tick(now){requestAnimationFrame(tick);const t=now/1000,dt=Math.min(.1,t-pt);pt=t;let G,D=null,fi=0;
   let Dc=null;if(curPlay&&window.LEDDATA){const d=LEDDATA[cname(curPlay.src)];if(d){fi=Math.floor(ledT(cname(curPlay.src),curPlay.v)*d.fps);if(fi>=0&&fi*2+1<d.z.left.length){D=d.z;Dc=d}}}
   if(drop>0)G=.7+.3*drop*(Math.sin(t*40)>0?1:.35);
   else if(curPlay)G=.65;
   else G=.45;   // 표가 없는 화면은 흔들림 없이 일정하게
   kick*=Math.pow(.01,dt);if(kick<.01)kick=0;
+  vib(curPlay?vibTbl(cname(curPlay.src)):null,curPlay?Math.floor(ledT(cname(curPlay.src),curPlay.v)*30):0);
   // 회전 구간인지: 표에 적힌 [시작프레임,끝프레임,종류(1 흰빛·표의 색 / 2 무지개)]
   let rot=0;if(D&&Dc.rot)for(const r of Dc.rot)if(fi>=r[0]&&fi<r[1]){rot=r[2];break}
   chase(rot,curPlay?ledT(cname(curPlay.src),curPlay.v):t,D,fi);
@@ -785,7 +847,7 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
    const q=sat>0?hue*8+Math.round(sat*7):-1;
    if(q!==z.q){z.q=q;if(q<0)z.b.col(DEF[n]||'#d4e2ff');else{z.t.col('hsl('+hue+',100%,55%)');z.b.col('hsl('+hue+','+Math.round(sat*100)+'%,'+Math.round(90-sat*32)+'%)')}}
    if(Math.abs(oc-z.lc)>.004){z.lc=oc;z.c.style.opacity=oc.toFixed(3)}if(Math.abs(ob-z.lb)>.004){z.lb=ob;z.b.style.opacity=ob.toFixed(3)}if(Math.abs(ot-z.lt)>.004){z.lt=ot;z.t.style.opacity=ot.toFixed(3)}}}
- return {names,z:Zs,sw(){swT=pt},kick(v){kick=Math.max(kick,v)},drop(v){drop=v},ov(v){ov=v;if(v==null&&typeof dimEls!=='undefined')dimEls.forEach(e=>e._l=null)},set(n,v){if(n==='all')names.forEach(k=>fix[k]=v);else fix[n]=v}}})();
+ return {names,z:Zs,vt:n=>vibTbl(n),sw(){swT=pt},kick(v){kick=Math.max(kick,v)},drop(v){drop=v},ov(v){ov=v;if(v==null&&typeof dimEls!=='undefined')dimEls.forEach(e=>e._l=null)},set(n,v){if(n==='all')names.forEach(k=>fix[k]=v);else fix[n]=v}}})();
 async function flash(n=1,ms=120){const f=$('flash');for(let i=0;i<n;i++){LED.kick(.9);f.style.transition='none';f.style.opacity=.9;await sleep(30);f.style.transition='opacity '+(ms/speed)+'ms';f.style.opacity=0;await sleep(ms)}}
 function shake(ms=400){$('stage').animate([{transform:'translate(0,0)'},{transform:'translate(-1.2%,1%)'},{transform:'translate(1.2%,-1%)'},{transform:'translate(-.8%,.6%)'},{transform:'translate(0,0)'}],{duration:ms/speed,iterations:1})}
 
@@ -1289,7 +1351,7 @@ async function rushBonus(skipIntro){
  let wins=0;if(real){if(fUw)wins=fUw.length;else while(Math.random()<SPEC.loop)wins++}            // 추가 3000 성공 횟수를 미리 정해 두고 영상을 끊김 없이 이어 붙임
  // HYPER 6000: 추가 3000 을 한 번 이상 성공하는 판의 일부를 '처음부터 6000' 연출로 보여 줌. 그 한 번은 6000 에 이미 포함된 것으로 치므로 지급 기댓값은 그대로
  const hyper=!skipIntro&&speed<20&&(fHy!==undefined?fHy:(wins>0&&Math.random()<HYPER6000*2))&&await probe('videos/st_hyper6000.mp4');if(hyper&&fHy===undefined)wins--;
- const eps=[];if(!hyper)for(const n of [2,3,4,5,6])if(await probe('videos/st_ep_'+n+'.mp4'))eps.push(n);
+ const eps=[];if(!hyper)for(const n of [2,3,4,6])if(await probe('videos/st_ep_'+n+'.mp4'))eps.push(n);
  const ep=eps.length&&!uwOnly?'videos/st_ep_'+(eps.includes(S.chain)?S.chain:eps[Math.floor(Math.random()*eps.length)])+'.mp4':'';
  const first=hyper?'videos/st_hyper6000.mp4':(ep||(real?UW.try:''));
  if(!skipIntro&&!(await playClip('videos/st_intro.mp4',{next:first}))&&!(await playClip(CLIP.zorome))){fx('HYPER喰種BONUS 3000','big t-gold');await sleep(1400);clearFx()}
