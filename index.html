@@ -556,13 +556,17 @@ if(IOS){const unlock=()=>{for(const v of document.querySelectorAll('video')){if(
    try{v.muted=true;const p=v.play();if(p)p.then(()=>{if((v.currentSrc||'')===s0){v.pause();v.muted=m}}).catch(()=>{if((v.currentSrc||'')===s0)v.muted=m});else v.muted=m}catch(e){v.muted=m}}
   dbg('unlock');removeEventListener('touchend',unlock,true);removeEventListener('click',unlock,true)};addEventListener('touchend',unlock,true);addEventListener('click',unlock,true)}
 // 건너뛰기 요청: Space · SKIP 버튼 (화면 클릭은 PUSH 창에서만 반응)
-let nextRes=null,skipFast=false,skipAt=0,skipIdle=false,chargeSkip=false,skipNext=false;
+let nextRes=null,skipPend=false,loadT=0,skipFast=false,skipAt=0,skipIdle=false,chargeSkip=false,skipNext=false;
 // SKIP 버튼: 연출 중이면 건너뛰기/PUSH. 통상 대기 중이면 꽝 회전을 한꺼번에 넘기고 다음 당첨 회전부터 보여 줌 (회전수·투입 구슬은 그대로 계산)
 function pressSkip(){if(selHook)return selHook('ok');
+ if(busy&&skipPend&&!curPlay)return;   // SKIP 으로 다음 당첨을 부른 직후 영상을 불러오는 중: 추가로 누른 건 버림(불러온 영상이 바로 건너뛰어지지 않게)
  if(busy&&chargeSkip&&curPlay&&cname(curPlay.src)==='charge'){chargeSkip=false;stopReq=true;skipNext=true;return}   // 차지(승격 없음) 중 SKIP: 차지를 바로 끝내고 다음 당첨까지 넘김
  if(busy){pushReq=true;skipReq=true;skipAt=performance.now();skipIdle=!curPlay;return}
  if(S.mode!=='normal')return;let r=drawNormal(),n=0;while(r==='lose'&&n<200000){S.spins++;S.cur++;S.used+=spinCost();n++;r=drawNormal()}
- if(r==='lose'){render();save();return}nextRes=r;skipFast=true;render();spin()}
+ if(r==='lose'){render();save();return}nextRes=r;skipFast=true;skipReq=false;pushReq=false;skipPend=true;render();
+ clearTimeout(loadT);loadT=setTimeout(()=>{if(skipPend)loadHint(true)},500);spin()}
+// 영상을 받아 오느라 늦어질 때(웹 주소로 열었을 때 등) 화면 아래에 안내
+function loadHint(on){let e=$('loadHint');if(!e){e=document.createElement('div');e.id='loadHint';e.textContent='영상 불러오는 중…';e.style.cssText='position:fixed;left:50%;bottom:56px;transform:translateX(-50%);z-index:140;padding:6px 16px;background:rgba(7,7,10,.85);border:1px solid #2b6fb0;color:#cfe6ff;font:600 13px system-ui,sans-serif;pointer-events:none;display:none';document.body.appendChild(e)}e.style.display=on?'block':'none'}
 let skipReq=false,stopReq=false,stopAll=false;let LAT=.09; // 재생 시작 지연(초) 추정값, 재생할 때마다 실제 값으로 보정
 // ── 조정값: 클립별 시작·끝 이동(초), 역물 큐, 분기 시각. 브라우저에 저장되고 조정 화면에서 바꿈 ──
 const CLIPS=window.CLIPS||{};                       // videos/clips.js: {이름:{in:앞 여유, dur:기준 길이}}
@@ -576,9 +580,9 @@ try{if(!localStorage.getItem('ghoulFix7')){for(const [k,e] of [['st_win_rize',-6
 // 배틀 모드 본체는 구간이 둘: ① 상대 캐릭터 선택 화면 → 누르면 상대가 정해지는 순간으로, ② 마지막 PUSH → 결과로
 const PUSH=Object.assign({judge_yamori_body:[[10.6,15.6],[40.3,999]],judge_shiro_body:[[10.1,15.1],[39.8,999]],judge_shachi_body:[[5.4,10.44]],judge_ready:[2.9,999],revival_fukurou:[34.3,37.4]},TUNE.consts.PUSH);
 // 요청받은 이동량을 이 브라우저에 저장된 값에도 한 번만 더함 (judge_tail_lose 시작 +0.3, st_win_omedetou 시작 +5.5)
-try{if(!localStorage.getItem('ghoulFix2')){let raw={};try{raw=(JSON.parse(localStorage.getItem('g999Tune')||'{}').trim)||{}}catch(e){}
- for(const [k,d] of [['judge_tail_lose',.3],['st_win_omedetou',5.5]])if(raw[k])TUNE.trim[k]=[+((raw[k][0]||0)+d).toFixed(3),raw[k][1]||0];
- localStorage.setItem('ghoulFix2','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){}
+try{localStorage.setItem('ghoulFix2','1')}catch(e){}   // (옛 이전 처리: 기본값에 이미 들어 있어 더 이상 더하지 않음)
+// 오류 복구: 새 브라우저에서 옛 이전 처리가 기본값에 한 번 더 더해져 오메데토 시작이 11초(손이 내려오는 앞부분이 잘림), 배틀 실패 시작이 0.9초가 된 경우 되돌림
+try{if(!localStorage.getItem('ghoulFix8')){const T=TUNE.trim;if(T.st_win_omedetou&&Math.abs(T.st_win_omedetou[0]-11)<.01)T.st_win_omedetou[0]=5.5;if(T.judge_tail_lose&&Math.abs(T.judge_tail_lose[0]-.9)<.01)T.judge_tail_lose[0]=.6;localStorage.setItem('ghoulFix8','1');saveTune()}}catch(e){}
 try{if(!localStorage.getItem('ghoulFix5')){delete TUNE.trim.st_bonus_intro;delete TUNE.trim.st_intro;delete TUNE.cues['videos/st_bonus_intro.mp4'];localStorage.setItem('ghoulFix5','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // st_intro 는 새로 자른 클립
 try{if(!localStorage.getItem('ghoulFix4')){TUNE.trim.pre_long=[39.417,(TUNE.trim.pre_long||[0,0])[1]||0];localStorage.setItem('ghoulFix4','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // pre_long 시작 +39.417
 try{if(!localStorage.getItem('ghoulFix3')){TUNE.trim.yokoku_hand=[(TUNE.trim.yokoku_hand||[0,0])[0]||0,0.2];localStorage.setItem('ghoulFix3','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // yokoku_hand 끝 +0.2
@@ -637,7 +641,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
  if(!started){try{await v.play()}catch(e){v.style.display='none';return false}}
  v.style.zIndex=6;v.style.display='block';old.style.zIndex=5;old.pause();old.style.display='none';   // 새 영상이 준비된 뒤에 교체 → 이음매에 빈 화면 없음
  const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);{const age=performance.now()-skipAt;if(!(skipReq&&(age<400||(skipIdle&&age<2000))))skipReq=false;skipIdle=false}stopReq=false;let iv=0;
- curPlay={v,g,src};let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
+ curPlay={v,g,src};if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
  if(opt.next)prepClip(opt.next);
  // 다음 영상은 재생을 누른 뒤 실제로 움직이기까지 시간이 걸림(LAT). 그만큼 먼저 눌러 두고, 앞 영상이 끝나는 순간 화면만 바꿈
  let preDone=false;
@@ -650,6 +654,8 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
  await new Promise(r=>{v.onended=()=>{handoff();r()};v.onerror=r;iv=setInterval(()=>{const t=v.currentTime-g.base;
   if(v.paused&&!v.ended&&!v.seeking&&!window.__hold){const now=performance.now();if(!stuckAt)stuckAt=now;if(now-lastTry>400){lastTry=now;v.play().catch(()=>{})}if(now-stuckAt>3000){dbg('stuck → next '+g.n+' @'+t.toFixed(1));handoff();return r()}}else stuckAt=0;
   const sr=opt.skip==='all'?[[1.5,g.dur-.4]]:(opt.skip||[]);const sk=sr.find(x=>t>=x[0]&&t<x[1]-.3);$('skipHint').style.display=sk?'block':'none';
+  // cutAfter: 이 시각 이후 SKIP 을 누르면 남은 부분을 1초도 보여 주지 않고 바로 끝냄 (다음 영상은 처음부터)
+  if(skipReq&&opt.cutAfter!=null&&t>=opt.cutAfter-.05&&performance.now()>=inputLock){skipReq=false;pushReq=false;inputLock=performance.now()+800;const p=prepared;if(p&&p.started){clearTimeout(p.guard);try{p.v.pause();p.v.currentTime=p.t0}catch(e){}p.started=false}stopReq=true}
   if(stopReq){stopReq=false;v.pause();return r()}
   // Space: 정해 둔 구간(정산·ST 회전)은 그 끝으로, 그 밖의 연출은 끝나기 1초 전으로 건너뜀 (마지막 1초는 건너뛸 수 없음)
   const pw=pws.find(w=>!w.done&&t>=w[0]&&t<Math.min(w[1],t1-g.base-.03)-.1),pEnd=pw?Math.min(pw[1],t1-g.base-.03):0,inPush=!!pw;
@@ -1060,7 +1066,7 @@ async function pickJudge(success){if(!(speed<20&&await probe(JT.win)&&await prob
  const br=av.filter(x=>x.k==='break'),bt=av.filter(x=>x.k!=='break'),pool=(Math.random()<.5?br:bt);const use=pool.length?pool:av;
  return wpick(use,x=>success?x.w*x.rel:x.w*(1-x.rel))}
 // 선택 화면: 두 본체 영상의 선택 장면을 멈춰 두고(왼쪽 = 배틀, 오른쪽 = 브레이크) 유저가 고름. 성공·실패는 이미 추첨으로 정해져 있음
-const SEL=Object.assign({shachi:[1.0,2.88],yamori:[2.0,8.05],shiro:[1.5,7.55],break:[4.0,8.08],t0:2.95,lead:.5},TUNE.consts.SEL);   // t0: 선택 시작(브레이크 쪽 화면이 뜬 뒤), lead: 확정 번쩍임 직전에 선택을 마감   // [선택 장면 시각, 영상 속 확정 순간]
+const SEL=Object.assign({shachi:[1.0,2.88],yamori:[2.0,8.05],shiro:[1.5,7.55],break:[4.0,8.08],t0:.4,vis:2.95,lead:.5},TUNE.consts.SEL);   // t0: 선택 화면 시작(번쩍임 직전, '모드를 선택해 주세요' 음성 포함), vis: 브레이크 쪽 화면이 선택 장면이 되는 시각(그 전에는 오른쪽을 골라도 배틀 쪽 화면을 보여 줌), lead: 확정 번쩍임 직전에 선택을 마감   // [선택 장면 시각, 영상 속 확정 순간]
 async function chooseMode(success){
  const bt=[],br=[];for(const j of JB)if(await probe(j.body))(j.k==='break'?br:bt).push(j);if(!bt.length||!br.length)return null;
  const jb=wpick(bt,x=>success?x.w*x.rel:x.w*(1-x.rel)),jk=br[0],out=j=>({j,from:Math.max(0,SEL[j.k][1]-SEL.lead)});
@@ -1075,12 +1081,12 @@ async function chooseMode(success){
  document.body.classList.add('inclip');bgPause();idleHide();
  Lel.style.zIndex=7;Lel.style.display='block';Rel.style.zIndex=5;Rel.style.display='block';Lel.muted=muted;
  try{await Lel.play()}catch(e){}Rel.play().catch(()=>{});
- let pick='L';const show=()=>{Lel.style.zIndex=pick==='L'?7:5;Rel.style.zIndex=pick==='R'?7:5;$('selHint').textContent='모드 선택: 화면 왼쪽(배틀) · 오른쪽(브레이크) 클릭 또는 ←/→   지금: '+(pick==='L'?'배틀':'브레이크')};
+ let pick='L',shown='';const show=()=>{const eff=pick==='R'&&(Lel.currentTime-gL.base)<SEL.vis?'L':pick;if(eff!==shown){shown=eff;Lel.style.zIndex=eff==='L'?7:5;Rel.style.zIndex=eff==='R'?7:5}$('selHint').textContent='모드 선택: 화면 왼쪽(배틀) · 오른쪽(브레이크) 클릭 또는 ←/→   지금: '+(pick==='L'?'배틀':'브레이크')};
  show();$('selHint').style.display='block';
  const tEnd=gL.base+SEL.yamori[1]-SEL.lead;
  const res=await new Promise(done=>{const t0=performance.now();let over=false;
   const fin=()=>{if(over)return;over=true;selHook=null;clearInterval(iv);clearTimeout(to);$('main').removeEventListener('pointerdown',onP);done(pick)};
-  const iv=setInterval(()=>{if(Lel.currentTime>=tEnd||Lel.ended)fin();else if(Math.abs((Rel.currentTime-gR.base)-(Lel.currentTime-gL.base)-(SEL.break[1]-SEL.yamori[1]))>.12){try{Rel.currentTime=gR.base+(Lel.currentTime-gL.base)+(SEL.break[1]-SEL.yamori[1])}catch(e){}}},40);
+  const iv=setInterval(()=>{show();if(Lel.currentTime>=tEnd||Lel.ended)fin();else if(Math.abs((Rel.currentTime-gR.base)-(Lel.currentTime-gL.base)-(SEL.break[1]-SEL.yamori[1]))>.12){try{Rel.currentTime=gR.base+(Lel.currentTime-gL.base)+(SEL.break[1]-SEL.yamori[1])}catch(e){}}},40);
   const to=setTimeout(fin,(SEL.yamori[1]-SEL.lead-SEL.t0)*1000+1500);                                         // 영상이 멈춰도 넘어가도록 안전장치
   // 클릭·방향키는 선택만 바꿈(몇 번이든 가능). Space/SKIP 은 바로 결정. 화면이 뜬 직후 0.4초는 입력을 받지 않음(직전 연타 방지)
   selHook=k=>{if(performance.now()-t0<400)return;if(k==='ok')return fin();if(k!==pick){pick=k;show()}};
@@ -1130,7 +1136,7 @@ async function stVideo(){
  S.st=SPEC.st;render();
  const marks=B.map((t,i)=>[t,()=>{S.st=SPEC.st-1-i;S.spins++;render()}]).filter(m=>m[0]<to-.02);
  const skip=B.map((t,i)=>[t+1,(B[i+1]||ST.end)-.6]).filter(x=>x[1]<=to+.01);
- await playClip(STV.full,{to,marks,skip,next:hit<0?'videos/rush_result.mp4':(w?w.src:null)});
+ await playClip(STV.full,{to,marks,skip,cutAfter:w&&w.any?B[hit]:undefined,next:hit<0?'videos/rush_result.mp4':(w?w.src:null)});   // 오메데토가 끼어드는 회전에서 SKIP: 바로 오메데토를 처음부터
  if(hit<0){S.st=0;render();await endRush();render();save();return}
  S.spins++;S.st=SPEC.st-1-hit;S.hits++;S.chain++;render();
  const played=w?await playClip(w.src,{to:w.to,next:w.intro?null:'videos/st_intro.mp4'}):false;   // to: 역물이 떨어지기 직전. 낙하는 st_intro 가 이어서 보여 줌
@@ -1221,7 +1227,7 @@ async function spin(){if(selHook)return selHook('ok');if(busy){pushReq=true;skip
  if(!AC)ac();if(!bgmNow)bgm('bgm');
  S.holds=[1,1,1].slice(0,auto?4:3);
  if(S.mode==='rush')await spinRush();else await spinNormal();
-}catch(e){console.error(e)}finally{busy=false;slowOff();if(skipNext){skipNext=false;if(S.mode==='normal')setTimeout(pressSkip,0)}if(S.mode==='normal'){document.body.classList.remove('inclip');clearTimeout(hideT);VIDS.forEach(v=>{if(v.paused)v.style.display='none'});bgResume()}idleArm();render()}if(auto)setTimeout(spin,speed>=20?0:350/speed)}
+}catch(e){console.error(e)}finally{busy=false;if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}slowOff();if(skipNext){skipNext=false;if(S.mode==='normal')setTimeout(pressSkip,0)}if(S.mode==='normal'){document.body.classList.remove('inclip');clearTimeout(hideT);VIDS.forEach(v=>{if(v.paused)v.style.display='none'});bgResume()}idleArm();render()}if(auto)setTimeout(spin,speed>=20?0:350/speed)}
 $('bSpin').onclick=spin;
 $('bAuto').onclick=()=>{auto=!auto;$('bAuto').classList.toggle('on',auto);if(auto&&!busy)spin()};
 $('bForce').onclick=()=>{forceWin=!forceWin;$('bForce').classList.toggle('on',forceWin)};
