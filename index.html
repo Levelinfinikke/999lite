@@ -253,10 +253,10 @@ body.aOff #wA .hd,body.bOff #wB .hd{height:30px;padding:0 4px 0 8px}
 #wPay u{font:italic 800 1.02cqw/1 "Arial Black",Impact,sans-serif;text-decoration:none;color:#fff;letter-spacing:.14em;align-self:flex-start;margin-right:0.38cqw;text-shadow:0 0 0.26cqw #e0213a}
 #wPay.fold{padding:.26cqw .64cqw}#wPay.fold b,#wPay.fold i{display:none}
 /* 모바일 전용 SKIP: 화면 오른쪽 아래 */
-#mSkip{display:none;position:fixed;right:max(10px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:130;width:76px;height:76px;padding:0;border-radius:50%;clip-path:none;
- background:radial-gradient(circle at 50% 35%,rgba(224,27,44,.92),rgba(120,8,18,.92));border:2px solid #ff5364;color:#fff;font:900 15px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;letter-spacing:.08em;
- box-shadow:0 4px 16px rgba(0,0,0,.6);touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
-#mSkip:active{transform:scale(.94);filter:brightness(1.2)}
+#mSkip{display:none;position:fixed;left:0;top:0;z-index:130;width:44px;height:44px;padding:0;border-radius:50%;clip-path:none;transform-origin:0 0;will-change:transform;
+ background:rgba(170,14,30,.42);border:1px solid rgba(255,90,105,.6);color:rgba(255,255,255,.85);font:800 10px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;letter-spacing:.06em;
+ touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+#mSkip:active{background:rgba(224,27,44,.75)}
 @media (max-width:760px),(pointer:coarse){#mSkip{display:block}}
 /* 모바일: 기기 화면 왼쪽 위에 겹쳐 놓음 (기기는 화면 폭 전체 사용) */
 @media (max-width:760px){body{--ww:0px!important}#wcol{left:4px;top:4px;width:200px;max-height:calc(100vh - 8px)}.wg{border-left:1px solid #2b6fb0;background:linear-gradient(180deg,rgba(16,18,26,.88),rgba(6,7,11,.88))}
@@ -1296,6 +1296,11 @@ renderHolds('');applyMute();render();
  q('wPlay').onclick=()=>{q('wPlay').blur();spin()};
  q('wSkip').onclick=()=>{q('wSkip').blur();pressSkip()};
  q('mSkip').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();pressSkip()});   // 누르는 즉시 반응
+ // 화면을 확대(핀치 줌)해도 보이는 화면의 오른쪽 아래에 같은 크기로 붙어 있게: 보이는 영역(visualViewport)에 맞춰 위치·배율을 계속 맞춤
+ const ms=q('mSkip'),SZ=44,MG=12;
+ const place=()=>{const vv=window.visualViewport,k=vv?1/vv.scale:1,w=vv?vv.width:innerWidth,h=vv?vv.height:innerHeight,ox=vv?vv.offsetLeft:0,oy=vv?vv.offsetTop:0;
+  ms.style.transform=`translate(${(ox+w-(SZ+MG)*k).toFixed(1)}px,${(oy+h-(SZ+MG+14)*k).toFixed(1)}px) scale(${k.toFixed(4)})`};
+ place();addEventListener('resize',place);if(window.visualViewport){visualViewport.addEventListener('resize',place);visualViewport.addEventListener('scroll',place)}
  // AUTO: 한 버튼으로 x1 → x2 → x4 → x8 → 끄기
  const SP=[1,2,4,8];let ai=-1;
  const setSpd=x=>{userSpeed=x;if(!slowed)speed=x};
@@ -1348,7 +1353,7 @@ renderHolds('');applyMute();render();
   // 히스토리: 최근 10번의 첫 당첨 (칸 높이 = 시작 회전수, 한 칸 100회전 · 아래 = 연속 · 시작 회전수)
   x.fillStyle='#2a2a2a';x.fillRect(0,174,W,24);x.fillStyle='#fff';x.font='700 15px "Malgun Gothic","Noto Sans KR",sans-serif';x.textAlign='center';x.fillText('히스토리',W/2,191);
   x.font='700 12px "Malgun Gothic",sans-serif';x.textAlign='right';x.fillStyle='#19f29a';x.fillText('■ 대당',W-62,190);x.fillStyle='#3aa8ff';x.fillText('■ 차지',W-8,190);
-  const L=H.slice(-10),n=10,x0=34,cw=(W-x0-6)/n,y0=206,rh=13;
+  const L=H.slice(-10).reverse(),n=10,x0=34,cw=(W-x0-6)/n,y0=206,rh=13;
   for(let r=0;r<10;r++){x.fillStyle='#8a8a8a';x.font='600 9px sans-serif';x.textAlign='center';x.fillText(10-r,16,y0+r*rh+9);
    for(let i=0;i<n;i++){const e=L[i],on=e&&Math.min(10,Math.ceil(e[0]/100))>=10-r;x.fillStyle=on?(e[2]?'#3aa8ff':'#19f29a'):'#2b2b2b';x.fillRect(x0+i*cw+2,y0+r*rh,cw-4,rh-3)}}
   x.fillStyle='#bbb';x.font='600 12px sans-serif';x.fillText('連続',17,y0+10*rh+14);
