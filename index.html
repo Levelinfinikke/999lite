@@ -260,7 +260,7 @@ body.aOff #wA .hd,body.bOff #wB .hd{height:30px;padding:0 4px 0 8px}
  background:rgba(170,14,30,.42);border:1px solid rgba(255,90,105,.6);color:rgba(255,255,255,.85);font:800 10px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;letter-spacing:.06em;
  touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
 #mSkip:active{background:rgba(224,27,44,.75)}
-@media (max-width:760px),(pointer:coarse){#mSkip{display:block}}
+@media (max-width:760px),(pointer:coarse){#mSkip{display:block}#skipHint{display:none!important}}   /* 모바일: 'SPACE: 정산 건너뛰기' 안내 숨김 */
 /* 모바일: 기기 화면 왼쪽 위에 겹쳐 놓음 (기기는 화면 폭 전체 사용) */
 @media (max-width:760px){body{--ww:0px!important}#wcol{left:4px;top:4px;width:200px;max-height:calc(100vh - 8px)}.wg{border-left:1px solid #2b6fb0;background:linear-gradient(180deg,rgba(16,18,26,.88),rgba(6,7,11,.88))}
  #wcol button,#wcol label{height:36px}#wcol #wPlay{height:44px}body.aOff #wA,body.bOff #wB{margin:0}}
