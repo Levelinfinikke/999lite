@@ -1304,10 +1304,11 @@ renderHolds('');applyMute();render();
  q('wAh').onclick=()=>{fold.a=!fold.a;setFold()};q('wBh').onclick=()=>{fold.b=!fold.b;setFold();draw()};setFold();
  // ── 대박 기록: 첫 당첨마다 한 칸 (시작 회전수, 연속 횟수) ──
  let H=[];try{H=JSON.parse(localStorage.getItem('g999Hist')||'[]')}catch(e){}
- let lastHits=S.hits,lastCur=S.cur;
+ let lastHits=S.hits,lastCur=S.cur,lastKind='';
+ const _fn=finishNormal;finishNormal=function(res){lastKind=res;return _fn.apply(this,arguments)};   // 첫 당첨이 대당인지 차지인지 기억
  const saveH=()=>{try{localStorage.setItem('g999Hist',JSON.stringify(H.slice(-60)))}catch(e){}};
  const _render=render;render=function(){_render();
-  let ns=false;if(S.hits>lastHits){const d=S.hits-lastHits;if(lastCur>0||!H.length){H.push([lastCur,d]);ns=!seqOn}else H[H.length-1][1]+=d;saveH()}
+  let ns=false;if(S.hits>lastHits){const d=S.hits-lastHits;if(lastCur>0||!H.length){H.push([lastCur,d,lastKind==='charge'?1:0]);ns=!seqOn}else H[H.length-1][1]+=d;saveH()}
   else if(S.hits<lastHits){H=[];saveH()}       // 기록 초기화
   payTrack(ns);lastHits=S.hits;lastCur=S.cur;draw()};
  q('wReset').onclick=()=>{q('wReset').blur();q('bReset').onclick()};
@@ -1338,11 +1339,12 @@ renderHolds('');applyMute();render();
   lab('총 회전수',196,108);num(x,196,116,S.spins,6,24,46,GRN);
   // 히스토리: 최근 10번의 첫 당첨 (칸 높이 = 시작 회전수, 한 칸 100회전 · 아래 = 연속 · 시작 회전수)
   x.fillStyle='#2a2a2a';x.fillRect(0,174,W,24);x.fillStyle='#fff';x.font='700 15px "Malgun Gothic","Noto Sans KR",sans-serif';x.textAlign='center';x.fillText('히스토리',W/2,191);
+  x.font='700 12px "Malgun Gothic",sans-serif';x.textAlign='right';x.fillStyle='#19f29a';x.fillText('■ 대당',W-62,190);x.fillStyle='#3aa8ff';x.fillText('■ 차지',W-8,190);
   const L=H.slice(-10),n=10,x0=34,cw=(W-x0-6)/n,y0=206,rh=13;
   for(let r=0;r<10;r++){x.fillStyle='#8a8a8a';x.font='600 9px sans-serif';x.textAlign='center';x.fillText(10-r,16,y0+r*rh+9);
-   for(let i=0;i<n;i++){const e=L[i],on=e&&Math.min(10,Math.ceil(e[0]/100))>=10-r;x.fillStyle=on?'#19f29a':'#2b2b2b';x.fillRect(x0+i*cw+2,y0+r*rh,cw-4,rh-3)}}
+   for(let i=0;i<n;i++){const e=L[i],on=e&&Math.min(10,Math.ceil(e[0]/100))>=10-r;x.fillStyle=on?(e[2]?'#3aa8ff':'#19f29a'):'#2b2b2b';x.fillRect(x0+i*cw+2,y0+r*rh,cw-4,rh-3)}}
   x.fillStyle='#bbb';x.font='600 12px sans-serif';x.fillText('連続',17,y0+10*rh+14);
-  L.forEach((e,i)=>{const cx=x0+i*cw+cw/2;x.fillStyle='#fff';x.font='italic 700 17px sans-serif';x.fillText(e[1],cx,y0+10*rh+15);x.fillStyle='#ddd';x.font='italic 600 13px sans-serif';x.fillText(e[0],cx,y0+10*rh+32)})}
+  L.forEach((e,i)=>{const cx=x0+i*cw+cw/2;x.fillStyle=e[2]?'#7cc6ff':'#fff';x.font='italic 700 17px sans-serif';x.fillText(e[2]&&e[1]<2?'C':e[1],cx,y0+10*rh+15);x.fillStyle='#ddd';x.font='italic 600 13px sans-serif';x.fillText(e[0],cx,y0+10*rh+32)})}
  // 좁은 위젯용 수지 그래프: 0선, 수지 곡선, 현재·최고·최저 값
  gDraw=function(){const c=q('gCv'),x=c.getContext('2d'),W=c.width,Hh=c.height,g=(S.g&&S.g.length?S.g:[[0,0]]),pl=6,pr=6,pt=24,pb=8;
   let x1=Math.max(1,g[g.length-1][0]),lo=0,hi=0;for(const p of g){if(p[1]<lo)lo=p[1];if(p[1]>hi)hi=p[1]}if(hi-lo<1000){hi+=500;lo-=500}
