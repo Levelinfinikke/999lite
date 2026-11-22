@@ -230,6 +230,7 @@ body.aOff #wA:hover,body.bOff #wB:hover{opacity:1}
 body.aOff #wA .bd,body.bOff #wB .bd{display:none}
 body.aOff #wA .hd,body.bOff #wB .hd{height:30px;padding:0 4px 0 8px}
 #pushHint,#selHint,#skipHint{bottom:10px!important}
+
 /* 모바일(웹 주소로 열었을 때): 영상을 전부 받은 뒤 시작 */
 #dl{position:fixed;inset:0;z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;background:radial-gradient(ellipse at 50% 35%,#1a0509,#050506 70%);color:#f3e9ea;font-family:"Noto Sans KR","Malgun Gothic",system-ui,sans-serif;text-align:center}
 #dl.on{display:flex}
@@ -505,7 +506,8 @@ const ENTRY=[
  ['ST ─ 2회전째 당첨: 리제',stStart({stHit:1,stWin:'rize'})],['ST ─ 2회전째 당첨: 츠키야마',stStart({stHit:1,stWin:'tsukiyama'})],['ST ─ 3회전째 도중 당첨: 오메데토',stStart({stHit:2,stWin:'omedetou'})],['ST ─ LAST 당첨: 리제',stStart({stHit:4,stWin:'rize'})],
  ['ST 보너스 ─ 도입 → 3000 → 추가 판정 (랜덤)',rbStart({hyper:false})],['ST 보너스 ─ 3000 → HYPER 6000',rbStart({hyper:true})],
  ['추가 3000 판정 ─ 실패',rbStart({uwOnly:true,uw:[]})],['추가 3000 판정 ─ LAST에서 성공 → 다음 판정 실패',rbStart({uwOnly:true,uw:['last']})],['추가 3000 판정 ─ "1"에서 성공',rbStart({uwOnly:true,uw:['t1']})],['추가 3000 판정 ─ "2"에서 성공',rbStart({uwOnly:true,uw:['t2']})],
- ['추가 3000 판정 ─ 3연속 성공 (2 → 1 → LAST)',rbStart({uwOnly:true,uw:['t2','t1','last']})]];
+ ['추가 3000 판정 ─ 3연속 성공 (2 → 1 → LAST)',rbStart({uwOnly:true,uw:['t2','t1','last']})],
+ ['추가 3000 판정 ─ 실패 → ST 진입 전 부활 성공 → 다음 판정 실패',rbStart({uwOnly:true,uw:['late']})],['추가 3000 판정 ─ 실패 → 부활 성공 → LAST에서 성공 → 실패',rbStart({uwOnly:true,uw:['late','last']})]];
 $('selStart').innerHTML=ENTRY.map((e,i)=>'<option value="'+i+'">'+e[0]+'</option>').join('');
 async function runEntry(i){if(busy)return;busy=true;stopAll=false;if(!AC)ac();try{await ENTRY[i][1]()}catch(e){console.error(e)}finally{busy=false;FORCE={};slowOff();if(S.mode==='normal'){document.body.classList.remove('inclip');bgResume()}idleArm();render();save()}}
 // 다른 연출이 재생 중이면 전부 초기화한 뒤 시작 (브라우저가 소리 재생을 허용하도록 한 번 더 눌러야 함)
@@ -1143,7 +1145,7 @@ const UWT=Object.assign({t2:15.78,t1:25.31},TUNE.consts.UWT); // uw_try 안에�
 const UW_FL=(TUNE.consts.UW_FL)||[3.7,9.2,15.8,18.7,25.33,28.2];   // uw_try 안에서 흰 링이 터지는 시각(초), 영상 밝기에서 뽑은 값
 const UW_LIT_OFF=(TUNE.consts.UW_LIT_OFF)||0;const UW_LIT_FROM=6.0;   // '2' 카운트가 뜨는 시각(초): 이때부터 밝기 곡선을 따라감
    // 역물 밝기 곡선을 영상에 맞춰 앞뒤로 미는 값(초)
-const UW_STAGE=[.08,.17];                                     // 성공 시 낙하 단계 비율: "2" 8%, "1" 17%, 나머지 75%는 LAST
+const UW_STAGE=[.08,.17,.12];   // 성공 시 낙하 단계: '2' 8%, '1' 17%, 실패 화면 도중 역전 12%, 나머지 63%는 LAST                                     // 성공 시 낙하 단계 비율: "2" 8%, "1" 17%, 나머지 75%는 LAST
 const UW={try:'videos/uw_try.mp4',lose:'videos/uw_lose.mp4',pay:'videos/uw_pay.mp4',amts:[6000,9000,12000,15000,18000,21000]};
 async function uwWinClip(total){const ok=[];for(const a of UW.amts)if(await probe('videos/uw_win_'+a+'.mp4'))ok.push(a);if(!ok.length)return '';
  const le=ok.filter(a=>a<=total);return 'videos/uw_win_'+(le.length?le[le.length-1]:ok[0])+'.mp4'}
@@ -1168,10 +1170,13 @@ async function rushBonus(skipIntro){
  else for(let i=0;;i++){
   const win=i<wins,wc=win?await uwWinClip(gain+3000):'';
   // 성공은 2·1·LAST 어느 단계의 정적 끝에서든 떨어질 수 있음 (뒤로 갈수록 확률 큼). 실패는 항상 끝까지 감
-  let cut=null;if(win){const r=Math.random();cut=r<UW_STAGE[0]?UWT.t2:(r<UW_STAGE[0]+UW_STAGE[1]?UWT.t1:null);if(fUw)cut=fUw[i]==='t2'?UWT.t2:(fUw[i]==='t1'?UWT.t1:null)}
+  let cut=null,late=false;if(win){const r=Math.random(),a=UW_STAGE[0],b=a+UW_STAGE[1],c=b+(UW_STAGE[2]||0);cut=r<a?UWT.t2:(r<b?UWT.t1:null);late=r>=b&&r<c;if(fUw){cut=fUw[i]==='t2'?UWT.t2:(fUw[i]==='t1'?UWT.t1:null);late=fUw[i]==='late'}}
   // 판정 중 상단 역물의 밝기: 실기를 찍은 영상에서 프레임 단위로 잰 밝기 곡선을 그대로 따라감
-  await playClip(UW.try,cut!=null?{to:cut,onTime:gLit,next:wc||UW.pay}:{onTime:gLit,next:win?(wc||UW.pay):UW.lose});gDim(false);
+  await playClip(UW.try,cut!=null?{to:cut,onTime:gLit,next:wc||UW.pay}:{onTime:gLit,next:win&&!late?(wc||UW.pay):UW.lose});gDim(false);
   if(!win){await playClip(UW.lose,{next:CLIP.rush_in});break}
+  if(late){   // 실패 화면 도중(RUSH 계속 화면이 나오기 전) 아무 때나 역물 낙하로 역전 → 성공 영상
+   const tr=n=>TUNE.trim[n]||[0,0],L0=tr('uw_lose')[0]||0,L1=((CLIPS.uw_lose||{}).dur||0)+(tr('uw_lose')[1]||0);
+   const tt=L0+.8+Math.random()*Math.max(0,L1-L0-1.2);await playClip(UW.lose,{to:+tt.toFixed(2),next:wc||UW.pay})}
   const prev=gain;gain+=3000;
   if(!(await playClip(wc,{next:UW.pay}))){fx('上乗せ成功!! '+fmt(gain),'big t-rainbow');se('win');await sleep(1300);clearFx()}
   await playClip(UW.pay,{next:UW.try,skip:'all',onTime:(t,d)=>set(prev+Math.round(3000*lin(t,1,d-3)))});set(gain);
@@ -1292,6 +1297,7 @@ renderHolds('');applyMute();render();
  const VW=[['v-zoom','액정 확대'],['v-full','전체 기기'],['v-max','최대 화면']];let vi=0;try{vi=Math.max(0,VW.findIndex(v=>v[0]===localStorage.getItem('g999View')))}catch(e){}
  const setView=()=>{document.body.classList.remove('full','v-zoom','v-full','v-max');document.body.classList.add(VW[vi][0]);q('wView').textContent='화면: '+VW[vi][1];try{localStorage.setItem('g999View',VW[vi][0])}catch(e){}};
  q('wView').onclick=()=>{q('wView').blur();vi=(vi+1)%VW.length;setView()};setView();
+
  // 위젯 2개를 따로 접기/펼치기. 모바일은 데이터 위젯이 접힌 채로 시작
  const mob=matchMedia('(max-width:760px)').matches,fold={a:false,b:mob};try{Object.assign(fold,JSON.parse(localStorage.getItem('g999Fold2')||'{}'))}catch(e){}
  const setFold=()=>{document.body.classList.toggle('aOff',fold.a);document.body.classList.toggle('bOff',fold.b);q('wAh').lastChild.textContent=fold.a?'▸':'◂';q('wBh').lastChild.textContent=fold.b?'▸':'◂';try{localStorage.setItem('g999Fold2',JSON.stringify(fold))}catch(e){}};
@@ -1330,11 +1336,11 @@ renderHolds('');applyMute();render();
   x.fillStyle='#333';x.fillRect(0,86,W,1);
   lab('시작',8,108);num(x,10,116,S.cur,4,24,46,GRN);
   lab('총 회전수',196,108);num(x,196,116,S.spins,6,24,46,GRN);
-  // 히스토리: 최근 10번의 첫 당첨 (칸 높이 = 연속 횟수, 아래 = 연속 · 시작 회전수)
+  // 히스토리: 최근 10번의 첫 당첨 (칸 높이 = 시작 회전수, 한 칸 100회전 · 아래 = 연속 · 시작 회전수)
   x.fillStyle='#2a2a2a';x.fillRect(0,174,W,24);x.fillStyle='#fff';x.font='700 15px "Malgun Gothic","Noto Sans KR",sans-serif';x.textAlign='center';x.fillText('히스토리',W/2,191);
   const L=H.slice(-10),n=10,x0=34,cw=(W-x0-6)/n,y0=206,rh=13;
   for(let r=0;r<10;r++){x.fillStyle='#8a8a8a';x.font='600 9px sans-serif';x.textAlign='center';x.fillText(10-r,16,y0+r*rh+9);
-   for(let i=0;i<n;i++){const e=L[i],on=e&&Math.min(10,e[1])>=10-r;x.fillStyle=on?'#19f29a':'#2b2b2b';x.fillRect(x0+i*cw+2,y0+r*rh,cw-4,rh-3)}}
+   for(let i=0;i<n;i++){const e=L[i],on=e&&Math.min(10,Math.ceil(e[0]/100))>=10-r;x.fillStyle=on?'#19f29a':'#2b2b2b';x.fillRect(x0+i*cw+2,y0+r*rh,cw-4,rh-3)}}
   x.fillStyle='#bbb';x.font='600 12px sans-serif';x.fillText('連続',17,y0+10*rh+14);
   L.forEach((e,i)=>{const cx=x0+i*cw+cw/2;x.fillStyle='#fff';x.font='italic 700 17px sans-serif';x.fillText(e[1],cx,y0+10*rh+15);x.fillStyle='#ddd';x.font='italic 600 13px sans-serif';x.fillText(e[0],cx,y0+10*rh+32)})}
  // 좁은 위젯용 수지 그래프: 0선, 수지 곡선, 현재·최고·최저 값
