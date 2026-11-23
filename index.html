@@ -383,7 +383,7 @@ const JUDGE=[['鯱',.26,.15],['ヤモリ',.40,.30],['絢都',.75,.30],['クロ�
 // ═══════════ 소재 파일 슬롯 (없으면 코드 연출) ═══════════
 // 영상: videos/<키>_body.mp4 (리치 본체), videos/<키>_win.mp4 / _lose.mp4 (결말), 그 밖에 아래 이름
 const CLIP={hand:'videos/hand_drop.mp4',zorome:'videos/zorome.mp4',bonus:'videos/bonus.mp4',bonus7500:'videos/bonus7500.mp4',judge_win:'videos/judge_win.mp4',judge_lose:'videos/judge_lose.mp4',rush_in:'videos/rush_in.mp4',rush_end:'videos/rush_end.mp4',loop:'videos/kumax_loop.mp4',charge:'videos/charge.mp4',charge_up:'videos/charge_up.mp4'};
-const IMG={num:n=>'images/num_'+n+'.png',hold:c=>'images/hold_'+(c||'normal')+'.png',frame:'images/machine_frame.webp?v=5'};
+const IMG={num:n=>'images/num_'+n+'.png',hold:c=>'images/hold_'+(c||'normal')+'.png',frame:'images/machine_frame.webp?v=7'};
 const SND={bgm:'audio/bgm_normal.mp3',bgmRush:'audio/bgm_rush.mp3',stop:'audio/se_stop.mp3',reach:'audio/se_reach.mp3',hold:'audio/se_hold.mp3',hand:'audio/se_hand.mp3',win:'audio/se_win.mp3',lever:'audio/se_lever.mp3'};
 
 // 영상에 숫자가 찍혀 있는 클립: 게임 숫자를 영상에 맞춤 [텐파이, 꽝일 때 가운데]
@@ -711,7 +711,7 @@ let slowed=false;   // 당첨 연출 중: 배속을 잠시 멈추고 1배속으�
 function slowOn(){if(speed!==1){slowed=true;speed=1;$('spdNote').style.display='inline'}}
 function slowOff(){if(slowed){slowed=false;speed=userSpeed;$('spdNote').style.display='none'}}
 let FORCE={};const take=k=>{if(k in FORCE){const v=FORCE[k];delete FORCE[k];return v}return undefined};   // '연출 선택 시작'이 정해 둔 분기(한 번 쓰면 사라짐)
-let pushReq=false,inputLock=0,selHook=null;
+let pushReq=false,inputLock=0,selHook=null;window.LEVSEL=true;
 const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const DBG=/[?&]debug/.test(location.search);let dbgEl=null;
 function dbg(m){if(!DBG)return;if(!dbgEl){dbgEl=document.createElement('pre');dbgEl.style.cssText='position:fixed;left:0;right:0;bottom:0;max-height:38vh;overflow:auto;margin:0;padding:4px 6px;z-index:999;background:rgba(0,0,0,.78);color:#7dff9a;font:10px/1.35 monospace;white-space:pre-wrap;pointer-events:none';document.body.appendChild(dbgEl)}
@@ -745,7 +745,7 @@ try{if(!localStorage.getItem('ghoulFix6')){TUNE.cues={};localStorage.setItem('gh
 try{if(!localStorage.getItem('ghoulFix7')){for(const [k,e] of [['st_win_rize',-61.58],['st_win_tsukiyama',-12.7],['st_win_omedetou',-3.22]])TUNE.trim[k]=[(TUNE.trim[k]||[0,0])[0]||0,e];localStorage.setItem('ghoulFix7','1');saveTune()}}catch(e){} // ST 당첨 영상 3개: 마지막 역물 낙하 직전에서 끝나도록 끝 자르기 (이 브라우저에 저장된 값에도 한 번 적용)
 // 영상 속 PUSH·連打·押せ 가 떠 있는 구간 [시작, 넘어갈 지점] (기준 시각 초, 999 = 그 영상의 끝). 이 구간에서 클릭/Space/SKIP 하면 바로 결과로 넘어감
 // 배틀 모드 본체는 구간이 둘: ① 상대 캐릭터 선택 화면 → 누르면 상대가 정해지는 순간으로, ② 마지막 PUSH → 결과로
-const PUSH=Object.assign({judge_select:[10.6,14.68],judge_ready:[7.98,999],revival_fukurou:[34.3,37.4],climax_yamori_lose_2:[.77,3.7],battle_kakuza_1:[80.93,83.93],battle_mother_strong_win_8:[69.27,72.23],battle_amon_3:[69.2,72.2]},TUNE.consts.PUSH);
+const PUSH=Object.assign({judge_select:[10.6,14.68],judge_ready:[7.98,999],revival_fukurou:[34.3,37.4],climax_yamori_lose_2:[.77,3.7],battle_kakuza_1:[80.93,83.93],battle_mother_strong_win_8:[69.27,72.23],battle_amon_3:[69.2,72.2],st_win_omedetou:[16.15,18.9]},TUNE.consts.PUSH),LEVONLY={st_win_omedetou:1};   // omedetou: 초록 ▼(레버를 당기라는 지시)가 떠 있는 동안 레버를 당겨야만 바로 결과로 (버튼·SKIP·키보드는 이 구간에서 무시)
 // 요청받은 이동량을 이 브라우저에 저장된 값에도 한 번만 더함 (judge_tail_lose 시작 +0.3, st_win_omedetou 시작 +5.5)
 try{localStorage.setItem('ghoulFix2','1')}catch(e){}
 try{if(!localStorage.getItem('ghoulFix12')){TUNE.trim.direct7500=[0,-0.068];TUNE.trim.st_win_tsukiyama=[0.6,-12.7];TUNE.trim.revival_fukurou=[0.02,0];localStorage.setItem('ghoulFix12','1');saveTune()}}catch(e){}
@@ -840,7 +840,8 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
   if(stopReq){stopReq=false;v.pause();return r()}
   // Space: 정해 둔 구간(정산·ST 회전)은 그 끝으로, 그 밖의 연출은 끝나기 1초 전으로 건너뜀 (마지막 1초는 건너뛸 수 없음)
   const pw=pws.find(w=>!w.done&&t>=w[0]&&t<Math.min(w[1],t1-g.base-.03)-.1),pEnd=pw?Math.min(pw[1],t1-g.base-.03):0,inPush=!!pw;
-  if(inPush!==pushShown){pushShown=inPush;$('pushHint').style.display=inPush?'block':'none'}
+  const levW=inPush&&LEVONLY[g.n];if(levW&&window.PUSHSRC!=='lever'){pushReq=false;skipReq=false}
+  if(inPush!==pushShown){pushShown=inPush;$('pushHint').style.display=inPush&&!LEVONLY[g.n]?'block':'none'}
   if(opt.noskip)pushReq=false;   // 브레이크 모드: 화면 클릭(PUSH)은 불가, SKIP 버튼·Space 는 가능
   if(pushReq){pushReq=false;if(inPush){pw.done=true;skipReq=false;inputLock=performance.now()+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
   if(skipReq&&performance.now()<inputLock)skipReq=false;
@@ -1479,7 +1480,7 @@ async function chooseMode(success){
   const iv=setInterval(()=>{show();if(Lel.currentTime>=tEnd||Lel.ended)fin();else if(Math.abs((Rel.currentTime-gR.base)-(Lel.currentTime-gL.base)-(SEL.break[1]-SEL.yamori[1]))>.12){try{Rel.currentTime=gR.base+(Lel.currentTime-gL.base)+(SEL.break[1]-SEL.yamori[1])}catch(e){}}},40);
   const to=setTimeout(fin,(SEL.yamori[1]-SEL.lead-SEL.t0)*1000+1500);                                         // 영상이 멈춰도 넘어가도록 안전장치
   // 클릭·방향키는 선택만 바꿈(몇 번이든 가능). Space/SKIP 은 바로 결정. 화면이 뜬 직후 0.4초는 입력을 받지 않음(직전 연타 방지)
-  selHook=k=>{if(performance.now()-t0<400)return;if(k==='ok')return fin();if(k!==pick){pick=k;show()}};
+  selHook=k=>{if(performance.now()-t0<400)return;if(k==='ok')return fin();if(k==='T')k=pick==='L'?'R':'L';if(k!==pick){pick=k;show()}};   // T = 레버: 반대쪽 모드로 전환
   const onP=e=>{const r=$('main').getBoundingClientRect();selHook((e.clientX-r.left)<r.width/2?'L':'R')};$('main').addEventListener('pointerdown',onP)});
  Lel.pause();Rel.pause();$('selHint').style.display='none';inputLock=performance.now()+700;skipReq=false;pushReq=false;       // 결정 직후 0.7초는 건너뛰기 입력 무시
  vidI=VIDS.indexOf(res==='L'?Lel:Rel);                                                                          // 고른 쪽 화면을 그대로 둔 채 다음 재생이 반대쪽 화면에서 준비됨
@@ -1660,6 +1661,10 @@ html.lightm .led:not(.b):not(.t){filter:brightness(1.1) contrast(1.1)}
 html.lightm #view{box-shadow:0 14px 34px rgba(0,0,0,.38),0 0 0 1px rgba(0,0,0,.25)}
 html.lightm #panel,html.lightm #panel2{background:var(--panel);box-shadow:0 6px 20px rgba(0,0,0,.3)}
 html:not(.lightm) #frameImg.dim{filter:brightness(.42)}
+#levImg,#btnImg,#btnHole,#btnRim,.qkKnob{position:absolute;z-index:16;pointer-events:none;opacity:0;transform-origin:50% 100%;filter:brightness(.42)}   /* 꽃 LED(10~15)보다 위: 당겨진 레버 윗부분이 꽃에 가리지 않게 */
+html.lightm #levImg,html.lightm #btnImg,html.lightm #btnHole,html.lightm #btnRim,html.lightm .qkKnob{filter:brightness(.8)}
+#levImg.on,#btnImg.on,#btnHole.on,#btnRim.on,.qkKnob.on{opacity:1}#levImg.back{transition:transform .18s ease-out}
+#btnImg{transition:transform .06s ease-out}#btnImg.on{transform:translateY(13.86%);filter:brightness(.38)}html.lightm #btnImg.on{filter:brightness(.72)}
 #qkFl{position:absolute;z-index:10;pointer-events:none;display:none;filter:brightness(.68)}html:not(.lightm) #qkFl{display:block}   /* 다크: 꽃 자리만 라이트 모드 밝기의 사진을 한 장 더 깔아서 어두워지지 않게 */   /* 다크: 기기 사진만 조금 어둡게(기본 .64). LED 는 위에 따로 겹쳐 그려서 영향 없음 */
 html:not(.lightm),html:not(.lightm) body{background:radial-gradient(ellipse at 50% 45%,#0b0a0f 0%,#020203 70%) fixed!important}
 html:not(.lightm) #view{overflow:hidden;box-shadow:0 0 60px 4px hsla(var(--glh,350),var(--gls,80%),62%,var(--gla,.3)),0 0 240px 70px hsla(var(--glh,350),var(--gls,80%),55%,calc(var(--gla,.3)*.5));transition:box-shadow .25s linear}
@@ -1673,10 +1678,31 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
  T.onclick=()=>{q.light=!q.light;ap()};L.onclick=()=>{q.noled=!q.noled;ap()};V.onclick=()=>{q.novib=!q.novib;ap()};
  try{const v=navigator.vibrate&&navigator.vibrate.bind(navigator);if(v)navigator.vibrate=function(){return B.classList.contains('novib')?false:v.apply(null,arguments)}}catch(e){}
  ap();
+ /* 액정 확대 보기에서 마우스 휠로 기기를 위아래로 훑어봄 (보기 방식을 바꾸면 원래 자리로) */
+ try{const VW_=document.getElementById('view'),MC_=document.getElementById('machine'),vkey=()=>['full','v-full','v-zoom','v-max'].filter(c=>B.classList.contains(c)).join(' ');let vk=vkey();
+  VW_.addEventListener('wheel',e=>{if(B.classList.contains('full')||B.classList.contains('v-full')||B.classList.contains('v-max'))return;const min=-(1-VW_.clientHeight/MC_.offsetHeight)*100;if(!(min<0))return;
+   const cur=parseFloat(getComputedStyle(B).getPropertyValue('--ty'))||0,n=Math.max(min,Math.min(0,cur-e.deltaY*.04));B.style.setProperty('--ty',n.toFixed(2)+'%');e.preventDefault()},{passive:false});
+  new MutationObserver(()=>{const k=vkey();if(k!==vk){vk=k;B.style.removeProperty('--ty')}}).observe(B,{attributes:true,attributeFilter:['class']})}catch(e){}
+ /* 기기 그림의 버튼·레버를 직접 누름: 버튼 = SKIP/PUSH, 레버 = 아래로 당기면 한 번 회전(연출 중에는 PUSH) */
+ try{const MC_=document.getElementById('machine'),mk=(id,q,t)=>{const d=document.createElement('div');d.id=id;d.title=t;Object.assign(d.style,{position:'absolute',left:q[0]*100+'%',top:q[1]*100+'%',width:q[2]*100+'%',height:q[3]*100+'%',zIndex:30,cursor:'pointer',touchAction:'none',webkitTapHighlightColor:'transparent'});MC_.appendChild(d);return d};
+  const hb=mk('hitBtn',LED_BOX.button.c,'버튼: 건너뛰기 / PUSH'),hl=mk('hitLev',[.40,.725,.21,.195],'레버: 아래로 당기면 회전');
+  // 눌리는 버튼 · 당겨지는 레버: 기기 사진에서 오려 낸 그림을 조작하는 동안만 겹쳐서 움직임 (평소에는 숨김)
+  const im=(id,src,q)=>{const f=document.createElement('img');f.id=id;f.alt='';f.src=src;Object.assign(f.style,{left:q[0]*100+'%',top:q[1]*100+'%',width:q[2]*100+'%',height:q[3]*100+'%'});document.getElementById('frameImg').after(f);return f};
+  const lv=im('levImg','images/lever.webp?v=2',[.3982,.6544,.2397,.2657]),bh=im('btnHole','images/btn_hole.webp?v=3',[0.4253,0.6516,0.1894,0.0823]),bt=im('btnImg','images/lever_btn.webp?v=2',[0.4253,0.6516,0.1894,0.0823]),br=im('btnRim','images/btn_rim.webp',[0.4253,0.6516,0.1894,0.0823]);bh.after(bt);bt.after(br);let bT=0;   // 구멍(어두운 바닥) → 내려간 버튼 → 버튼 둘레(내려간 버튼의 아래쪽을 가림)
+  let bDown=0;const setBtn=on=>{for(const x of [bh,bt,br])x.classList.toggle('on',on)};
+  // 누르고 있는 동안은 내려가 있고, 떼면 올라옴 (아주 짧게 눌러도 0.12초는 내려가 보이게)
+  hb.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();clearTimeout(bT);bDown=performance.now();setBtn(true);try{hb.setPointerCapture(e.pointerId)}catch(_){}try{LED.kick(.5)}catch(_){}if(typeof pressSkip==='function')pressSkip();else spin()});
+  const bUp=()=>{if(!bDown)return;const w=Math.max(0,120-(performance.now()-bDown));bDown=0;clearTimeout(bT);bT=setTimeout(()=>setBtn(false),w)};hb.addEventListener('pointerup',bUp);hb.addEventListener('pointercancel',bUp);
+  // 레버: 아래쪽(Y 의 밑동)이 축, 앞으로 최대 10도. 끝까지(70% 이상) 당기면 한 번 회전
+  const MAXDEG=10;let y0=null,done=false;const tilt=p=>{lv.style.transform='perspective('+Math.round(lv.offsetHeight*2.2)+'px) rotateX('+(-MAXDEG*p).toFixed(2)+'deg)'};   // 밑동(아래 끝)은 그대로, 위로 갈수록 앞으로 나와 커짐
+  hl.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();y0=e.clientY;done=false;lv.classList.remove('back');lv.classList.add('on');tilt(0);try{hl.setPointerCapture(e.pointerId)}catch(_){}});
+  hl.addEventListener('pointermove',e=>{if(y0==null)return;const p=Math.max(0,Math.min(1,(e.clientY-y0)/Math.max(30,hl.offsetHeight*.35)));tilt(p);if(!done&&p>=.7){done=true;try{LED.kick(.4)}catch(_){}if(typeof selHook!=='undefined'&&selHook&&window.LEVSEL){selHook('T')}else{window.PUSHSRC='lever';setTimeout(()=>{window.PUSHSRC=''},500);spin()}}});
+  const end=()=>{if(y0==null)return;y0=null;lv.classList.add('back');tilt(0);setTimeout(()=>{if(y0==null)lv.classList.remove('on','back')},200)};hl.addEventListener('pointerup',end);hl.addEventListener('pointercancel',end)}catch(e){}
  try{const B_=LED_BOX.flower.c,f=document.createElement('img');f.id='qkFl';f.alt='';f.src='images/led_flower.webp';Object.assign(f.style,{left:B_[0]*100+'%',top:B_[1]*100+'%',width:B_[2]*100+'%',height:B_[3]*100+'%'});document.getElementById('frameImg').after(f)}catch(e){}
  /* 다크 모드의 번짐 색: 오른쪽 기둥 LED 의 지금 색·밝기를 따라감 */
  setInterval(()=>{if(q.light)return;try{const z=LED.z.right;if(!z)return;const off=B.classList.contains('noled'),a=off?.06:Math.max(.06,Math.min(.6,(z.lc||0)*.55+(z.lt||0)*.25)),h=z.q>=0?Math.floor(z.q/8):225,s_=z.q>=0?Math.round(40+(z.q%8)/7*55):35;const st=H.style;st.setProperty('--glh',h);st.setProperty('--gls',s_+'%');st.setProperty('--gla',a.toFixed(2))}catch(e){}},120)})();
 </script>
+
 <div id="wcol">
 <div class="wg" id="wA"><div class="hd" id="wAh" title="누르면 접기/펼치기 · 끌면 이동 · 두 번 누르면 원래 자리"><span>PLAY</span><i></i></div><div class="bd">
 <button id="wAuto" class="wide" title="누를 때마다: 자동 x1 → x2 → x4 → x8 → 끄기 (한 번 회전은 Enter)">AUTO OFF</button>
