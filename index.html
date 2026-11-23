@@ -1659,6 +1659,7 @@ html.lightm #frameImg.dim{filter:brightness(.8)}
 html.lightm .led:not(.b):not(.t){filter:brightness(1.1) contrast(1.1)}
 html.lightm #view{box-shadow:0 14px 34px rgba(0,0,0,.38),0 0 0 1px rgba(0,0,0,.25)}
 html.lightm #panel,html.lightm #panel2{background:var(--panel);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+html:not(.lightm) #frameImg.dim{filter:brightness(.42)}   /* 다크: 기기 사진만 조금 어둡게(기본 .64). LED 는 위에 따로 겹쳐 그려서 영향 없음 */
 html:not(.lightm),html:not(.lightm) body{background:radial-gradient(ellipse at 50% 45%,#0b0a0f 0%,#020203 70%) fixed!important}
 html:not(.lightm) #view{overflow:hidden;box-shadow:0 0 60px 4px hsla(var(--glh,350),var(--gls,80%),62%,var(--gla,.3)),0 0 240px 70px hsla(var(--glh,350),var(--gls,80%),55%,calc(var(--gla,.3)*.5));transition:box-shadow .25s linear}
 html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:#222}
