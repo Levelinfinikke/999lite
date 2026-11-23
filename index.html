@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>999lite v.1</title>
+<title>999lite v.2</title>
 <style>
 :root{--bg:#0b0709;--panel:#1a1014;--line:#4a2530;--ink:#f3e9ea;--dim:#a88c92;--ac:#e0213a;--gold:#f2c14e}
 *{box-sizing:border-box}
@@ -345,7 +345,7 @@ body.aOff #wA>.hd{height:30px;padding:0 4px 0 8px}
 <div id="tune"></div>
 <button id="recBtn" title="화면+소리 녹화 (R)">⏺ 녹화</button>
 <script src="videos/clips.js"></script>
-<script src="images/led_data.js?v=15"></script><!-- LED 표를 바꿀 때마다 v 숫자를 올림: 브라우저가 예전 표를 붙잡고 있지 않게 -->
+<script src="images/led_data.js?v=42"></script><!-- LED 표를 바꿀 때마다 v 숫자를 올림: 브라우저가 예전 표를 붙잡고 있지 않게 -->
 <script>
 'use strict';
 // ═══════════ 스펙 (출처: 공략 사이트 공개 수치) ═══════════
@@ -369,7 +369,7 @@ const N_NORMAL_REACH_LOSE=1/14;           // 노멀 리치(꽝) 출현율
 const HOLD=[['',0,.30],['blink',.03,.04],['blue',.06,.05],['green',.11,.06],['purple',.21,.10],['red',.88,.30],['gold',1,.10],['rainbow',1,.05]];
 const LEVER=[['white',.75,.10],['red',1,.04],['rainbow',1,.02]];
 const HAND_WIN_SHARE=1, HAND_REL=.72;   // 통상 당첨은 항상 손떨 예고를 거침   // 喰MAX 핸드 낙하(변동 중) 약 72%
-const JUDGE=[['鯱',.26,.15],['ヤモリ',.40,.30],['絢都',.75,.30],['クロナ&ナシロ',.92,.25]];
+const JUDGE=[['鯱',.26,.15],['ヤモリ',.40,.30],['絢都',.75,.30],['クロナ&ナシロ',1,.25]];
 // ═══════════ 소재 파일 슬롯 (없으면 코드 연출) ═══════════
 // 영상: videos/<키>_body.mp4 (리치 본체), videos/<키>_win.mp4 / _lose.mp4 (결말), 그 밖에 아래 이름
 const CLIP={hand:'videos/hand_drop.mp4',zorome:'videos/zorome.mp4',bonus:'videos/bonus.mp4',bonus7500:'videos/bonus7500.mp4',judge_win:'videos/judge_win.mp4',judge_lose:'videos/judge_lose.mp4',rush_in:'videos/rush_in.mp4',rush_end:'videos/rush_end.mp4',loop:'videos/kumax_loop.mp4',charge:'videos/charge.mp4',charge_up:'videos/charge_up.mp4'};
@@ -420,17 +420,17 @@ async function recToggle(){
 }
 $('recBtn').onclick=recToggle;
 /* ═══════════ 조정 화면: 이음매 미리보기, 시작·끝 이동, 역물 큐, 분기 시각 ═══════════ */
-const ALLCLIPS=["battle_nishio_body", "battle_nishio_lose", "charge", "climax_yamori_body", "climax_yamori_win", "bonus", "bonus7500", "battle_scrapper_body", "battle_scrapper_lose", "battle_tsukiyama_body", "judge_yamori_body", "judge_shiro_body", "judge_tail_win", "judge_tail_lose", "direct7500", "rush_in", "st_intro", "st_ep_2", "st_ep_3", "st_ep_4", "uw_try", "uw_lose", "uw_win_6000", "uw_win_9000", "uw_win_12000", "uw_win_15000", "uw_win_18000", "uw_win_21000", "uw_pay", "rush_result", "judge_shachi_body", "judge_ready", "judge_break_body", "judge_break_win", "battle_nishio_winfull", "battle_tsukiyama_winfull", "yokoku_hand", "pre_long", "st_full", "st_win_rize", "st_win_tsukiyama", "st_win_omedetou", "st_hyper6000", "revival_fukurou", "normal_1", "normal_2", "normal_3", "normal_4", "normal_5"];
+const ALLCLIPS=["judge_select", "battle_nishio_weak_4", "battle_nishio_lose_4", "charge", "pre_yamori_body", "climax_yamori_win", "bonus", "bonus7500", "battle_scrapper_lose_4", "battle_tsukiyama_weak_lose_2", "judge_yamori_body", "judge_shiro_body", "judge_tail_win", "judge_tail_lose", "direct7500", "rush_in", "st_intro", "st_ep_2", "st_ep_3", "st_ep_4", "uw_try", "uw_lose", "uw_win_6000", "uw_win_9000", "uw_win_12000", "uw_win_15000", "uw_win_18000", "uw_win_21000", "uw_pay", "rush_result", "judge_shachi_body", "judge_ready", "judge_break_body", "judge_break_win", "battle_nishio_strong_win_4", "battle_tsukiyama_strong_win_4", "pre_hand", "pre_long", "st_full", "st_win_rize", "st_win_tsukiyama", "st_win_omedetou", "st_hyper6000", "revival_fukurou", "normal_1", "normal_2", "normal_3", "normal_4", "normal_5"];
 const SEAMS=(()=>{const o=[],add=(a,b)=>o.push([a,b]),all=(as,bs)=>as.forEach(a=>bs.forEach(b=>add(a,b)));
- const winFirst=['battle_nishio_winfull','battle_tsukiyama_winfull','climax_yamori_body'],loseFirst=['battle_nishio_body','battle_tsukiyama_body','battle_scrapper_body'];
- add('pre_long','climax_yamori_body');   // 긴 도입 → 클라이맥스 야모리
- all(['battle_nishio_lose','battle_scrapper_lose','battle_tsukiyama_body'],['revival_fukurou']);   // 꽝 → 부활
- all(['yokoku_hand'],winFirst.concat(loseFirst));                                                   // 손떨 → 리치
- add('battle_nishio_body','battle_nishio_lose');add('battle_scrapper_body','battle_scrapper_lose');add('climax_yamori_body','climax_yamori_win');   // 본체 → 결말
- all(['battle_nishio_winfull','battle_tsukiyama_winfull','climax_yamori_win','revival_fukurou'],['bonus']);                                         // 당첨 → 3000
+ const winFirst=['battle_nishio_strong_win_4','battle_tsukiyama_strong_win_4','pre_yamori_body'],loseFirst=['battle_nishio_weak_4','battle_tsukiyama_weak_lose_2','battle_scrapper_body'];
+ add('pre_hospital','pre_rize_drop');add('pre_rize_drop','pre_yamori_body');add('pre_yamori_body','climax_yamori_lose_2');add('climax_yamori_lose_2','climax_yamori_win');   // 긴 도입 → 클라이맥스 야모리
+ all(['battle_nishio_lose_4','battle_scrapper_lose_4','battle_tsukiyama_weak_lose_2'],['revival_fukurou']);   // 꽝 → 부활
+ all(['pre_hand'],winFirst.concat(loseFirst));                                                   // 손떨 → 리치
+ add('battle_nishio_weak_4','battle_nishio_lose_4');add('battle_scrapper_lose_4');   // 본체 → 결말
+ all(['battle_nishio_strong_win_4','battle_tsukiyama_strong_win_4','climax_yamori_win','revival_fukurou'],['bonus']);                                         // 당첨 → 3000
  add('bonus@BT.branch','direct7500');add('direct7500','judge_tail_win');
- all(['bonus@BT.judge'],['judge_yamori_body','judge_shiro_body','judge_shachi_body','judge_break_body']);                                           // 3000 → judgement
- all(['judge_yamori_body','judge_shiro_body','judge_ready'],['judge_tail_win','judge_tail_lose']);add('judge_shachi_body','judge_ready');
+ all(['bonus@BT.judge'],['judge_select','judge_break_body']);all(['judge_select'],['judge_yamori_body','judge_shiro_body','judge_shachi_body','judge_ayato_body']);                                           // 3000 → judgement
+ all(['judge_yamori_body','judge_shiro_body','judge_shachi_body','judge_ayato_body'],['judge_ready']);all(['judge_ready'],['judge_tail_win','judge_tail_lose']);
  add('judge_break_body','judge_break_win');add('judge_break_body','judge_tail_lose');
  all(['judge_tail_win','judge_break_win'],['bonus7500']);add('bonus7500','st_full');add('rush_in','st_full');                                       // 7500 → ST
  all(['st_full@ST.b1','st_full@ST.b2','st_full@ST.b3','st_full@ST.b4','st_full@ST.b5'],['st_win_rize','st_win_tsukiyama','st_win_omedetou']);add('st_full@ST.end','rush_result');
@@ -449,6 +449,76 @@ function edgeGet(tok,e){const c=constRef(tok);if(c&&e===1)return c.obj[c.k];retu
 function edgeAdd(tok,e,d){const c=constRef(tok);if(c&&e===1){c.obj[c.k]=+(c.obj[c.k]+d).toFixed(3);(TUNE.consts[c.o]=TUNE.consts[c.o]||{})[c.k]=c.obj[c.k]}else{const t=trimOf(tok.split('@')[0]);t[e]=+(t[e]+d).toFixed(3)}saveTune();tuneDraw()}
 function edgeRow(label,tok,e){const c=constRef(tok)&&e===1;const id='e_'+tok.replace(/[^\w]/g,'_')+'_'+e;
  return '<div class="r"><span class="lab" title="'+tok+'">'+label+'</span><span class="v">'+(c?'':(edgeGet(tok,e)>0?'+':''))+edgeGet(tok,e).toFixed(3)+'</span>'+[[-.5,'−0.5'],[-.1,'−0.1'],[-F1,'−1f'],[F1,'+1f'],[.1,'+0.1'],[.5,'+0.5']].map(x=>'<button data-edge="'+tok+'|'+e+'|'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'}
+
+// ── 변경사항 검토 ──  바뀐 곳을 하나씩 틀어 보고 확인(✔)·문제(✖)·메모를 남김. 결과는 이 브라우저에 저장되고 파일로 내보낼 수 있음
+// 항목: [묶음, 제목, 재생 방법]  재생 방법 = {e:'연출 선택 이름의 일부'}(게임 흐름 그대로) 또는 {p:[구간…]}(조정 재생), sel: ② 클립 하나에 띄울 클립
+const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b:ae}:{tok:a,mode:'tail'},bs!=null?{tok:b,mode:'range',a:bs,b:bs+3}:{tok:b,mode:'head'}],sel:b,ab:[a,b]});
+const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
+const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
+const REVIEW=[
+ ['새 흐름(게임 그대로)','니시오 strong 당첨',{e:'새 흐름 ─ 니시오 strong 당첨'}],['새 흐름(게임 그대로)','니시오 strong 꽝 (64초에서 전환)',{e:'새 흐름 ─ 니시오 strong 꽝'}],['새 흐름(게임 그대로)','니시오 weak 당첨',{e:'새 흐름 ─ 니시오 weak 당첨'}],['새 흐름(게임 그대로)','니시오 weak 꽝',{e:'새 흐름 ─ 니시오 weak 꽝'}],
+ ['새 흐름(게임 그대로)','츠키야마 strong 당첨',{e:'새 흐름 ─ 츠키야마 strong 당첨'}],['새 흐름(게임 그대로)','츠키야마 strong 꽝 (86.8초 전환, 꽝 시작 +0.8)',{e:'새 흐름 ─ 츠키야마 strong 꽝'}],['새 흐름(게임 그대로)','츠키야마 weak 당첨 (108초 전환 → 당첨 88.03초 손떨부터)',{e:'새 흐름 ─ 츠키야마 weak 당첨'}],['새 흐름(게임 그대로)','츠키야마 weak 꽝',{e:'새 흐름 ─ 츠키야마 weak 꽝'}],
+ ['새 흐름(게임 그대로)','스크래퍼 strong 당첨 (434→444, 역물 올라감 11.4초)',{e:'새 흐름 ─ 스크래퍼 strong 당첨'}],['새 흐름(게임 그대로)','스크래퍼 strong 꽝 (64초 → 꽝 영상 1.1초부터)',{e:'새 흐름 ─ 스크래퍼 strong 꽝'}],['새 흐름(게임 그대로)','스크래퍼 weak 당첨 (부활 영상 역물 0.84~8.3초)',{e:'새 흐름 ─ 스크래퍼 weak 당첨'}],['새 흐름(게임 그대로)','스크래퍼 weak 꽝',{e:'새 흐름 ─ 스크래퍼 weak 꽝'}],
+ ['새 흐름(게임 그대로)','클라이맥스 야모리 당첨 (예고 → pre_yamori_body)',{e:'새 흐름 ─ 클라이맥스 야모리 당첨'}],['새 흐름(게임 그대로)','클라이맥스 야모리 꽝 (예고 → pre_yamori_body)',{e:'새 흐름 ─ 클라이맥스 야모리 꽝'}],
+ ['새 흐름(게임 그대로)','병실 → pre_rize_drop → pre_yamori_body → 야모리 당첨',{e:'통상 ─ 긴 도입 → 클라이맥스 야모리 당첨'}],['새 흐름(게임 그대로)','손떨 옵션2 → pre_yamori_body → 야모리 당첨',{e:'통상 ─ 손떨 옵션2'}],
+ ['새 흐름(게임 그대로)','예고 → 리제 낙하(시작 +0.1) → 니시오 strong 당첨',{e:'리제 낙하 → 니시오 strong 당첨'}],['새 흐름(게임 그대로)','예고 → 리제 낙하 → 스크래퍼 weak 꽝',{e:'리제 낙하 → 스크래퍼 weak 꽝'}],['새 흐름(게임 그대로)','카쿠자 당첨 (버튼 → 222)',{e:'새 흐름 ─ 카쿠자 당첨'}],['새 흐름(게임 그대로)','카쿠자 꽝',{e:'새 흐름 ─ 카쿠자 꽝'}],['새 흐름(게임 그대로)','카쿠자 예고 실패(꽝)',{e:'새 흐름 ─ 카쿠자 예고 실패'}],
+ ['새 흐름(게임 그대로)','카페 → 어머니 배틀 당첨 (888)',{e:'카페 → 어머니 배틀 당첨'}],['새 흐름(게임 그대로)','street(weak) → 인간 → 어머니 배틀 꽝 (15.5초 전환)',{e:'street(weak) → 인간 → 어머니 배틀 꽝'}],['새 흐름(게임 그대로)','street(weak2) → 인간 → 어머니 배틀 당첨 (23.59초 전환)',{e:'street(weak2) → 인간 → 어머니 배틀 당첨'}],['새 흐름(게임 그대로)','street → 인간 → 아몬 배틀 당첨 (역물 −1.29 낙하, 7.85초 올라감)',{e:'아몬 배틀 당첨'}],
+ ['새 흐름(게임 그대로)','꽝 → 리제 부활 → 3000 → 즉시 7500',{e:'리제 부활'}],['새 흐름(게임 그대로)','꽝 → 올빼미 부활 → 3000 → 즉시 7500',{e:'올빼미 부활 → 3000'}],
+ ['판정(게임 그대로)','배틀 vs 샤치: 성공 (끝 −3.7, judge_ready 4.2초~)',{e:'배틀 vs 샤치: 성공'}],['판정(게임 그대로)','배틀 vs 야모리: 실패 (judge_ready 7.3초~)',{e:'배틀 vs 야모리: 실패'}],['판정(게임 그대로)','배틀 vs 아야토: 성공',{e:'배틀 vs 아야토: 성공'}],['판정(게임 그대로)','배틀 vs 시로&쿠로: 성공 (항상 성공)',{e:'배틀 vs 시로&쿠로: 성공'}],
+ ['판정(게임 그대로)','브레이크: 성공 (역물 4.64~10.5초)',{e:'브레이크: 성공'}],['판정(게임 그대로)','실패 → 계수 중 역전 (새 브레이크 당첨 영상)',{e:'계수 중 역전'}],
+ ['이음매: 나눈 곳','pre_street_strong → battle_nishio_strong_win_4',rvSeam('pre_street_strong','battle_nishio_strong_win_4')],['이음매: 나눈 곳','pre_rize_eat → battle_nishio_weak_4',rvSeam('pre_rize_eat','battle_nishio_weak_4')],
+ ['이음매: 나눈 곳','pre_tsukiyama_strong → battle_tsukiyama_strong_win_4',rvSeam('pre_tsukiyama_strong','battle_tsukiyama_strong_win_4')],['이음매: 나눈 곳','pre_hospital → pre_rize_drop',rvSeam('pre_hospital','pre_rize_drop')],['이음매: 나눈 곳','pre_rize_drop → pre_yamori_body',rvSeam('pre_rize_drop','pre_yamori_body')],
+ ['이음매: 나눈 곳','pre_hand2 → pre_yamori_body (LED 부드럽게 소등)',rvSeam('pre_hand2','pre_yamori_body')],
+ ['이음매: 합친 곳','pre_yamori_body 37초 (긴 도입 끝 → 야모리 본편)',rvClip('pre_yamori_body','range',34,40)],['이음매: 합친 곳','battle_kakuza_1 23.63초 (예고 → 배틀)',rvClip('battle_kakuza_1','range',20.6,26.6)],
+ ['이음매: 합친 곳','judge_shachi_body 끝 3초 (끝 −3.7 적용)',rvClip('judge_shachi_body','tail')],['이음매: 합친 곳','judge_ayato_body 21.93초 이음매 (반복 0.46초 제거, 다시 자른 뒤 확인)',rvClip('judge_ayato_body','range',18.9,25.17)],
+ ['이음매: 배틀 결말','니시오 strong 64초 → battle_nishio_lose_4',rvSeam('battle_nishio_strong_win_4','battle_nishio_lose_4',64)],['이음매: 배틀 결말','battle_nishio_weak_4 → 니시오 당첨(64.6초~)',rvSeam('battle_nishio_weak_4','battle_nishio_strong_win_4',null,64.6)],['이음매: 배틀 결말','battle_nishio_weak_4 → battle_nishio_lose_4',rvSeam('battle_nishio_weak_4','battle_nishio_lose_4')],
+ ['이음매: 배틀 결말','츠키야마 strong 86.8초 → battle_tsukiyama_strong_lose_4',rvSeam('battle_tsukiyama_strong_win_4','battle_tsukiyama_strong_lose_4',86.8)],['이음매: 배틀 결말','츠키야마 weak 108초 → 츠키야마 당첨 88.03초(손떨)',rvSeam('battle_tsukiyama_weak_lose_2','battle_tsukiyama_strong_win_4',108,88.03)],
+ ['이음매: 배틀 결말','스크래퍼 strong 64초 → battle_scrapper_lose_4 1.1초',rvSeam('battle_scrapper_strong_lose_4','battle_scrapper_lose_4',64,1.1)],['이음매: 배틀 결말','스크래퍼 strong 64초 → battle_scrapper_strong_win_4',rvSeam('battle_scrapper_strong_lose_4','battle_scrapper_strong_win_4',64)],['이음매: 배틀 결말','battle_scrapper_weak_4 → battle_scrapper_lose_4',rvSeam('battle_scrapper_weak_4','battle_scrapper_lose_4')],['이음매: 배틀 결말','battle_scrapper_lose_4 3.2초 → battle_scrapper_revival_2 (역물 0.84~8.3초)',rvSeam('battle_scrapper_lose_4','battle_scrapper_revival_2',3.2)],
+ ['이음매: 배틀 결말','pre_yamori_body 끝 → climax_yamori_lose_2 (시작 +0.4)',rvSeam('pre_yamori_body','climax_yamori_lose_2')],['이음매: 배틀 결말','climax_yamori_lose_2 3.7초 → climax_yamori_win 0.234초',rvSeam('climax_yamori_lose_2','climax_yamori_win',3.7,.234)],['이음매: 배틀 결말','climax_yamori_lose_2 끝 (끝 −4.8 적용, 꽝일 때)',rvClip('climax_yamori_lose_2','tail')],
+ ['이음매: 배틀 결말','battle_kakuza_1 → battle_kakuza_win_2 (역물 0.05~8.0초)',rvSeam('battle_kakuza_1','battle_kakuza_win_2')],['이음매: 배틀 결말','battle_kakuza_1 → battle_kakuza_lose_1',rvSeam('battle_kakuza_1','battle_kakuza_lose_1')],
+ ['이음매: 배틀 결말','pre_cafe → battle_mother_strong_win_8',rvSeam('pre_cafe','battle_mother_strong_win_8')],['이음매: 배틀 결말','battle_mother_strong_win_8 버튼 → 당첨 (역물 72.44~81.6초)',rvClip('battle_mother_strong_win_8','range',67.3,78)],['이음매: 배틀 결말','battle_mother_strong_win_8 71.9초 → battle_mother_lose_4',rvSeam('battle_mother_strong_win_8','battle_mother_lose_4',71.9)],['이음매: 배틀 결말','battle_amon_3 → battle_amon_win_3 (시작 −2.266, 낙하 0.1초 당김)',rvSeam('battle_amon_3','battle_amon_win_3')],
+ ['이음매: street → 인간','pre_street_weak 15.5초 → pre_street_human_4',rvSeam('pre_street_weak','pre_street_human_4',15.5)],['이음매: street → 인간','pre_street_weak2 23.59초 → pre_street_human_4',rvSeam('pre_street_weak2','pre_street_human_4',23.59)],
+ ['이음매: street → 인간','pre_street_human_4 → battle_mother_strong_win_8',rvSeam('pre_street_human_4','battle_mother_strong_win_8')],['이음매: street → 인간','pre_street_human_4 → battle_amon_3',rvSeam('pre_street_human_4','battle_amon_3')],
+ ['이음매: 판정','judge_select → judge_yamori_body',rvSeam('judge_select','judge_yamori_body')],['이음매: 판정','judge_select → judge_shiro_body',rvSeam('judge_select','judge_shiro_body')],['이음매: 판정','judge_select → judge_shachi_body',rvSeam('judge_select','judge_shachi_body')],['이음매: 판정','judge_select → judge_ayato_body',rvSeam('judge_select','judge_ayato_body')],
+ ['이음매: 판정','judge_yamori_body → judge_ready',rvSeam('judge_yamori_body','judge_ready')],['이음매: 판정','judge_shiro_body → judge_ready',rvSeam('judge_shiro_body','judge_ready')],['이음매: 판정','judge_shachi_body → judge_ready 4.2초',rvSeam('judge_shachi_body','judge_ready',null,4.2)],['이음매: 판정','judge_ayato_body → judge_ready',rvSeam('judge_ayato_body','judge_ready')],
+ ['이음매: 판정','judge_ready → judge_tail_win',rvSeam('judge_ready','judge_tail_win')],['이음매: 판정','judge_ready → judge_tail_lose',rvSeam('judge_ready','judge_tail_lose')],['이음매: 판정','judge_break_body → judge_break_win (새 영상)',rvSeam('judge_break_body','judge_break_win')],['이음매: 판정','judge_break_win → bonus7500 2.24초 (역물 올라감 10.5초)',rvSeam('judge_break_win','bonus7500',null,2.24)],
+ ['이음매: 부활','battle_nishio_lose_4 → revival_rize_3 (손 0~2.58초)',rvSeam('battle_nishio_lose_4','revival_rize_3')],['이음매: 부활','revival_rize_3 (끝 −0.5) → bonus',rvSeam('revival_rize_3','bonus')],
+ ['시작·끝 조정값','배틀 시작 = 번쩍임: battle_scrapper_weak_4 +0.533',rvClip('battle_scrapper_weak_4','head')],['시작·끝 조정값','배틀 시작 = 번쩍임: battle_scrapper_strong_lose_4 +0.533',rvClip('battle_scrapper_strong_lose_4','head')],['시작·끝 조정값','배틀 시작 = 번쩍임: battle_nishio_weak_4 +0.167',rvClip('battle_nishio_weak_4','head')],['시작·끝 조정값','배틀 시작 = 번쩍임: battle_nishio_strong_win_4 +0.1',rvClip('battle_nishio_strong_win_4','head')],['시작·끝 조정값','배틀 시작 = 번쩍임: 츠키야마 weak 31.9초',rvClip('battle_tsukiyama_weak_lose_2','range',31.9,35)],['시작·끝 조정값','charge 시작 +0.4',rvClip('charge','head')],['시작·끝 조정값','judge_select 끝 −0.119',rvClip('judge_select','tail')],['시작·끝 조정값','judge_tail_lose 끝 +1.4',rvClip('judge_tail_lose','tail')],['시작·끝 조정값','direct7500 시작 0.0',rvClip('direct7500','head')],
+ ['시작·끝 조정값','st_win_tsukiyama 시작 +0.6',rvClip('st_win_tsukiyama','head')],['시작·끝 조정값','pre_street_weak 시작 +0.8',rvClip('pre_street_weak','head')],['시작·끝 조정값','pre_street_weak 끝 +2.0',rvClip('pre_street_weak','tail')],['시작·끝 조정값','pre_kakuza_fail_1 끝 −2.0',rvClip('pre_kakuza_fail_1','tail')],
+ ['시작·끝 조정값','revival_rize_3 시작 −0.049',rvClip('revival_rize_3','head')],
+ ['시작·끝 조정값','pre_street_human_4 시작 +2.1',rvClip('pre_street_human_4','head')],['시작·끝 조정값','pre_street_human_4 끝 −0.1',rvClip('pre_street_human_4','tail')],['시작·끝 조정값','battle_mother_lose_4 끝 −3.9',rvClip('battle_mother_lose_4','tail')],['시작·끝 조정값','battle_amon_3 끝 −0.1',rvClip('battle_amon_3','tail')],['시작·끝 조정값','battle_amon_win_3 처음 3초 (낙하 −1.29초)',rvClip('battle_amon_win_3','head')],
+ ['새 클립 통째로','battle_kakuza_1 (무음 구간에 소리 입힘, 36~81초)',rvClip('battle_kakuza_1','range',34,84)],['새 클립 통째로','battle_kakuza_win_2 (13.5초 대사 또렷하게)',rvClip('battle_kakuza_win_2')],['새 클립 통째로','pre_rize_drop',rvClip('pre_rize_drop')],['새 클립 통째로','pre_cafe',rvClip('pre_cafe')],['새 클립 통째로','battle_mother_strong_win_8',rvClip('battle_mother_strong_win_8')],['새 클립 통째로','judge_break_win (첨부 영상, 역물 4.64~11.1초)',rvClip('judge_break_win')],['새 클립 통째로','climax_yamori_lose_2 (앞 소리 입힘, 버튼 0.77~3.7초)',rvClip('climax_yamori_lose_2')],['새 클립 통째로','judge_ayato_body',rvClip('judge_ayato_body')],['새 클립 통째로','judge_shachi_body',rvClip('judge_shachi_body')],
+ ['새 클립 통째로','revival_rize_3',rvClip('revival_rize_3')],['새 클립 통째로','pre_kakuza_fail_1',rvClip('pre_kakuza_fail_1')],['새 클립 통째로','pre_street_weak2',rvClip('pre_street_weak2')],['새 클립 통째로','battle_scrapper_strong_win_4',rvClip('battle_scrapper_strong_win_4')],
+ ['버튼 구간','battle_kakuza_1 버튼 80.93~83.93초',rvClip('battle_kakuza_1','range',78.9,83.97)],['버튼 구간','battle_amon_3 버튼 69.2~72.2초',rvClip('battle_amon_3','range',67.2,72.2)],['버튼 구간','judge_ready 버튼 7.98초~',rvClip('judge_ready','range',7.5,11.18)],
+ ['LED','pre_hand2 — 실기',rvClip('pre_hand2')],['LED','pre_button — 화면 추정',rvClip('pre_button')],['LED','pre_street_strong — 화면 추정',rvClip('pre_street_strong')],['LED','pre_street_weak — 실기',rvClip('pre_street_weak')],['LED','pre_street_weak2 — 실기',rvClip('pre_street_weak2')],['LED','pre_street_human_4 — 실기',rvClip('pre_street_human_4')],['LED','pre_tsukiyama_strong — 화면 추정',rvClip('pre_tsukiyama_strong')],['LED','pre_rize_eat — 실기',rvClip('pre_rize_eat')],['LED','pre_rize_drop — 화면 추정',rvClip('pre_rize_drop')],['LED','pre_hospital — 화면 추정',rvClip('pre_hospital')],['LED','pre_yamori_body — 화면 추정',rvClip('pre_yamori_body')],['LED','pre_cafe — 화면 추정',rvClip('pre_cafe')],['LED','pre_kakuza_fail_1 — 실기',rvClip('pre_kakuza_fail_1')],['LED','battle_nishio_weak_4 — 실기',rvClip('battle_nishio_weak_4')],['LED','battle_nishio_strong_win_4 — 앞 일부 실기, 나머지 화면 추정',rvClip('battle_nishio_strong_win_4')],['LED','battle_nishio_lose_4 — 실기',rvClip('battle_nishio_lose_4')],['LED','battle_tsukiyama_strong_win_4 — 화면 추정',rvClip('battle_tsukiyama_strong_win_4')],['LED','battle_tsukiyama_strong_lose_4 — 실기',rvClip('battle_tsukiyama_strong_lose_4')],['LED','battle_tsukiyama_weak_lose_2 — 화면 추정',rvClip('battle_tsukiyama_weak_lose_2')],['LED','battle_scrapper_weak_4 — 실기(37~42초만 화면 추정)',rvClip('battle_scrapper_weak_4')],['LED','battle_scrapper_strong_lose_4 — 실기',rvClip('battle_scrapper_strong_lose_4')],['LED','battle_scrapper_strong_win_4 — 실기',rvClip('battle_scrapper_strong_win_4')],['LED','battle_scrapper_lose_4 — 화면 추정',rvClip('battle_scrapper_lose_4')],['LED','battle_scrapper_revival_2 — 실기',rvClip('battle_scrapper_revival_2')],['LED','battle_kakuza_1 — 실기',rvClip('battle_kakuza_1')],['LED','battle_kakuza_win_2 — 화면 추정',rvClip('battle_kakuza_win_2')],['LED','battle_kakuza_lose_1 — 실기',rvClip('battle_kakuza_lose_1')],['LED','battle_mother_strong_win_8 — 72초까지 실기, 뒤는 화면 추정',rvClip('battle_mother_strong_win_8')],['LED','battle_mother_lose_4 — 실기',rvClip('battle_mother_lose_4')],['LED','battle_amon_3 — 실기',rvClip('battle_amon_3')],['LED','battle_amon_win_3 — 실기',rvClip('battle_amon_win_3')],['LED','climax_yamori_lose_2 — 실기',rvClip('climax_yamori_lose_2')],['LED','climax_yamori_win — 화면 추정',rvClip('climax_yamori_win')],['LED','revival_rize_3 — 화면 추정',rvClip('revival_rize_3')],['LED','revival_fukurou — 화면 추정',rvClip('revival_fukurou')],['LED','judge_select — 샤치 실기 표를 옮김',rvClip('judge_select')],['LED','judge_yamori_body — 샤치 실기 표를 옮김',rvClip('judge_yamori_body')],['LED','judge_shiro_body — 샤치 실기 표를 옮김',rvClip('judge_shiro_body')],['LED','judge_shachi_body — 실기',rvClip('judge_shachi_body')],['LED','judge_ayato_body — 샤치 실기 표를 옮김',rvClip('judge_ayato_body')],['LED','judge_ready — 실기',rvClip('judge_ready')],['LED','judge_break_win — 화면 추정',rvClip('judge_break_win')],
+ ['진동 넣을 클립','pre_button — 버튼 예고',rvClip('pre_button')],['진동 넣을 클립','pre_cafe — 카페 → 어머니 배틀 도입',rvClip('pre_cafe')],['진동 넣을 클립','pre_street_human_4 — 인간 전환',rvClip('pre_street_human_4')],['진동 넣을 클립','pre_kakuza_fail_1 — 카쿠자 예고',rvClip('pre_kakuza_fail_1')],['진동 넣을 클립','battle_kakuza_1 — 보류 강화 · 버튼 80.93초 · 손 낙하 23.68초',rvClip('battle_kakuza_1')],['진동 넣을 클립','battle_kakuza_win_2 — 역물 낙하 0.05초',rvClip('battle_kakuza_win_2')],['진동 넣을 클립','battle_mother_strong_win_8 — 버튼 69.27초 · 역물 낙하 72.44초',rvClip('battle_mother_strong_win_8')],['진동 넣을 클립','battle_amon_3 — 버튼 69.2초',rvClip('battle_amon_3')],['진동 넣을 클립','battle_amon_win_3 — 역물 낙하',rvClip('battle_amon_win_3')],['진동 넣을 클립','battle_scrapper_strong_lose_4 — strong 배틀',rvClip('battle_scrapper_strong_lose_4')],['진동 넣을 클립','battle_scrapper_strong_win_4 — 역물 낙하 2.21초',rvClip('battle_scrapper_strong_win_4')],['진동 넣을 클립','battle_scrapper_revival_2 — 역물 낙하 0.84초',rvClip('battle_scrapper_revival_2')],['진동 넣을 클립','climax_yamori_lose_2 — 버튼 0.77초',rvClip('climax_yamori_lose_2')],['진동 넣을 클립','revival_rize_3 — 손 낙하',rvClip('revival_rize_3')],
+ ['진동 넣을 클립','역물 낙하 진동(자동): battle_kakuza_win_2',rvClip('battle_kakuza_win_2','range',0,11)],['진동 넣을 클립','역물 낙하 진동(자동): battle_mother_strong_win_8',rvClip('battle_mother_strong_win_8','range',70,84)],['진동 넣을 클립','역물 낙하 진동(자동): battle_amon_win_3',rvClip('battle_amon_win_3','range',0,10)],['진동 넣을 클립','역물 낙하 진동(자동): battle_scrapper_strong_win_4',rvClip('battle_scrapper_strong_win_4','range',0,13)],['진동 넣을 클립','역물 낙하 진동(자동): battle_scrapper_revival_2',rvClip('battle_scrapper_revival_2','range',0,10)],['버튼','오른쪽 위 아이콘: 라이트/다크 · LED · 진동',rvClip('pre_hand')],];
+let RVW={};try{RVW=JSON.parse(localStorage.getItem('ghoulReview')||'{}')}catch(e){}
+const rvKey=x=>x[0]+'|'+x[1],rvSave=()=>{try{localStorage.setItem('ghoulReview',JSON.stringify(RVW))}catch(e){}};
+function rvPanel(){const f=TK.rvf||'todo',cnt={ok:0,ng:0};for(const x of REVIEW){const r=RVW[rvKey(x)];if(r&&r.s)cnt[r.s]++}
+ let h='<h4>⓪ 변경사항 검토 <span style="color:#8f8;font-weight:normal">확인 '+cnt.ok+'</span> · <span style="color:#f88;font-weight:normal">문제 '+cnt.ng+'</span> · <span style="color:#ccc;font-weight:normal">남음 '+(REVIEW.length-cnt.ok-cnt.ng)+' / '+REVIEW.length+'</span></h4>';
+ h+='<div class="r"><select id="tRvF">'+[['todo','남은 것만'],['ng','문제만'],['all','전체']].map(o=>'<option value="'+o[0]+'"'+(o[0]===f?' selected':'')+'>'+o[1]+'</option>').join('')+'</select><button id="tRvNext" title="남은 것 중 맨 위를 재생">▶ 다음 항목</button><button id="tRvExp">결과 내보내기 (review.json)</button><button id="tRvClr">검토 기록 지우기</button></div>';
+ h+='<div id="tRvList" style="max-height:230px;overflow:auto;border:1px solid #444;border-radius:4px;padding:2px 4px">';let g='',n=0;
+ REVIEW.forEach((x,i)=>{const r=RVW[rvKey(x)]||{};if(f==='todo'&&r.s)return;if(f==='ng'&&r.s!=='ng')return;n++;
+  if(x[0]!==g){g=x[0];h+='<div style="color:#9cf;margin-top:4px">'+g+'</div>'}
+  h+='<div class="r" style="'+(TK.rvi===i?'background:#333;':'')+'"><button data-rv="'+i+'|play">▶</button><span style="flex:1;min-width:150px;'+(r.s==='ok'?'color:#8f8':r.s==='ng'?'color:#f88':'')+'">'+x[1]+'</span><button data-rv="'+i+'|ok" title="확인함">✔</button><button data-rv="'+i+'|ng" title="문제 있음">✖</button>'+(r.s?'<button data-rv="'+i+'|clr" title="표시 지우기">↺</button>':'')+'<input data-rvm="'+i+'" value="'+(r.m||'').replace(/"/g,'&quot;')+'" placeholder="메모" style="width:110px;font-size:11px;background:#222;color:#eee;border:1px solid #555"></div>'});
+ if(!n)h+='<div style="color:#999;padding:4px">'+(f==='ng'?'문제로 표시한 항목이 없어요.':'남은 항목이 없어요.')+'</div>';
+ return h+'</div><div style="color:#999">▶ 는 그 부분만 재생해요(게임 그대로 항목은 실제 흐름으로). 이음매 항목은 앞 3초 → 뒤 3초. 재생한 클립은 아래 ②에 떠서 바로 시작·끝을 고칠 수 있어요.</div>'}
+async function rvPlay(i){const x=REVIEW[i],a=x[2];TK.rvi=i;if(a.sel)TK.sel=a.sel;if(a.ab){TK.a=a.ab[0];TK.b=a.ab[1]}tuneDraw();
+ if(a.p)return tunePlay(a.p);
+ const k=ENTRY.findIndex(e=>e[0].includes(a.e));if(k<0){fx('연출 선택에 없음: '+a.e,'mid t-white');return setTimeout(clearFx,1500)}
+ if(busy||TK.running){try{sessionStorage.setItem('rvPending',String(i))}catch(e){}return resetAll()}   // 다른 것이 돌고 있으면 깨끗이 멈춘 뒤 시작
+ runEntry(k)}
+
+// ── 역물 낙하 시각 손으로 맞추기 ──  고른 클립(②)의 낙하 표를 고침. 값은 클립 기준 시각(조정 화면에 보이는 초)
+function cuePanel(n){const src=tSrc(n),cs=TUNE.cues[src]||CUES[src]||[],ed=!!TUNE.cues[src];
+ let h='<h4>④ 역물 낙하 시각 (이 클립)'+(ed?' <span style="color:#fa8;font-weight:normal">고침</span>':'')+'</h4>';
+ if(!cs.length)h+='<div style="color:#999">이 클립에는 낙하가 없어요.</div>';
+ cs.forEach((c,i)=>{const row=(k,lab)=>'<div class="r"><span class="lab">'+lab+'</span><span class="v">'+(c[k]>=9000?'끝까지':c[k].toFixed(2))+'</span>'+[[-.5,'−0.5'],[-.1,'−0.1'],[-F1,'−1f'],[F1,'+1f'],[.1,'+0.1'],[.5,'+0.5']].map(x=>'<button data-cue="'+i+'|'+k+'|'+x[0]+'">'+x[1]+'</button>').join('')+'<button data-cset="'+i+'|'+k+'" title="지금 재생 위치를 이 값으로">지금</button></div>';
+  h+='<div style="border-top:1px solid #444;margin-top:3px"><div class="r"><b>'+(i+1)+'번째</b>&nbsp;<button data-ctype="'+i+'" title="눌러서 바꿈">'+(c[2]==='hand'?'손만':'전체(머리·몸·손)')+'</button><button data-cuep="'+i+'">▶ 앞뒤 2초 포함 재생</button><button data-cdel="'+i+'">삭제</button></div>'+row(0,'내려오는 순간')+row(1,'올라가기 시작')+'</div>'});
+ h+='<div class="r"><button data-cadd="full">＋ 지금 위치에 낙하 추가(전체)</button><button data-cadd="hand">＋ 손만</button>'+(ed?'<button id="tCueReset">이 클립 낙하 기본값으로</button>':'')+'</div>';
+ return h+'<div style="color:#999">내려오는 순간 = 영상 속 역물이 화면 앞에 나타나는 프레임. 올라가기 시작 = 영상 속 역물이 위로 움직이기 시작하는 프레임(대기 역물은 그 약 1초 뒤에 다시 나타나요). 일시정지(K)·1프레임 이동(, .)으로 프레임을 잡고 [지금]을 누르면 돼요.</div>'}
+function cueEdit(){const src=tSrc(TK.sel);return TUNE.cues[src]||(TUNE.cues[src]=(CUES[src]||[]).map(c=>c.slice()))}
 async function tunePlay(parts){ // parts: [{tok, mode:'tail'|'head'|'all'|'range', a,b}]
  // 한 번에 하나만: 게임이 돌고 있으면 깨끗이 멈춘 뒤(화면을 새로 열어) 이 영상을 틀고, 조정 재생이 돌고 있으면 그것을 끝낸 뒤 시작
  if(busy&&!TK.running){try{sessionStorage.setItem('tunePending',JSON.stringify(parts))}catch(e){}return resetAll()}
@@ -463,6 +533,18 @@ async function tunePlay(parts){ // parts: [{tok, mode:'tail'|'head'|'all'|'range
    let o;if(p.mode==='tail')o={from:Math.max(st,end-W),to:end};else if(p.mode==='head')o={from:st,to:Math.min(end,st+W)};else if(p.mode==='range')o={from:p.a,to:p.b};else o={from:st,to:end};
    plan.push({src,o})}
   do{for(let i=0;i<plan.length&&!stopAll;i++){const nx=plan[i+1]||(TK.loop?plan[0]:null);if(await playClip(plan[i].src,Object.assign({},plan[i].o,{next:nx&&plan.length>1?{src:nx.src,from:nx.o.from}:null})))TK.played=true}}while(TK.loop&&!stopAll)}finally{for(const x of VIDS){try{x.pause()}catch(e){}}TK.running=false;busy=false;stopAll=false;if(S.mode==='normal'&&my===TK.tok){document.body.classList.remove('inclip');bgResume()}}}
+function ledPanel(n){const d=window.LEDDATA&&LEDDATA[n];if(!d)return '<h4>⑤ LED 표 (이 클립)</h4><div style="color:#999">이 클립은 LED 표가 없어요.</div>';
+ return '<h4>⑤ LED 표 (이 클립) <span style="color:#9cf;font-weight:normal">'+(LEDSRC[n]||'')+'</span></h4><canvas id="tLed" width="920" height="70" style="width:100%;height:70px;cursor:pointer;border:1px solid #444"></canvas><div style="color:#999">위에서부터 왼쪽 기둥·오른쪽 기둥·머리·손·꽃·버튼·테두리. 흰 세로줄 = 지금 재생 위치, 클릭하면 그 시각으로 이동(이 클립을 재생 중일 때). <span id="tLedT"></span></div>'}
+const LEDROW=['left','right','head','hand','flower','switch','border'],LB64='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';let ledImg=null,ledImgK='';
+function ledOff(n){const c=CLIPS[n]||{},o=window.LEDIN&&LEDIN[n];return (o!=null?o:(c.in||0))-(c.in||0)}
+function ledPaint(){const cv=$('tLed');if(!cv)return;const n=TK.sel,d=LEDDATA[n],g=cv.getContext('2d'),W=cv.width,H=cv.height,N=d.z.right.length/2;
+ if(ledImgK!==n||!ledImg){const im=document.createElement('canvas');im.width=W;im.height=H;const q=im.getContext('2d');q.fillStyle='#000';q.fillRect(0,0,W,H);
+  LEDROW.forEach((k,r)=>{const z=d.z[k];if(!z)return;for(let x=0;x<W;x++){const i=Math.min(N-1,Math.floor(x/W*N)),v=(LB64.indexOf(z[i*2])<<6)|LB64.indexOf(z[i*2+1]),l=(v>>8)/15,hu=((v>>3)&31)*11.25,sa=(v&7)/7;q.fillStyle='hsl('+hu+','+Math.round(sa*100)+'%,'+Math.round(l*(100-50*sa))+'%)';q.fillRect(x,r*10,1,9)}});
+  ledImg=im;ledImgK=n}
+ g.drawImage(ledImg,0,0);const el=$('tLedT');
+ if(curPlay&&cname(curPlay.src)===n){const t=curPlay.v.currentTime+ledOff(n),x=t*d.fps/N*W;g.fillStyle='#fff';g.fillRect(Math.round(x),0,1,H);if(el)el.textContent='표 시각 '+t.toFixed(2)+'초'}else if(el)el.textContent=''}
+setInterval(ledPaint,80);
+document.addEventListener('click',e=>{if(e.target.id!=='tLed')return;const n=TK.sel,d=LEDDATA[n];if(!d||!curPlay||cname(curPlay.src)!==n)return;const r=e.target.getBoundingClientRect(),t=(e.clientX-r.left)/r.width*d.z.right.length/2/d.fps;try{curPlay.v.currentTime=Math.max(0,t-ledOff(n))}catch(_){}});
 function tuneDraw(){const T=$('tune');if(!T.classList.contains('on'))return;
  const have=n=>clipState['videos/'+n+'.mp4']!==undefined;const opt=(v,cur)=>'<option'+(v===cur?' selected':'')+'>'+v+'</option>';
  const list=Object.keys(CLIPS).length?Object.keys(CLIPS):ALLCLIPS;
@@ -470,6 +552,7 @@ function tuneDraw(){const T=$('tune');if(!T.classList.contains('on'))return;
  const src=tSrc(TK.sel),cues=TUNE.cues[src]||CUES[src]||[];
  let h='<div class="r"><b>연출 조정</b>&nbsp;<span class="now" id="tNow"></span><span style="flex:1"></span><button id="tPause" title="일시정지/재생 (K)">⏯</button><button data-seek="-5">−5s</button><button data-seek="-1" title="←">−1s</button><button id="tB1" title=",">◀1f</button><button id="tF1" title=".">1f▶</button><button data-seek="1" title="→">+1s</button><button data-seek="5">+5s</button><button id="tStop" title="재생 중인 연출을 모두 버리고 대기 화면으로">■ 초기화</button></div>';
  if(!Object.keys(CLIPS).length)h+='<div style="color:#fa8">videos/clips.js 가 없어요. cut_clips.bat 을 실행하면 앞뒤 2초 여유가 생겨 늘리는 조정도 가능해져요. 지금은 줄이기만 돼요.</div>';
+ h+=rvPanel();
  h+='<h4>① 이음매 (앞 클립 끝 3초 → 뒤 클립 처음 3초)</h4><div class="r"><select id="tSeam"><option value="">빠른 선택…</option>'+SEAMS.map((x,i)=>'<option value="'+i+'"'+(x[0]===TK.a&&x[1]===TK.b?' selected':'')+'>'+x[0]+' → '+x[1]+'</option>').join('')+'</select></div>';
  h+='<div class="r"><select id="tA">'+list.concat(['bonus@BT.branch','bonus@BT.judge','bonus7500@B75.st','st_full@ST.b1','st_full@ST.b2','st_full@ST.b3','st_full@ST.b4','st_full@ST.b5','st_full@ST.end','uw_try@UWT.t2','uw_try@UWT.t1']).map(n=>opt(n,TK.a)).join('')+'</select> → <select id="tB">'+list.map(n=>opt(n,TK.b)).join('')+'</select></div>';
  h+='<div class="r"><button id="tPlaySeam">▶ 이음매 재생</button><label><input type="checkbox" id="tLoopC"'+(TK.loop?' checked':'')+'> 반복</label></div>';
@@ -477,6 +560,7 @@ function tuneDraw(){const T=$('tune');if(!T.classList.contains('on'))return;
  h+='<h4>② 클립 하나</h4><div class="r"><select id="tSel">'+list.map(n=>opt(n,TK.sel)).join('')+'</select><button id="tAll">▶ 전체</button><button id="tHead">▶ 처음 3초</button><button id="tTail">▶ 끝 3초</button></div>';
  h+=edgeRow('시작',TK.sel,0)+edgeRow('끝',TK.sel,1)+'<div class="r"><button id="tSetIn">지금 위치를 시작으로</button><button id="tSetOut">지금 위치를 끝으로</button><button id="tZero">이 클립 0으로</button></div>';
  h+=vibPanel(TK.sel);
+ h+=cuePanel(TK.sel);h+=ledPanel(TK.sel);
  h+='<h4>저장</h4><div class="r"><button id="tExp">내보내기 (ghoul_tune.json)</button><button id="tImp">가져오기</button><button id="tReset">전체 초기화</button><input type="file" id="tFile" accept=".json" style="display:none"></div><div style="color:#999">값은 바꾸는 즉시 이 브라우저에 저장되고 게임에 반영돼요.</div>';
  T.innerHTML=h}
 // ── 진동 찍기 ──  재생 중에 V 를 짧게 누르면 그 순간에 '쾅', 누르고 있으면 누른 동안이 '크레셴도'. 시각은 조정 화면에 보이는 초(클립 기준 시각)
@@ -517,12 +601,22 @@ $('tune').addEventListener('click',async e=>{const b=e.target.closest('button');
  if(b.id==='vClear'){delete VIBU[TK.sel];return vibSave()}
  if(b.id==='vExp'){const out={};for(const [k,v] of Object.entries(VIBU))if(v.m.length||v.off)out[k]=v;const txt=JSON.stringify(out);try{navigator.clipboard.writeText(txt)}catch(_){}
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download='vib_marks.json';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),2000);return}
+ if(d.rv){const [ri,act]=d.rv.split('|'),key=rvKey(REVIEW[+ri]);if(act==='play')return rvPlay(+ri);const r=RVW[key]||(RVW[key]={});if(act==='clr')delete r.s;else r.s=act;if(!r.s&&!r.m)delete RVW[key];rvSave();const sc=$('tRvList')?$('tRvList').scrollTop:0;tuneDraw();if($('tRvList'))$('tRvList').scrollTop=sc;return}
  if(d.edge){const [tok,ed,dv]=d.edge.split('|');return edgeAdd(tok,+ed,+dv)}
  if(d.cue){const [i,k,dv]=d.cue.split('|');const src=tSrc(TK.sel);const cs=TUNE.cues[src]||(TUNE.cues[src]=(CUES[src]||[]).map(c=>c.slice()));cs[+i][+k]=+(cs[+i][+k]+ +dv).toFixed(2);saveTune();return tuneDraw()}
+ {const nowT=()=>curPlay&&cname(curPlay.src)===TK.sel?+(curPlay.v.currentTime-curPlay.g.base).toFixed(2):null;
+  if(d.cset){const [i,k]=d.cset.split('|'),t=nowT();if(t===null)return fx('이 클립을 재생(또는 일시정지)한 상태에서 눌러 주세요','mid t-white'),setTimeout(clearFx,1500);cueEdit()[+i][+k]=t;saveTune();return tuneDraw()}
+  if(d.cadd){const t=nowT();if(t===null)return fx('이 클립을 재생(또는 일시정지)한 상태에서 눌러 주세요','mid t-white'),setTimeout(clearFx,1500);const c=[t,+(t+5).toFixed(2)];if(d.cadd==='hand')c.push('hand');const cs=cueEdit();cs.push(c);cs.sort((a,b)=>a[0]-b[0]);saveTune();return tuneDraw()}
+  if(d.cdel!==undefined){cueEdit().splice(+d.cdel,1);saveTune();return tuneDraw()}
+  if(d.ctype!==undefined){const c=cueEdit()[+d.ctype];if(c[2]==='hand'){if(c.length>3)c[2]=0;else c.length=2}else c[2]='hand';saveTune();return tuneDraw()}}
  if(d.cuep){const src=tSrc(TK.sel),c=(TUNE.cues[src]||CUES[src])[+d.cuep];return tunePlay([{tok:TK.sel,mode:'range',a:Math.max(0,c[0]-2),b:c[1]+2}])}
  const v=curPlay&&curPlay.v;
  switch(b.id){
   case 'tStop':resetAll();break;
+  case 'tCueReset':delete TUNE.cues[tSrc(TK.sel)];saveTune();tuneDraw();break;
+  case 'tRvNext':{const k=REVIEW.findIndex(x=>!(RVW[rvKey(x)]||{}).s);if(k>=0)rvPlay(k);break}
+  case 'tRvExp':{const out=REVIEW.map(x=>{const r=RVW[rvKey(x)]||{};return {group:x[0],title:x[1],status:r.s==='ok'?'확인':r.s==='ng'?'문제':'남음',memo:r.m||''}}),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({trim:TUNE.trim,cues:TUNE.cues,vib:VIBU,review:out},null,1)],{type:'application/json'}));a.download='review.json';a.click();break}
+  case 'tRvClr':if(confirm('검토 기록(확인·문제·메모)을 모두 지울까요?')){RVW={};rvSave();tuneDraw()}break;
   case 'tPause':tPauseToggle();break;
   case 'tB1':if(v){window.__hold=true;v.pause();v.currentTime=Math.max(0,v.currentTime-F1)}break;
   case 'tF1':if(v){window.__hold=true;v.pause();v.currentTime+=F1}break;
@@ -538,6 +632,8 @@ $('tune').addEventListener('click',async e=>{const b=e.target.closest('button');
   case 'tReset':if(confirm('조정값을 모두 지울까요?')){localStorage.removeItem('g999Tune');location.reload()}break;
  }});
 $('tune').addEventListener('change',e=>{const t=e.target;
+ if(t.id==='tRvF'){TK.rvf=t.value;return tuneDraw()}
+ if(t.dataset&&t.dataset.rvm!==undefined){const key=rvKey(REVIEW[+t.dataset.rvm]),r=RVW[key]||(RVW[key]={});r.m=t.value;if(!r.s&&!r.m)delete RVW[key];return rvSave()}
  if(t.id==='tSeam'&&t.value!==''){TK.a=SEAMS[+t.value][0];TK.b=SEAMS[+t.value][1];TK.sel=TK.b;tuneDraw()}
  else if(t.id==='tA'){TK.a=t.value;tuneDraw()}else if(t.id==='tB'){TK.b=t.value;tuneDraw()}else if(t.id==='tSel'){TK.sel=t.value;tuneDraw()}
  else if(t.id==='tLoopC'){TK.loop=t.checked}
@@ -554,16 +650,25 @@ const nSpin=f=>async()=>{S.mode='normal';FORCE=Object.assign({},f);await spinNor
 const jStart=(k,ok,late)=>async()=>{S.mode='normal';FORCE={noBonus:true,direct:false,judge:k,jlate:!!late};await finishNormal('zorome',ok,true)};
 const stStart=f=>async()=>{rushSetup();FORCE=Object.assign({},f);await stAuto()};
 const rbStart=(f,skip)=>async()=>{rushSetup();S.chain++;S.hits++;FORCE=Object.assign({},f);await rushBonus(!!skip);S.st=SPEC.st;render();await stAuto()};
-const W={late:false,revival:false,res:'zorome'};
+const W={late:false,revival:false,res:'zorome',drop:false};
 const ENTRY=[
  ['통상 ─ 꽝 리치: vs 니시오',nSpin({res:'lose',reach:'battle_nishio',hand:false})],['통상 ─ 꽝 리치: vs 츠키야마',nSpin({res:'lose',reach:'battle_tsukiyama',hand:false})],['통상 ─ 꽝 리치: vs 스크래퍼',nSpin({res:'lose',reach:'battle_scrapper',hand:false})],
  ['통상 ─ 손떨 → vs 니시오 당첨',nSpin(Object.assign({reach:'battle_nishio',intro:'hand'},W))],['통상 ─ 손떨 → vs 츠키야마 당첨',nSpin(Object.assign({reach:'battle_tsukiyama',intro:'hand'},W))],['통상 ─ 손떨 → 클라이맥스 야모리 당첨',nSpin(Object.assign({reach:'climax_yamori',intro:'hand'},W))],
  ['통상 ─ 긴 도입 → 클라이맥스 야모리 당첨',nSpin(Object.assign({intro:'long'},W))],
- ['통상 ─ 꽝(니시오) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_nishio'})],['통상 ─ 꽝(츠키야마) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_tsukiyama'})],['통상 ─ 꽝(스크래퍼) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_scrapper'})],['통상 ─ 구울 차지',nSpin({res:'charge'})],
+ ['새 흐름 ─ 니시오 strong 당첨',nSpin(Object.assign({reach:'battle_nishio',tier:'strong'},W))],['새 흐름 ─ 니시오 strong 꽝',nSpin({res:'lose',reach:'battle_nishio',tier:'strong'})],
+ ['새 흐름 ─ 니시오 weak 당첨',nSpin(Object.assign({reach:'battle_nishio',tier:'weak'},W))],['새 흐름 ─ 니시오 weak 꽝',nSpin({res:'lose',reach:'battle_nishio',tier:'weak'})],
+ ['새 흐름 ─ 츠키야마 strong 당첨',nSpin(Object.assign({reach:'battle_tsukiyama',tier:'strong'},W))],['새 흐름 ─ 츠키야마 strong 꽝',nSpin({res:'lose',reach:'battle_tsukiyama',tier:'strong'})],
+ ['새 흐름 ─ 츠키야마 weak 당첨(212 뒤 역전)',nSpin(Object.assign({reach:'battle_tsukiyama',tier:'weak'},W))],['새 흐름 ─ 츠키야마 weak 꽝',nSpin({res:'lose',reach:'battle_tsukiyama',tier:'weak'})],
+ ['새 흐름 ─ 스크래퍼 strong 당첨(434→444)',nSpin(Object.assign({reach:'battle_scrapper',tier:'strong'},W))],['새 흐름 ─ 스크래퍼 strong 꽝',nSpin({res:'lose',reach:'battle_scrapper',tier:'strong'})],
+ ['새 흐름 ─ 스크래퍼 weak 당첨(부활)',nSpin(Object.assign({reach:'battle_scrapper',tier:'weak'},W))],['새 흐름 ─ 스크래퍼 weak 꽝',nSpin({res:'lose',reach:'battle_scrapper',tier:'weak'})],
+ ['새 흐름 ─ 클라이맥스 야모리 당첨 (본편 → 버튼 → 당첨)',nSpin(Object.assign({reach:'battle_yamori',tier:'strong'},W))],['새 흐름 ─ 클라이맥스 야모리 꽝 (본편 → 버튼 → 꽝)',nSpin({res:'lose',reach:'battle_yamori',tier:'strong'})],['새 흐름 ─ 예고 → 리제 낙하 → 니시오 strong 당첨',nSpin(Object.assign({},W,{reach:'battle_nishio',tier:'strong',drop:true}))],['새 흐름 ─ 예고 → 리제 낙하 → 스크래퍼 weak 꽝',nSpin({res:'lose',reach:'battle_scrapper',tier:'weak',drop:true})],['새 흐름 ─ 카쿠자 당첨 (성공 예고 → 배틀 → 버튼 → 222)',nSpin(Object.assign({reach:'battle_kakuza',tier:'strong'},W))],['새 흐름 ─ 카쿠자 꽝 (성공 예고 → 배틀 → 꽝)',nSpin({res:'lose',reach:'battle_kakuza',tier:'strong'})],['새 흐름 ─ 어머니 배틀 꽝(버튼 → 454)',nSpin({res:'lose',reach:'battle_mother',tier:'strong'})],
+ ['새 흐름 ─ 카페 → 어머니 배틀 당첨',nSpin(Object.assign({reach:'battle_mother',tier:'strong',pre:'pre_cafe'},W))],['새 흐름 ─ street(weak) → 인간 → 어머니 배틀 꽝',nSpin({res:'lose',reach:'battle_mother',tier:'strong',pre:'pre_street_weak'})],['새 흐름 ─ street(weak2) → 인간 → 어머니 배틀 당첨',nSpin(Object.assign({reach:'battle_mother',tier:'strong',pre:'pre_street_weak2'},W))],['새 흐름 ─ 어머니 배틀 당첨(버튼 → 888)',nSpin(Object.assign({reach:'battle_mother',tier:'strong'},W))],['새 흐름 ─ street → 인간 → 아몬 배틀 당첨',nSpin(Object.assign({reach:'battle_amon',tier:'strong'},W))],['새 흐름 ─ 카쿠자 예고 실패(꽝)',nSpin({res:'lose',reach:'battle_kakuza_fail',tier:'weak'})],
+ ['통상 ─ 손떨 옵션2(리제) → 긴 도입 85초~ → 클라이맥스 야모리 당첨',nSpin(Object.assign({intro:'long2'},W))],
+ ['새 흐름 ─ 꽝 → 리제 부활 → 3000 → 즉시 7500',nSpin({res:'zorome',revival:'rize',late:false})],['새 흐름 ─ 꽝 → 올빼미 부활 → 3000 → 즉시 7500',nSpin({res:'zorome',revival:'fukurou',late:false})],['통상 ─ 꽝(니시오) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_nishio'})],['통상 ─ 꽝(츠키야마) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_tsukiyama'})],['통상 ─ 꽝(스크래퍼) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_scrapper'})],['통상 ─ 구울 차지',nSpin({res:'charge'})],
  ['첫 당첨 ─ 3000 보너스부터 (이후 랜덤)',async()=>{S.mode='normal';FORCE={direct:false};await finishNormal('zorome',Math.random()<SPEC.rushIn,true)}],
  ['첫 당첨 ─ 3000 → 즉시 7500',async()=>{S.mode='normal';FORCE={direct:true};await finishNormal('zorome',true,true)}],
  ['Judgement ─ 배틀 vs 샤치: 성공',jStart('shachi',true)],['Judgement ─ 배틀 vs 샤치: 실패',jStart('shachi',false)],['Judgement ─ 배틀 vs 야모리: 성공',jStart('yamori',true)],['Judgement ─ 배틀 vs 야모리: 실패',jStart('yamori',false)],
- ['Judgement ─ 배틀 vs 시로&쿠로: 성공',jStart('shiro',true)],['Judgement ─ 배틀 vs 시로&쿠로: 실패',jStart('shiro',false)],['Judgement ─ 브레이크: 성공',jStart('break',true)],['Judgement ─ 브레이크: 실패',jStart('break',false)],
+ ['Judgement ─ 배틀 vs 아야토: 성공',jStart('ayato',true)],['Judgement ─ 배틀 vs 아야토: 실패',jStart('ayato',false)],['Judgement ─ 배틀 vs 시로&쿠로: 성공',jStart('shiro',true)],['Judgement ─ 브레이크: 성공',jStart('break',true)],['Judgement ─ 브레이크: 실패',jStart('break',false)],
  ['Judgement ─ 실패 → 계수 중 역전 (야모리)',jStart('yamori',true,true)],
  ['7500 보너스 → ST',async()=>{S.mode='normal';const p=await play7500(S.out,7500);await enterRush(p)}],['RUSH 돌입 → ST 5회',async()=>{S.mode='normal';await enterRush()}],
  ['ST ─ 5회 (추첨 랜덤)',stStart({})],['ST ─ 5회 전부 꽝 → 결과 화면',stStart({stHit:-1})],
@@ -581,6 +686,7 @@ try{const i=sessionStorage.getItem('startAt');sessionStorage.removeItem('startAt
  b.onclick=()=>{b.remove();runEntry(+i)};document.body.appendChild(b)}}catch(e){}
 
 try{const t=sessionStorage.getItem('tuneOpen');sessionStorage.removeItem('tuneOpen');if(t){Object.assign(TK,JSON.parse(t));$('tune').classList.add('on');setTimeout(tuneDraw,50)}
+ const rp=sessionStorage.getItem('rvPending');sessionStorage.removeItem('rvPending');if(rp!==null)setTimeout(()=>rvPlay(+rp),600);
  const pd=sessionStorage.getItem('tunePending');sessionStorage.removeItem('tunePending');if(pd)setTimeout(async()=>{await tunePlay(JSON.parse(pd));if(!TK.played){fx('한 번 더 눌러 주세요','mid t-white');setTimeout(clearFx,1500)}},700)}catch(e){}
 $('tuneBtn').onclick=tuneToggle;
 
@@ -621,7 +727,7 @@ function loadHint(on){let e=$('loadHint');if(!e){e=document.createElement('div')
 let skipReq=false,stopReq=false,stopAll=false;let LAT=.09; // 재생 시작 지연(초) 추정값, 재생할 때마다 실제 값으로 보정
 // ── 조정값: 클립별 시작·끝 이동(초), 역물 큐, 분기 시각. 브라우저에 저장되고 조정 화면에서 바꿈 ──
 const CLIPS=window.CLIPS||{};                       // videos/clips.js: {이름:{in:앞 여유, dur:기준 길이}}
-const TUNE_DEFAULT={"trim":{"judge_yamori_body":[0.4,0.4],"judge_tail_win":[0.1,0.6],"battle_nishio_body":[0.1,0],"judge_tail_lose":[0.6,0],"judge_ready":[0,0.5],"judge_break_win":[0,-2.551],"direct7500":[-0.2,-0.068],"bonus7500":[0.6,2],"st_ep_2":[0,0.1],"st_ep_3":[-2,-0.1],"st_ep_4":[0.234,0],"st_hyper6000":[0.1,-1],"uw_try":[0.185,0],"uw_lose":[0.051,-0.8],"uw_win_21000":[0.087,0],"rush_in":[0.1,1.3],"bonus":[0.568,0],"st_win_omedetou":[5.5,-3.22],"st_win_rize":[0,-61.58],"st_win_tsukiyama":[0,-12.7],"yokoku_hand":[0,0.2],"pre_long":[39.417,0],"judge_shachi_body":[-2,0],"uw_win_6000":[0.015,0],"uw_win_9000":[0.017,0],"uw_win_12000":[0.017,0],"uw_win_15000":[-0.017,0],"uw_win_18000":[-0.051,0],"st_full":[1.798,0],"revival_fukurou":[0.02,0],"battle_nishio_winfull":[0,-0.1],"battle_tsukiyama_body":[1,0]},"cues":{},"consts":{"BT":{"branch":22.8,"judge":98.7},"UWT":{"t2":14.78,"t1":24.81}}}; // 2026-11-21 조정값 7차 반영 (final)
+const TUNE_DEFAULT={"trim":{"judge_select":[0.5,-0.119],"judge_tail_win":[0.1,0.6],"judge_tail_lose":[0.6,1.4],"judge_ready":[7.3,0.5],"direct7500":[0,-0.068],"bonus7500":[0.6,2],"st_ep_2":[0,0.1],"st_ep_3":[-2,-0.1],"st_ep_4":[0.234,0],"st_hyper6000":[0.1,-1],"uw_try":[0.185,0],"uw_lose":[0.051,-0.8],"uw_win_21000":[0.087,0],"rush_in":[0.1,1.3],"bonus":[0.568,0],"st_win_omedetou":[5.5,-3.22],"st_win_rize":[0,-61.58],"st_win_tsukiyama":[0.6,-12.7],"pre_hand":[0,0.2],"uw_win_6000":[0.015,0],"uw_win_9000":[0.017,0],"uw_win_12000":[0.017,0],"uw_win_15000":[-0.017,0],"uw_win_18000":[-0.051,0],"st_full":[1.798,0],"revival_fukurou":[0.02,0],"battle_nishio_strong_win_4":[0.1,-0.1],"battle_tsukiyama_weak_lose_2":[1,0],"pre_rize_eat":[0,0],"charge":[0.4,0],"pre_hospital":[39.417,0],"pre_street_weak":[0.8,2.0],"pre_kakuza_fail_1":[0,-2.0],"revival_rize_3":[-0.049,-0.5],"pre_street_human_4":[2.1,-0.1],"battle_mother_lose_4":[0,-3.9],"battle_amon_3":[0,-0.1],"battle_amon_win_3":[-2.266,0],"climax_yamori_lose_2":[0.4,-4.8],"climax_yamori_win":[0.234,0],"battle_scrapper_revival_2":[0.619,0],"pre_tsukiyama_strong":[-0.5,0],"battle_kakuza_1":[0,-0.1],"judge_shachi_body":[0,-3.7],"battle_scrapper_weak_4":[0.533,0],"battle_scrapper_strong_lose_4":[0.533,0],"battle_nishio_weak_4":[0.167,0],"battle_tsukiyama_strong_lose_4":[0.8,0],"pre_rize_drop":[0.1,0]},"cues":{},"consts":{"BT":{"branch":22.8,"judge":98.7},"UWT":{"t2":14.78,"t1":24.81}}}; // 2026-11-21 조정값 7차 반영 (final)
 let TUNE=(()=>{let t={};try{t=JSON.parse(localStorage.getItem('g999Tune')||'{}')}catch(e){}
  return {trim:Object.assign({},TUNE_DEFAULT.trim,t.trim),cues:Object.assign({},TUNE_DEFAULT.cues,t.cues),consts:Object.assign({},TUNE_DEFAULT.consts,t.consts)}})();
 const saveTune=()=>{try{localStorage.setItem('g999Tune',JSON.stringify(TUNE))}catch(e){}};
@@ -629,20 +735,28 @@ try{if(!localStorage.getItem('ghoulFix6')){TUNE.cues={};localStorage.setItem('gh
 try{if(!localStorage.getItem('ghoulFix7')){for(const [k,e] of [['st_win_rize',-61.58],['st_win_tsukiyama',-12.7],['st_win_omedetou',-3.22]])TUNE.trim[k]=[(TUNE.trim[k]||[0,0])[0]||0,e];localStorage.setItem('ghoulFix7','1');saveTune()}}catch(e){} // ST 당첨 영상 3개: 마지막 역물 낙하 직전에서 끝나도록 끝 자르기 (이 브라우저에 저장된 값에도 한 번 적용)
 // 영상 속 PUSH·連打·押せ 가 떠 있는 구간 [시작, 넘어갈 지점] (기준 시각 초, 999 = 그 영상의 끝). 이 구간에서 클릭/Space/SKIP 하면 바로 결과로 넘어감
 // 배틀 모드 본체는 구간이 둘: ① 상대 캐릭터 선택 화면 → 누르면 상대가 정해지는 순간으로, ② 마지막 PUSH → 결과로
-const PUSH=Object.assign({judge_yamori_body:[[10.6,15.6],[40.3,999]],judge_shiro_body:[[10.1,15.1],[39.8,999]],judge_shachi_body:[[5.4,10.44]],judge_ready:[2.9,999],revival_fukurou:[34.3,37.4]},TUNE.consts.PUSH);
+const PUSH=Object.assign({judge_select:[10.6,14.68],judge_ready:[7.98,999],revival_fukurou:[34.3,37.4],climax_yamori_lose_2:[.77,3.7],battle_kakuza_1:[80.93,83.93],battle_mother_strong_win_8:[69.27,72.23],battle_amon_3:[69.2,72.2]},TUNE.consts.PUSH);
 // 요청받은 이동량을 이 브라우저에 저장된 값에도 한 번만 더함 (judge_tail_lose 시작 +0.3, st_win_omedetou 시작 +5.5)
 try{localStorage.setItem('ghoulFix2','1')}catch(e){}
-try{if(!localStorage.getItem('ghoulFix12')){TUNE.trim.direct7500=[-0.2,-0.068];TUNE.trim.st_win_tsukiyama=[0,-12.7];TUNE.trim.revival_fukurou=[0.02,0];localStorage.setItem('ghoulFix12','1');saveTune()}}catch(e){}
+try{if(!localStorage.getItem('ghoulFix12')){TUNE.trim.direct7500=[0,-0.068];TUNE.trim.st_win_tsukiyama=[0.6,-12.7];TUNE.trim.revival_fukurou=[0.02,0];localStorage.setItem('ghoulFix12','1');saveTune()}}catch(e){}
+try{if(!localStorage.getItem('ghoulRen1')){const RN={"yokoku_hand":"pre_hand","battle_nishio_winfull":"battle_nishio_strong_win_4","battle_nishio_body":"battle_nishio_weak_4","battle_nishio_lose":"battle_nishio_lose_4","battle_tsukiyama_winfull":"battle_tsukiyama_strong_win_4","battle_tsukiyama_body":"battle_tsukiyama_weak_lose_2","battle_tsukiyama_strong_lose":"battle_tsukiyama_strong_lose_4","battle_scrapper_strong":"battle_scrapper_strong_lose_4","battle_scrapper_weak":"battle_scrapper_weak_4","battle_scrapper_lose":"battle_scrapper_lose_4","battle_scrapper_win":"battle_scrapper_revival_2","pre_kakuza2_fail":"pre_kakuza_fail_2","pre_mother_battle_4":"battle_mother_4","pre_mother_battle_weak_lose_4":"battle_mother_lose_4","pre_amon_battle_3":"battle_amon_3","pre_amon_battle_win_3":"battle_amon_win_3"},mv=o=>{if(!o)return;for(const k of Object.keys(o)){const m=k.match(/^(videos\/)?(.+?)(\.mp4)?$/),n=m&&RN[m[2]];if(n){o[(m[1]||'')+n+(m[3]||'')]=o[k];delete o[k]}}};mv(TUNE.trim);mv(TUNE.cues);mv(TUNE.consts&&TUNE.consts.PUSH);mv(VIBU);localStorage.setItem('ghoulRen1','1');saveTune();localStorage.setItem('ghoulVib',JSON.stringify(VIBU))}}catch(e){}
+try{if(!localStorage.getItem('ghoulRen2')){const SH={judge_yamori_body:15.6,judge_shiro_body:15.1,judge_shachi_body:10.44,judge_ayato_body:6.97},mk=(n)=>VIBU[n]||(VIBU[n]={m:[]});for(const [n,x] of Object.entries(SH)){delete TUNE.trim[n];if(TUNE.consts&&TUNE.consts.PUSH)delete TUNE.consts.PUSH[n];const u=VIBU[n];if(!u||!u.m)continue;const keep=[];for(const m of u.m){const t0=m.t[0];if(t0>=({judge_yamori_body:32.27,judge_shiro_body:32.77,judge_shachi_body:27.57,judge_ayato_body:25}[n])){if(n==='judge_yamori_body')mk('judge_ready').m.push(Object.assign({},m,{t:m.t.map(t=>+(t-32.37).toFixed(3))}))}else if(t0>=x)keep.push(Object.assign({},m,{t:m.t.map(t=>+(t-x).toFixed(3))}));else if(n==='judge_yamori_body')mk('judge_select').m.push(m)}u.m=keep}if(VIBU.judge_ready&&!VIBU.judge_ready._s){for(const m of VIBU.judge_ready.m)if(!m._n)0}TUNE.trim.judge_select=[0.5,-0.119];delete TUNE.cues['videos/judge_shiro_body.mp4'];if(TUNE.consts&&TUNE.consts.PUSH)delete TUNE.consts.PUSH.judge_ready;localStorage.setItem('ghoulRen2','1');saveTune();localStorage.setItem('ghoulVib',JSON.stringify(VIBU))}}catch(e){}
+try{if(!localStorage.getItem('ghoulRen3')){const AD={judge_yamori_body:.92,judge_shiro_body:.92,judge_shachi_body:.96},mk=n=>VIBU[n]||(VIBU[n]={m:[]}),sh=(m,d)=>Object.assign({},m,{t:m.t.map(t=>+(t+d).toFixed(3))});for(const [n,d] of Object.entries(AD))if(VIBU[n]&&VIBU[n].m)VIBU[n].m=VIBU[n].m.map(m=>sh(m,d));if(VIBU.judge_select&&VIBU.judge_select.m){const k=[];for(const m of VIBU.judge_select.m)(m.t[0]>=14.68?mk('judge_yamori_body').m.push(sh(m,-14.68)):k.push(m));VIBU.judge_select.m=k}if(VIBU.judge_ready&&VIBU.judge_ready.m){const k=[];for(const m of VIBU.judge_ready.m)(m.t[0]<7.5?mk('judge_yamori_body').m.push(sh(m,17.69)):k.push(m));VIBU.judge_ready.m=k}TUNE.trim.judge_ready=[7.3,(TUNE.trim.judge_ready||[0,.5])[1]];if(TUNE.consts&&TUNE.consts.PUSH)delete TUNE.consts.PUSH.judge_select;localStorage.setItem('ghoulRen3','1');saveTune();localStorage.setItem('ghoulVib',JSON.stringify(VIBU))}}catch(e){}
+try{if(!localStorage.getItem('ghoulRen4')){const MV=[['battle_nishio_weak_4',29,'pre_rize_eat',0,'battle_nishio_weak_4',-29],['pre_long',69.96,'pre_hospital',0,'pre_yamori_body',-69.96],['climax_yamori_body',-1,'','','pre_yamori_body',52.04],['battle_nishio_strong_win_4',22,'pre_street_strong',0,'battle_nishio_strong_win_4',-22],['battle_tsukiyama_strong_win_4',30.4,'pre_tsukiyama_strong',0,'battle_tsukiyama_strong_win_4',-30.4],['battle_kakuza_1',-1,'','','battle_kakuza_1',23.63],['pre_kakuza_success_1',1e9,'battle_kakuza_1',0,'',0]],nv={},tr=TUNE.trim,sh=(m,d)=>Object.assign({},m,{t:m.t.map(t=>+(t+d).toFixed(3))});for(const [o,cut,na,da,nb,db] of MV){const u=VIBU[o];delete VIBU[o];if(u&&u.m)for(const m of u.m){const n=m.t[0]<cut?na:nb,d=m.t[0]<cut?da:db;if(n)(nv[n]||(nv[n]={off:false,m:[]})).m.push(sh(m,d))}const t=tr[o];delete tr[o];if(t){if(cut>0&&na)nv['#'+na]=[t[0],0];if(nb)nv['#'+nb]=[cut>0&&na?0:t[0],t[1]]}delete TUNE.cues['videos/'+o+'.mp4']}for(const [k,v] of Object.entries(nv)){if(k[0]==='#'){const n=k.slice(1);tr[n]=[(tr[n]||[0,0])[0]||v[0],(tr[n]||[0,0])[1]||v[1]]}else{const u=VIBU[k]||(VIBU[k]={off:false,m:[]});u.m=u.m.concat(v.m)}}for(const n of ['judge_shachi_body','judge_ayato_body','judge_break_win']){delete tr[n];delete TUNE.cues['videos/'+n+'.mp4']}if(VIBU.judge_break_win&&VIBU.judge_break_win.m)VIBU.judge_break_win.m=VIBU.judge_break_win.m.filter(m=>m.t[0]>=4.7).map(m=>sh(m,-.14));if(TUNE.consts&&TUNE.consts.PUSH)delete TUNE.consts.PUSH.battle_kakuza_1;localStorage.setItem('ghoulRen4','1');saveTune();localStorage.setItem('ghoulVib',JSON.stringify(VIBU))}}catch(e){}
+try{if(!localStorage.getItem('ghoulRen5')){const t=TUNE.trim.battle_amon_win_3;if(t&&Math.abs(t[0]+1.466)<.01)t[0]=-1.266;delete TUNE.trim.battle_mother_win_2;delete TUNE.trim.battle_mother_4;delete TUNE.cues['videos/judge_break_win.mp4'];delete TUNE.cues['videos/battle_amon_win_3.mp4'];localStorage.setItem('ghoulRen5','1');saveTune()}}catch(e){}   // 아몬 당첨: 클립 기준점을 0.2초 바로잡은 만큼 시작값도 옮김
+try{if(!localStorage.getItem('ghoulRen6')){const BL={"battle_scrapper_weak_4": 0.533, "battle_scrapper_strong_lose_4": 0.533, "battle_nishio_weak_4": 0.167, "battle_nishio_strong_win_4": 0.1};for(const k in BL){const t=TUNE.trim[k]||(TUNE.trim[k]=[0,0]);if(!t[0])t[0]=BL[k]}const u=VIBU.pre_yamori_body;if(u&&u.m){const a=[],b=[];for(const m of u.m)(m.t[0]<15.04?a.push(m):b.push(Object.assign({},m,{t:m.t.map(t=>+(t-15.04).toFixed(3))})));u.m=b;if(a.length)(VIBU.pre_rize_drop||(VIBU.pre_rize_drop={off:false,m:[]})).m.push(...a)}delete TUNE.cues['videos/pre_yamori_body.mp4'];localStorage.setItem('ghoulRen6','1');saveTune();localStorage.setItem('ghoulVib',JSON.stringify(VIBU))}}catch(e){}
+try{if(!localStorage.getItem('ghoulRen7')){const t=TUNE.trim.battle_scrapper_lose_4;if(t&&Math.abs(t[0]-1.1)<.01)t[0]=0;localStorage.setItem('ghoulRen7','1');saveTune()}}catch(e){}   // 스크래퍼 꽝 영상의 시작 +1.1 은 strong 뒤에서만 쓰도록 구간으로 옮김(weak 뒤에는 처음부터)
 // ↑ 실수로 바뀐 조정값 3개를 원래대로 (이 브라우저에 저장된 값에도 한 번 적용)
-try{if(!localStorage.getItem('ghoulFix11')){TUNE.trim.direct7500=[-0.2,(TUNE.trim.direct7500||[0,0])[1]||0];localStorage.setItem('ghoulFix11','1');saveTune()}}catch(e){}
+try{if(!localStorage.getItem('ghoulFix11')){TUNE.trim.direct7500=[0,(TUNE.trim.direct7500||[0,0])[1]||0];localStorage.setItem('ghoulFix11','1');saveTune()}}catch(e){}
 // ↑ direct7500: 앞 자르기 -0.2 (이 브라우저에 저장된 값에도 한 번 적용)
 try{if(!localStorage.getItem('ghoulFix9')){TUNE.trim.revival_fukurou=[0.02,(TUNE.trim.revival_fukurou||[0,0])[1]||0];localStorage.setItem('ghoulFix9','1');saveTune()}}catch(e){} // 올빼미 부활: 숫자(676) 장면을 잘라 내고 번쩍이며 붉은 꽃이 피는 순간부터   // (옛 이전 처리: 기본값에 이미 들어 있어 더 이상 더하지 않음)
 // 오류 복구: 새 브라우저에서 옛 이전 처리가 기본값에 한 번 더 더해져 오메데토 시작이 11초(손이 내려오는 앞부분이 잘림), 배틀 실패 시작이 0.9초가 된 경우 되돌림
 try{if(!localStorage.getItem('ghoulFix8')){const T=TUNE.trim;if(T.st_win_omedetou&&Math.abs(T.st_win_omedetou[0]-11)<.01)T.st_win_omedetou[0]=5.5;if(T.judge_tail_lose&&Math.abs(T.judge_tail_lose[0]-.9)<.01)T.judge_tail_lose[0]=.6;localStorage.setItem('ghoulFix8','1');saveTune()}}catch(e){}
 try{if(!localStorage.getItem('ghoulFix5')){delete TUNE.trim.st_bonus_intro;delete TUNE.trim.st_intro;delete TUNE.cues['videos/st_bonus_intro.mp4'];localStorage.setItem('ghoulFix5','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // st_intro 는 새로 자른 클립
 try{if(!localStorage.getItem('ghoulFix4')){TUNE.trim.pre_long=[39.417,(TUNE.trim.pre_long||[0,0])[1]||0];localStorage.setItem('ghoulFix4','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // pre_long 시작 +39.417
-try{if(!localStorage.getItem('ghoulFix3')){TUNE.trim.yokoku_hand=[(TUNE.trim.yokoku_hand||[0,0])[0]||0,0.2];localStorage.setItem('ghoulFix3','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // yokoku_hand 끝 +0.2
+try{if(!localStorage.getItem('ghoulFix3')){TUNE.trim.pre_hand=[(TUNE.trim.pre_hand||[0,0])[0]||0,0.2];localStorage.setItem('ghoulFix3','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // pre_hand 끝 +0.2
 try{if(!localStorage.getItem('ghoulFix1')){delete TUNE.trim.amon_winfull;delete TUNE.cues['videos/amon_winfull.mp4'];localStorage.setItem('ghoulFix1','1');saveTune()}}catch(e){} // 아몬 결전 클립을 새로 잘라서 옛 조정값 폐기
+try{for(const k in TUNE_DEFAULT.trim)if(!(k in TUNE.trim))TUNE.trim[k]=TUNE_DEFAULT.trim[k].slice()}catch(e){}   // 위의 이전 처리가 지운 항목은 기본값으로 되돌림(새 브라우저에서도 기본값이 그대로 적용되게)
 const cname=src=>src.split('/').pop().replace('.mp4','');
 // 기준 시각(0 = 원래 자른 시작점) ↔ 파일 시각. base=파일 앞 여유, dur=기준 길이, tin/tout=사용자 이동량
 function D75F(){return Math.max(.03,(TUNE.trim.direct7500||[0])[0]||0)}
@@ -698,7 +812,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
  if(!started){try{await v.play()}catch(e){v.style.display='none';return false}}
  v.style.zIndex=6;v.style.display='block';old.style.zIndex=5;old.pause();old.style.display='none';   // 새 영상이 준비된 뒤에 교체 → 이음매에 빈 화면 없음
  const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);{const age=performance.now()-skipAt;if(!(skipReq&&(age<400||(skipIdle&&age<2000))))skipReq=false;skipIdle=false}stopReq=false;let iv=0;
- curPlay={v,g,src};if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
+ curPlay={v,g,src,t1};if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
  if(opt.next)prepClip(opt.next);
  // 다음 영상은 재생을 누른 뒤 실제로 움직이기까지 시간이 걸림(LAT). 그만큼 먼저 눌러 두고, 앞 영상이 끝나는 순간 화면만 바꿈
  let preDone=false;
@@ -814,12 +928,12 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
  function vibTbl(n){const base=window.LEDVIB&&LEDVIB[n],u=typeof VIBU!=='undefined'&&VIBU[n];if(!u||(!u.m.length&&!u.off))return base||null;
   const key=n+'|'+(window.VIBREV||0);if(vbC.k===key)return vbC.t;
   const o=(window.LEDIN&&LEDIN[n]!=null?LEDIN[n]:((typeof CLIPS!=='undefined'&&CLIPS[n]||{}).in||0)),N=Math.max(base?base.length:0,...u.m.map(m=>Math.ceil(((m.t[1]||m.t[0])+o+1)*30))),a=new Uint8Array(N);
-  if(base&&!u.off)for(let i=0;i<base.length;i++)a[i]=+base[i];
+  if(base&&!u.off)for(let i=0;i<base.length;i++)a[i]=parseInt(base[i],36);
   for(const m of u.m){const i0=Math.round((m.t[0]+o)*30),S=m.s||9,lo=Math.max(1,Math.round(S/3));   // 세기 S: 쾅은 S 에서 줄어듦, 크레셴도는 S/3 에서 S 까지 올라감
    if(m.t.length>1){const i1=Math.round((m.t[1]+o)*30);for(let i=i0;i<i1&&i<N;i++)a[i]=Math.max(a[i],Math.round(lo+(S-lo)*(i-i0)/Math.max(1,i1-i0-1)))}
    else for(let k=0;k<18&&i0+k<N;k++)a[i0+k]=Math.max(a[i0+k],Math.round(S*Math.pow(1-k/18,.6)))}
   vbC.k=key;vbC.t=a;return a}
- function vib(tbl,fi){const a=tbl&&fi>=0&&fi<tbl.length&&!curPlay.v.paused?+tbl[fi]:0;
+ function vib(tbl,fi){const a=tbl&&fi>=0&&fi<tbl.length&&!curPlay.v.paused?(typeof tbl==='string'?parseInt(tbl[fi],36):tbl[fi]):0;
   if(!a){if(vbOn){vbOn=0;MC.style.translate=''}return}
   vbOn=1;vbPh^=1;const w=MC.offsetWidth,r=a/9*w*.006,dx=(vbPh?1:-1)*r*(.6+.4*Math.random()),dy=(Math.random()-.5)*r*1.2;MC.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px';
   if(navigator.vibrate&&a>=5&&pt-vbBuzz>.25){vbBuzz=pt;try{navigator.vibrate(a>=8?120:60)}catch(e){}}}
@@ -852,9 +966,9 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
    if(rot&&(n==='left'||n==='right'||n==='top')){if(rot===2){L=Math.max(L,1);hue=rotHue[n];sat=1}else if(rot===3){const vt=curPlay?curPlay.v.currentTime:t,dl=n==='left'?0:n==='top'?.014:.028;if((((vt-dl)%.0833)+.0833)%.0833<.034)L=.02}else L=.02}   // 종류 3: 전부 켜진 채 1/30초 꺼짐이 초당 12번, 왼쪽→상단→오른쪽 순으로 아주 빠르게 지나감(실측)   // 무지개: 바탕도 전부 켜고 색만 바뀜 / 오른쪽 노림: 바탕은 끄고 켜진 구간만 표시
    L=Math.min(1.5,L+kick);
    const z=Zs[n];if(!z){if(ov==null||fix[n]!=null)parts(n,L,hue,sat);continue}
-   const oc=Math.min(1,L)*(1-.32*sat),ob=Math.min(1,L*.6),ot=sat*Math.min(1,L),   /* 색이 진할수록 흰 바탕을 조금 낮춰 색이 덜 바래 보이게 */ok_=L<.3?(.3-L)/.3*.45:0;if(Math.abs(ok_-z.lk)>.004){z.lk=ok_;z.k.style.opacity=ok_.toFixed(3)}
+   const oc=Math.min(1,L)*(1-.15*sat),ob=Math.min(1,L*(window.QKDARK?.36:.3))*(1-.3*sat),ot=sat*Math.min(1,L),   /* 색이 진할수록 흰 바탕을 조금 낮춰 색이 덜 바래 보이게 */ok_=L<.3?(.3-L)/.3*.45:0;if(Math.abs(ok_-z.lk)>.004){z.lk=ok_;z.k.style.opacity=ok_.toFixed(3)}
    const q=sat>0?hue*8+Math.round(sat*7):-1;
-   if(q!==z.q){z.q=q;if(q<0)z.b.col(DEF[n]||'#d4e2ff');else{z.t.col('hsl('+hue+',100%,55%)');z.b.col('hsl('+hue+','+Math.round(sat*100)+'%,'+Math.round(90-sat*32)+'%)')}}
+   if(q!==z.q){z.q=q;if(q<0)z.b.col(DEF[n]||'#d4e2ff');else{z.t.col('hsl('+hue+',100%,55%)');z.b.col('hsl('+hue+','+Math.round(sat*100)+'%,'+Math.round(88-sat*40)+'%)')}}
    if(Math.abs(oc-z.lc)>.004){z.lc=oc;z.c.style.opacity=oc.toFixed(3)}if(Math.abs(ob-z.lb)>.004){z.lb=ob;z.b.style.opacity=ob.toFixed(3)}if(Math.abs(ot-z.lt)>.004){z.lt=ot;z.t.style.opacity=ot.toFixed(3)}}}
  return {names,z:Zs,vt:n=>vibTbl(n),sw(){swT=pt},kick(v){kick=Math.max(kick,v)},drop(v){drop=v},ov(v){ov=v;if(v==null&&typeof dimEls!=='undefined')dimEls.forEach(e=>e._l=null)},set(n,v){if(n==='all')names.forEach(k=>fix[k]=v);else fix[n]=v}}})();
 async function flash(n=1,ms=120){const f=$('flash');for(let i=0;i<n;i++){LED.kick(.9);f.style.transition='none';f.style.opacity=.9;await sleep(30);f.style.transition='opacity '+(ms/speed)+'ms';f.style.opacity=0;await sleep(ms)}}
@@ -940,6 +1054,7 @@ async function doReach(ev,tenpai,win,rush,o){o=o||{};
  const tel=win?(Math.random()<.5?'red':'gold'):(Math.random()<.75?'white':'red');
  const endSrc='videos/'+key+(win?'_win':'_lose')+'.mp4';
  const after=o.next||(rush&&win?'videos/st_intro.mp4':null);
+ if(win&&key==='climax_yamori'&&await segsOK(BTL.yamori.strong.win)){const l=BTL.yamori.strong.win.slice();if(yLead){l.splice(0,1,...yLead);yLead=null}await playChain(l,after);$('reels').classList.remove('small');return 'clip'}
  if(win&&await playClip('videos/'+key+'_winfull.mp4',{next:after})){$('reels').classList.remove('small');return 'full'}
  const hasEnd=await probe(endSrc);
  const played=await playClip('videos/'+key+'_body.mp4',{next:hasEnd?endSrc:after});
@@ -1030,7 +1145,7 @@ function gUp(){return gBusy=gBusy.then(async()=>{
  anims.concat(back,xf).forEach(a=>a.cancel());for(const k in DROPS)DROPS[k].el.style.opacity=0;restBodyEl.style.opacity=0;gState=null;
 })}
 // 영상에 역물 낙하가 찍힌 구간 (60프레임 단위로 실측): [머리·손이 닿는 시각, 손이 올라가기 시작하는 시각, 'hand'면 손만, 상승 속도 배율(기본 1), 머리가 손보다 늦게 올라가는 시간(기본 0.635)] (기준 시각, 초). 9999 = 그 영상 안에서는 올라가지 않음
-const CUES={'videos/direct7500.mp4':[[6.2,9999]],'videos/st_intro.mp4':[[0.18,9.53],[34.77,36.98,'hand',1.23]],'videos/uw_win_6000.mp4':[[0.25,7.88]],'videos/uw_win_9000.mp4':[[0.13,7.76]],'videos/uw_win_12000.mp4':[[0.22,7.87,0,1,0.6]],'videos/uw_win_15000.mp4':[[0.13,7.77]],'videos/uw_win_18000.mp4':[[0.2,7.84,0,1,0.57]],'videos/uw_win_21000.mp4':[[0.07,7.71]],'videos/judge_break_win.mp4':[[4.78,10.39],[14.15,9999,'hand']],'videos/battle_nishio_winfull.mp4':[[87.8,97.01],[107.32,9999,'hand']],'videos/battle_tsukiyama_winfull.mp4':[[118.62,127.81],[138.3,9999,'hand']],'videos/yokoku_hand.mp4':[[0.1,5.14,'hand']],'videos/st_win_rize.mp4':[[75.57,84.77],[109.33,111.54,'hand',1.21]],'videos/st_win_omedetou.mp4':[[5.72,6.7,'hand'],[19.07,9999]],'videos/st_hyper6000.mp4':[[0.23,2.62,'hand'],[7.07,8.44,'hand',1.24],[12.9,18.83]],'videos/revival_fukurou.mp4':[[38.1,42.77],[53.92,9999,'hand']],'videos/st_win_tsukiyama.mp4':[[53.8,9999]],'videos/climax_yamori_body.mp4':[[65.57,9999]],'videos/climax_yamori_win.mp4':[[0.57,12.74],[27.72,9999,'hand']],'videos/bonus.mp4':[[0.72,4.54,'hand']],'videos/bonus7500.mp4':[[3.72,7.51,'hand'],[18.12,21.91,'hand'],[31.25,35.04,'hand']],'videos/judge_shiro_body.mp4':[[43.87,9999]],'videos/judge_tail_win.mp4':[[0.32,5.94]],'videos/pre_long.mp4':[[70.15,72.98,'hand']]};
+const CUES={'videos/battle_scrapper_strong_win_4.mp4':[[2.21,11.4]],'videos/pre_rize_drop.mp4':[[0.19,3.02,'hand']],'videos/pre_yamori_body.mp4':[[102.57,9999]],'videos/battle_mother_strong_win_8.mp4':[[72.44,81.6]],'videos/battle_amon_win_3.mp4':[[-1.29,7.85]],'videos/revival_rize_3.mp4':[[0,2.58,'hand']],'videos/battle_scrapper_revival_2.mp4':[[0.84,8.3]],'videos/battle_kakuza_win_2.mp4':[[0.05,8.0]],'videos/battle_kakuza_1.mp4':[[23.68,25.72,'hand']],'videos/pre_hand2.mp4':[[0.2,21.69,'hand',1.5]],'videos/direct7500.mp4':[[6.2,9999]],'videos/st_intro.mp4':[[0.18,9.53],[34.77,36.98,'hand',1.23]],'videos/uw_win_6000.mp4':[[0.25,7.88]],'videos/uw_win_9000.mp4':[[0.13,7.76]],'videos/uw_win_12000.mp4':[[0.22,7.87,0,1,0.6]],'videos/uw_win_15000.mp4':[[0.13,7.77]],'videos/uw_win_18000.mp4':[[0.2,7.84,0,1,0.57]],'videos/uw_win_21000.mp4':[[0.07,7.71]],'videos/judge_break_win.mp4':[[4.64,10.5]],'videos/battle_nishio_strong_win_4.mp4':[[65.8,75.01],[85.32,9999,'hand']],'videos/battle_tsukiyama_strong_win_4.mp4':[[88.22,97.41],[107.9,9999,'hand']],'videos/pre_hand.mp4':[[0.1,5.14,'hand']],'videos/st_win_rize.mp4':[[75.57,84.77],[109.33,111.54,'hand',1.21]],'videos/st_win_omedetou.mp4':[[5.72,6.7,'hand'],[19.07,9999]],'videos/st_hyper6000.mp4':[[0.23,2.62,'hand'],[7.07,8.44,'hand',1.24],[12.9,18.83]],'videos/revival_fukurou.mp4':[[38.1,42.77],[53.92,9999,'hand']],'videos/st_win_tsukiyama.mp4':[[53.8,9999]],'videos/climax_yamori_win.mp4':[[0.57,12.74],[27.72,9999,'hand']],'videos/bonus.mp4':[[0.72,4.54,'hand']],'videos/bonus7500.mp4':[[3.72,7.51,'hand'],[18.12,21.91,'hand'],[31.25,35.04,'hand']],'videos/judge_tail_win.mp4':[[0.32,5.94]],};
 // 실기 역물의 움직임(전 연출 공통으로 측정): 손은 닿기 0.17초 전에 대기 자리를 떠나 0.09초 전에 화면 안으로 들어오고, 머리·몸은 0.15초 전 → 0.07초 전.
 // 올라갈 때 손은 일정한 속도로 약 1.24초 뒤, 머리·몸은 손보다 0.635초 늦게 출발해 0.36초 뒤 화면 밖으로 나감
 // 전체 낙하 때 영상에서는 머리 윗부분이 화면 위로 잘려 있음 → 같은 머리 그림을 영상 속 머리에 맞춰(배율·위치 실측) 화면 위쪽에 이어 붙임.
@@ -1054,6 +1169,7 @@ function htTint(v){if(!htImg.complete||!htImg.naturalWidth)return;
   x.imageSmoothingEnabled=true;x.globalCompositeOperation='multiply';x.globalAlpha=1;x.drawImage(htImg,0,0,W,H);      // 머리 그림의 결·명암
   x.globalCompositeOperation='destination-in';x.globalAlpha=1;x.drawImage(htImg,0,0,W,H)   // 머리 그림의 윤곽으로 잘라 냄
  }catch(e){}}
+// 낙하 표의 기준(v.1 때 맞춘 니시오·츠키야마·RUSH 도입·추가 3000 영상의 원본과 대조해 역산): 내려옴 = 실물이 대기 자리를 떠나는 프레임 +0.11초, 올라감 = 실물 손이 대기 자리로 돌아온 프레임 -1.35초(머리 기준 -0.85초)
 const RISE_DELAY=.15,HEAD_DELAY=.2;   // 대기 역물이 다시 올라와 자리 잡는 시각을 늦춤(초). 머리는 HEAD_DELAY 만큼 더 늦게
 function cueTimes(c){const d=c[0],u=c[1]+RISE_DELAY,r=c[3]||1,dh=c[4]||.635,o={hand:[d-.17,d-.09,u+.92/r,u+1.275/r]};   // 올라올 때는 영상 속 손이 화면 위로 거의 빠져나간 뒤에 대기 손이 이어서 나타남
  if(c[2]!=='hand'){o.head=[d-.15,d-.07,u+dh+.16+HEAD_DELAY,u+dh+.42+HEAD_DELAY];o.body=o.head}return o}
@@ -1088,8 +1204,8 @@ function runCuesOld(v,src,base,raw){const cs=raw.map(c=>({d:c[0],u:c[1],only:c[2
  return ()=>{clearInterval(iv);if(gState)gUp()}}
 let gimmickOk=false;$('gimmick').onload=()=>{gimmickOk=true};$('gimmick').onerror=()=>{gimmickOk=false;$('gimmick').style.display='none'};if($('gimmick').complete&&$('gimmick').naturalWidth)gimmickOk=true;
 async function handDrop(win,kind,only){
- // 손떨은 항상 실기 영상(yokoku_hand)으로. 영상이 없을 때만 아래의 만든 동작을 씀
- if(await playClip(CLIP.hand)||await playClip('videos/yokoku_hand.mp4'))return;
+ // 손떨은 항상 실기 영상(pre_hand)으로. 영상이 없을 때만 아래의 만든 동작을 씀
+ if(await playClip(CLIP.hand)||await playClip('videos/pre_hand.mp4'))return;
  se('hand');
  if(DROP_AS_REST&&partsOk===NP&&dropsOk===ND){ // 같은 그림이 그대로 내려왔다 올라감 (바뀌는 순간 없음)
   const T=170/speed,use=k=>!only||k===only,F=kind==='gold'?GOLD:SH,bl=n=>F+' blur('+n+'px)',ks=Object.keys(DROPS).filter(use);
@@ -1118,6 +1234,67 @@ async function handDrop(win,kind,only){
 }
 
 // ═══════════ 통상 회전 ═══════════
+// ═══════════ 통상 리치 새 흐름: (손떨) → 리치 예고 pre → 배틀(strong/weak) → 결말 ═══════════
+// 한 파일의 구간을 이름 붙여 따로 씀(파일은 자르지 않음). a·b = 조정 화면에 보이는 클립 시각(초), 없으면 처음·끝
+const V_=n=>'videos/'+n+'.mp4',SEG={
+ // 니시오·츠키야마 strong: 예고(pre_street_strong·pre_tsukiyama_strong)는 따로 자른 파일, 배틀+당첨이 한 파일
+ battle_nishio_strong:{src:V_('battle_nishio_strong_win_4'),b:64},battle_nishio_win:{src:V_('battle_nishio_strong_win_4'),a:64.6},   // 꽝은 64초에서 끊음(당첨 프레임이 섞이지 않게), weak 당첨은 64.6초부터
+ battle_tsukiyama_strong:{src:V_('battle_tsukiyama_strong_win_4'),b:86.8},battle_tsukiyama_win_rv:{src:V_('battle_tsukiyama_strong_win_4'),a:88.03},   // 꽝은 86.8초에서 끊음. weak 역전은 숫자 장면을 건너뛰고 손떨(88.03초)부터
+ pre_tsukiyama_weak:{src:V_('battle_tsukiyama_weak_lose_2'),a:0,b:31.9},battle_tsukiyama_weak:{src:V_('battle_tsukiyama_weak_lose_2'),a:31.9},   // 31.9초 = 배틀 시작의 번쩍임(꽃이 피기 시작)
+ battle_scrapper_strong_cut:{src:V_('battle_scrapper_strong_lose_4'),b:64},battle_scrapper_lose_s:{src:V_('battle_scrapper_lose_4'),a:1.1},battle_scrapper_lose_rv:{src:V_('battle_scrapper_lose_4'),b:()=>+(3.2+Math.random()*2.6).toFixed(2)},   // _rv: 꽝 확정(3.2초) 뒤 아무 때나 부활 영상으로   // 꽝 숫자가 뜨기 직전까지 → strong 당첨 영상으로 이어짐
+ // street 계열 예고를 눈 뜨는 순간에 끊은 것 → pre_street_human_4 로 갈라짐
+ pre_street_weak_eye:{src:V_('pre_street_weak'),b:15.5},pre_street_weak2_eye:{src:V_('pre_street_weak2'),b:23.59},   // strong street 예고에서는 인간으로 갈라지지 않음
+ // 클라이맥스 야모리: pre_yamori_body = 긴 도입 뒷부분(0~52.04초) + 본편(52.04초~). 본편 → 꽝 영상의 버튼 구간(0.77~3.7초) → 당첨이면 당첨 영상의 손 낙하 지점으로, 꽝이면 꽝 영상을 끝까지
+
+ climax_yamori_btn:{src:V_('climax_yamori_lose_2'),b:3.7},climax_yamori_win_go:{src:V_('climax_yamori_win'),a:.234},
+ battle_mother_btn:{src:V_('battle_mother_strong_win_8'),b:71.9},   // 어머니 배틀: 버튼(69.27~72.23초)까지 → 꽝이면 battle_mother_lose_4, 당첨이면 그대로 끝까지
+ battle_tsukiyama_weak_rv:{src:V_('battle_tsukiyama_weak_lose_2'),a:31.9,b:108}};   // _rv: '212' 확정(108.4초) 0.5초 뒤에 끊고 승리 영상으로 역전
+const segOf=n=>SEG[n]||{src:V_(n)},segNow=n=>{const s=segOf(n);return {src:s.src,a:s.a,b:typeof s.b==='function'?s.b():s.b}};
+// 배틀 3종 × strong/weak × 당첨/꽝 의 영상 순서. num: 영상에 찍힌 숫자 [텐파이, 꽝일 때 가운데]
+const BTL={
+ nishio:{strong:{win:['battle_nishio_strong_win_4'],lose:['battle_nishio_strong','battle_nishio_lose_4']},weak:{win:['battle_nishio_weak_4','battle_nishio_win'],lose:['battle_nishio_weak_4','battle_nishio_lose_4']},num:{t:4,mid:3}},
+ tsukiyama:{strong:{win:['battle_tsukiyama_strong_win_4'],lose:['battle_tsukiyama_strong','battle_tsukiyama_strong_lose_4'],num:{t:4,mid:3}},
+            weak:{win:['battle_tsukiyama_weak_rv','battle_tsukiyama_win_rv'],lose:['battle_tsukiyama_weak'],num:{t:2,mid:1},winNum:{t:4},rv:true}},
+ // 스크래퍼의 당첨은 부활 연출뿐: 꽝까지 본 뒤 손떨부터 시작하는 부활 영상으로 이어짐
+ scrapper:{strong:{win:['battle_scrapper_strong_cut','battle_scrapper_strong_win_4'],lose:['battle_scrapper_strong_cut','battle_scrapper_lose_s'],winNum:{t:4}},weak:{win:['battle_scrapper_weak_4','battle_scrapper_lose_rv','battle_scrapper_revival_2'],lose:['battle_scrapper_weak_4','battle_scrapper_lose_4'],rv:true},num:{t:4,mid:3},winNum:{t:2}},
+ // 아래는 영상이 한쪽 결말만 있는 배틀. pre: 전용 예고(다른 예고는 안 씀), human: street 예고 → 눈 뜰 때 pre_street_human_4 → 배틀. 강약은 임시 지정
+ yamori:{strong:{win:['pre_yamori_body','climax_yamori_btn','climax_yamori_win_go'],lose:['pre_yamori_body','climax_yamori_lose_2']},num:{t:2,mid:3}},   // 꽃밭 장면(pre_yamori_body 처음)부터. 다른 배틀처럼 예고 뒤에 이어질 수 있음
+ kakuza:{pre:[],strong:{win:['battle_kakuza_1','battle_kakuza_win_2'],lose:['battle_kakuza_1','battle_kakuza_lose_1']},num:{t:1,mid:2},winNum:{t:2}},
+ mother:{human:true,own:'pre_cafe',strong:{win:['battle_mother_strong_win_8'],lose:['battle_mother_btn','battle_mother_lose_4']},num:{t:4,mid:5},winNum:{t:8}},   // 전용 예고 pre_cafe 로 바로 오거나, street 예고 → 눈 뜰 때 pre_street_human_4 → 이 배틀
+ amon:{human:true,strong:{win:['battle_amon_3','battle_amon_win_3']},num:{t:3}},
+ // 배틀로 발전하지 못하고 끝나는 예고(꽝 전용)
+ kakuza_fail:{pre:[],weak:{lose:['pre_kakuza_fail_1']},num:{t:1,mid:2}}};   // 카쿠자 예고가 숫자가 타오르기 직전에 꺼짐(성공본 pre_kakuza_success_1 과 같은 도입)
+// 리치 예고. tier: 예고의 강약(같은 강약의 배틀로 이어질 확률 80%), to: 정해진 배틀로만 이어지는 예고
+const PRES=[{n:'pre_street_strong',tier:'strong'},{n:'pre_tsukiyama_strong',tier:'strong'},
+ {n:'pre_rize_eat',tier:'weak'},{n:'pre_tsukiyama_weak',tier:'weak'},{n:'pre_street_weak',tier:'weak'},{n:'pre_street_weak2',tier:'weak'},{n:'pre_button',tier:'weak'}];
+// 확률: strong 배틀은 당첨 80%, weak 배틀은 20%. 당첨의 TIER_WIN_STRONG(60%)가 strong 으로 오도록 하고, 꽝 리치의 출현율을 거기에 맞춰 역산 → 전체 당첨 확률은 그대로
+const RIZE_DROP={win:.25,lose:.03};   // 예고 → [리제 낙하] → 배틀. 끼어드는 확률(당첨 / 꽝)
+const TIER_REL={strong:.8,weak:.2},TIER_WIN_STRONG=.6,PRE_MATCH=.8;
+// 손떨: 당첨일 때 strong 70%·weak 30%에 붙음(전체 당첨의 54%). 꽝 쪽은 손떨 전체 신뢰도가 공식 수치 72%(HAND_REL)가 되도록 역산 → strong 꽝 40%, weak 꽝 약 9%
+const HAND_WIN={strong:.7,weak:.3},HAND_LOSE_STRONG=.4;
+const handLoseWeak=()=>{const w=TIER_WIN_STRONG*HAND_WIN.strong+(1-TIER_WIN_STRONG)*HAND_WIN.weak,need=w*(1-HAND_REL)/HAND_REL,ls=TIER_WIN_STRONG*(1-TIER_REL.strong)/TIER_REL.strong,lw=(1-TIER_WIN_STRONG)*(1-TIER_REL.weak)/TIER_REL.weak;return Math.max(0,Math.min(1,(need-ls*HAND_LOSE_STRONG)/lw))};
+const loseTierRate=pHit=>({strong:pHit*TIER_WIN_STRONG*(1-TIER_REL.strong)/TIER_REL.strong,weak:pHit*(1-TIER_WIN_STRONG)*(1-TIER_REL.weak)/TIER_REL.weak});
+const segsOK=async l=>{for(const n of l)if(!(await probe(segOf(n).src)))return false;return true};
+async function newFlowOK(){return speed<20&&await segsOK(['battle_nishio_strong','battle_nishio_weak_4','battle_nishio_lose_4'])}
+// 영상 순서 재생: 같은 파일에서 바로 이어지는 구간은 끊지 않고 한 번에 재생
+async function playChain(list,fin){const m=[];for(const n of list){const s=segNow(n),p=m[m.length-1];if(p&&p.src===s.src&&p.b!=null&&s.a!=null&&Math.abs(p.b-s.a)<.01)p.b=s.b;else m.push({src:s.src,a:s.a,b:s.b})}
+ const spec=s=>s.a?{src:s.src,from:s.a}:s.src;let ok=false;
+ for(let i=0;i<m.length;i++){const s=m[i],o={next:i+1<m.length?spec(m[i+1]):(fin||null)};if(s.a)o.from=s.a;if(s.b!=null)o.to=s.b;ok=(await playClip(s.src,o))||ok}return ok}
+// 배틀·예고 고르기. tier: 배틀의 강약, vwin: 영상에서 이기는지(부활·뒤늦은 당첨이면 꽝 영상을 봄)
+async function pickBattle(tier,vwin,fB,fPre,rvOK){const av=[];for(const k of Object.keys(BTL)){const l=BTL[k][tier]&&BTL[k][tier][vwin?'win':'lose'];if(l&&!(vwin&&BTL[k][tier].rv&&!rvOK&&k!==fB)&&await segsOK(l.concat(BTL[k].pre||[],BTL[k].pres?BTL[k].pres[0]:[],BTL[k].human?['pre_street_human_4']:[])))av.push(k)}if(!av.length)return null;
+ let b=fB&&av.includes(fB)?fB:av[Math.floor(Math.random()*av.length)];const pt=Math.random()<PRE_MATCH?tier:(tier==='strong'?'weak':'strong');
+ let ps=[];for(const p of PRES)if((!p.to||p.to===b)&&await segsOK([p.n]))ps.push(p);
+ const same=ps.filter(p=>p.tier===pt);if(same.length)ps=same;const own=ps.filter(p=>p.to===b);   // 그 배틀 전용 예고가 있으면 절반은 그쪽
+ const pre=fPre?PRES.find(p=>p.n===fPre):(own.length&&Math.random()<.5?own[Math.floor(Math.random()*own.length)]:ps[Math.floor(Math.random()*ps.length)]);
+ // 인간 장면으로 들어가는 배틀(어머니·아몬): 전용 예고(pre_cafe)로 갈지 먼저 정하고, 인간 경로면 가능한 배틀 중에서 고르게(둘 다 되면 반반)
+ let useOwn=false;if(BTL[b].human){useOwn=!!BTL[b].own&&(fPre===BTL[b].own||(!fPre&&Math.random()<.5))&&await segsOK([BTL[b].own]);if(!useOwn&&!fB){const hs=av.filter(k=>BTL[k].human);b=hs[Math.floor(Math.random()*hs.length)]}}
+ const T=BTL[b][tier],num=Object.assign({},BTL[b].num,T.num,vwin?(T.winNum||BTL[b].winNum):null);
+ let lead=pre?[pre.n]:[];
+ if(BTL[b].pre)lead=BTL[b].pre;
+ else if(BTL[b].pres){const al=[];for(const l of BTL[b].pres)if(await segsOK(l))al.push(l);lead=fPre==='alt'&&al[1]?al[1]:fPre==='main'?al[0]:al[Math.floor(Math.random()*al.length)]}
+ else if(useOwn)lead=[BTL[b].own];   // 전용 예고가 있는 배틀: 절반은 전용 예고로
+ else if(BTL[b].human){const st=[];for(const p of PRES)if(SEG[p.n+'_eye']&&await segsOK([p.n]))st.push(p);const sp=(fPre&&SEG[fPre+'_eye'])?{n:fPre}:st[Math.floor(Math.random()*st.length)];lead=(sp?[sp.n+'_eye']:[]).concat(['pre_street_human_4'])}
+ return {b,tier,pre:lead,list:T[vwin?'win':'lose'],num,rv:vwin&&!!T.rv}}
 async function spinNormal(){LED.sw();
  const res=take('res')||nextRes||drawNormal(),win=res==='zorome',fast=skipFast;nextRes=null;skipFast=false;const pHit=SPEC.zorome*mult;
  if(res!=='lose')slowOn();
@@ -1126,7 +1303,7 @@ async function spinNormal(){LED.sw();
  // 예고 추첨
  const holdEv=win?wpick(HOLD,x=>x[2]):chooseEvent(HOLD.slice(1),false,pHit,1,2);
  let holdColor=holdEv?holdEv[0]:'';
- const fRp=take('rushPre'),rushPre=win&&(fRp!==undefined?fRp:Math.random()<SPEC.rushIn); // 대당 시 7500+RUSH 여부는 미리 결정 (연출에 반영)
+ const fRp=take('rushPre');let rushPre=win&&(fRp!==undefined?fRp:Math.random()<SPEC.rushIn); // 대당 시 7500+RUSH 여부는 미리 결정 (연출에 반영)
  if(holdColor==='rainbow'&&!rushPre)holdColor='gold';
  const lever=win?(Math.random()<.16?wpick(LEVER,x=>x[2]):null):chooseEvent(LEVER,false,pHit,1,2);
  const custom=$('selCustom').value;
@@ -1136,13 +1313,17 @@ async function spinNormal(){LED.sw();
  if(reachEv&&speed<20){const av=[];for(const e of N_REACH)if(await reachOK(e[0],win))av.push(e);
   if(av.length){if(win||!av.includes(reachEv))reachEv=av[Math.floor(Math.random()*av.length)]}else if(!win)reachEv=null}   // 당첨은 보유 영상 중 고르게, 꽝은 영상 없는 것만 교체
  // 뒤늦은 당첨: 꽝 영상이 끝나고 1초 뒤 역물이 떨어지며 당첨
- const fReach=take('reach'),fLate=take('late'),fRev=take('revival'),fIntro=take('intro');if(fReach)reachEv=N_REACH.find(x=>x[0]===fReach)||reachEv;
+ const fReach=take('reach'),fLate=take('late'),fRev=take('revival'),fIntro=take('intro'),fTier=take('tier'),fPre=take('pre');if(fReach)reachEv=N_REACH.find(x=>x[0]===fReach)||reachEv;
+ // 새 흐름(예고 → 배틀 strong/weak): 당첨은 60% strong, 꽝은 강약별 출현율로 리치가 뜸
+ const NF=await newFlowOK();let tier=null;
+ if(NF){if(win)tier=fTier||(Math.random()<TIER_WIN_STRONG?'strong':'weak');else{const lr=loseTierRate(pHit),r=Math.random();tier=fTier||(fReach?'weak':r<lr.strong?'strong':r<lr.strong+lr.weak?'weak':null);reachEv=null}}
  let late=win&&speed<20&&(fLate!==undefined?fLate:Math.random()<LATE_B);
- if(late&&!(fReach&&await reachOK(fReach,false))){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);if(av.length)reachEv=av[Math.floor(Math.random()*av.length)];else late=false}
+ if(late&&!NF&&!(fReach&&await reachOK(fReach,false))){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);if(av.length)reachEv=av[Math.floor(Math.random()*av.length)];else late=false}
  // 꽝 뒤의 부활은 항상 올빼미 부활 영상으로 (코드로 만든 역물 낙하는 쓰지 않음). 뒤늦은 당첨으로 뽑힌 경우도 여기에 합침
- let rev=win&&speed<20&&(late||(fRev!==undefined?fRev:Math.random()<REVIVAL))&&await probe('videos/revival_fukurou.mp4');if(rev)late=false;
+ if(win&&(fRev||fLate))rushPre=true;if(!rushPre)late=false;   // 부활·뒤늦은 당첨은 7500+RUSH 당첨에서만 (비율은 전체 당첨 기준 그대로가 되게 보정)
+ const RVc=win&&rushPre&&speed<20?await pickRV(fRev):'';let rev=!!RVc&&(late||(fRev!==undefined?!!fRev:Math.random()<Math.min(1,REVIVAL/SPEC.rushIn)));if(rev)late=false;
  // 긴 도입(병실 → 리제)은 항상 클라이맥스 야모리로 이어짐
- const long=win&&!late&&!rev&&speed<20&&(fIntro?fIntro==='long':Math.random()<PRE_LONG.p)&&await probe(PRE_LONG.src)&&await reachOK('climax_yamori',true);
+ const long=win&&!late&&!rev&&speed<20&&!(NF&&(fTier||fReach))&&(fIntro?(fIntro==='long'||fIntro==='long2'):Math.random()<PRE_LONG.p)&&await probe(PRE_LONG.src)&&await segsOK(BTL.yamori.strong.win);
  if(long)reachEv=N_REACH.find(x=>x[0]==='climax_yamori');
  const normalReach=false;   // 코드로 그린 노멀 리치는 쓰지 않음 (영상 연출만)
  renderHolds(holdColor&&holdColor!=='blink'?'':holdColor);
@@ -1156,10 +1337,22 @@ async function spinNormal(){LED.sw();
  if(!NUMS.includes(tenpai))tenpai=rd();
  const cn=await clipNum(reachEv,win&&!late);if(cn)tenpai=cn.t;
  const reach=win||reachEv||normalReach;
+ if(NF&&tier&&!long){   // ── 새 흐름 ──
+  const vwin=win&&!late&&!rev,fb=fReach&&fReach.startsWith('battle_')?fReach.slice(7):null,P=await pickBattle(tier,vwin,fb,fPre,rushPre)||await pickBattle(tier==='strong'?'weak':'strong',vwin,fb,fPre,rushPre);
+  if(P){if(P.rv){rushPre=true;FORCE.direct=true}
+   {const fD=take('drop');if((fD!==undefined?fD:Math.random()<RIZE_DROP[win?'win':'lose'])&&await segsOK(['pre_rize_drop']))P.pre=P.pre.concat(['pre_rize_drop'])}   // 부활형 당첨(꽝을 본 뒤 역전): 3000 → 즉시 7500 고정
+   if(fHand===undefined)hand=Math.random()<(win?HAND_WIN[tier]:tier==='strong'?HAND_LOSE_STRONG:handLoseWeak());const RV=RVc,list=P.pre.concat(P.list),first=segOf(list[0]),fin=vwin?CLIP.bonus:rev?RV:null;
+   if(list[0]==='pre_button')hand=false;   // pre_button 앞에는 손떨이 붙지 않음
+   if(hand)await playClip('videos/pre_hand.mp4',{next:first.a?{src:first.src,from:first.a}:first.src});
+   await playChain(list,fin);$('reels').classList.remove('small');
+   if(rev){await playClip(RV,{next:CLIP.bonus});return finishNormal(res,rushPre,true,true)}
+   if(late){clearTimeout(hideT);await sleep(1000);await handDrop(true)}
+   const tp=P.num.t||tenpai;stopSilent(0,tp);stopSilent(2,tp);stopSilent(1,win?tp:(P.num.mid||nx(tp)));
+   return finishNormal(res,rushPre,win)}}
  // 부활: 꽝 리치 영상이 끝난 뒤에 올빼미 연출로 되살아남
- if(rev){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);const lr=(fReach&&av.find(x=>x[0]===fReach))||(av.length?av[Math.floor(Math.random()*av.length)]:null),RV='videos/revival_fukurou.mp4';
-  if(lr){const lf=await reachFirst(lr[0],false);if(hand)await playClip('videos/yokoku_hand.mp4',{next:lf});await doReach(lr,0,false,false,{quiet:true,next:RV})}
-  else if(hand)await playClip('videos/yokoku_hand.mp4',{next:RV});
+ if(rev){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);const lr=(fReach&&av.find(x=>x[0]===fReach))||(av.length?av[Math.floor(Math.random()*av.length)]:null),RV=RVc;
+  if(lr){const lf=await reachFirst(lr[0],false);if(hand)await playClip('videos/pre_hand.mp4',{next:lf});await doReach(lr,0,false,false,{quiet:true,next:RV})}
+  else if(hand)await playClip('videos/pre_hand.mp4',{next:RV});
   await playClip(RV,{next:CLIP.bonus});return finishNormal(res,rushPre,true,true)}
  if(!reach){await sleep(speed>=20?0:850);return finishNormal(res,rushPre)}   // 연출 없는 꽝: 통상 화면은 그대로 흐르고 추첨만 진행
  const mid=win?tenpai:(cn&&cn.mid&&tenpai===cn.t?cn.mid:nx(tenpai));
@@ -1167,15 +1360,21 @@ async function spinNormal(){LED.sw();
  const vwin=win&&!late,first=reachEv?await reachFirst(reachEv[0],vwin):'';
  if(first){
   // 리치 전 도입: 70% 손떨 예고, 30% 긴 도입 연출(병실 → 손떨+리제 웃음 → 리제 먹음, 한 덩어리 영상)
-  if(hand){const ok=long?await playClip(PRE_LONG.src,{next:first}):await playClip('videos/yokoku_hand.mp4',{next:first});
-   if(!ok&&!(long&&await playClip('videos/yokoku_hand.mp4',{next:first})))await handDrop(win)}
+  // 긴 도입의 두 번째 형태(손떨 옵션2): 손이 내려온 채 리제 장면 → 긴 도입 영상의 85초 지점(꽃밭)으로 이어짐. 긴 도입이 뽑혔을 때 절반은 이쪽
+  const long2=long&&(fIntro?fIntro==='long2':Math.random()<.5)&&await probe(PRE_LONG.alt);
+  const YB=V_('pre_yamori_body');yLead=null;
+  if(hand){let ok;
+   if(long2){ok=await playClip(PRE_LONG.alt,{next:YB});if(ok)yLead=['pre_yamori_body']}
+   else if(long){ok=await playClip(PRE_LONG.src,{next:V_('pre_rize_drop')});if(ok)yLead=['pre_rize_drop','pre_yamori_body']}
+   else ok=await playClip('videos/pre_hand.mp4',{next:first});
+   if(!ok&&!(long&&await playClip('videos/pre_hand.mp4',{next:first})))await handDrop(win)}
   await doReach(reachEv,tenpai,vwin,false,{quiet:true,next:vwin&&res==='zorome'?CLIP.bonus:null});
   if(late){clearTimeout(hideT);await sleep(1000);await handDrop(true)}
   stopSilent(0,tenpai);stopSilent(2,tenpai);stopSilent(1,mid);
   return finishNormal(res,rushPre,win);
  }
  // 손떨 예고 영상: 변동 중(리치 전)에 재생. 영상이 없으면 아래의 코드 낙하로 대신함
- if(hand&&await playClip('videos/yokoku_hand.mp4'))hand=false;
+ if(hand&&await playClip('videos/pre_hand.mp4'))hand=false;
  stopReel(0,tenpai);await sleep(300);stopReel(2,tenpai);await sleep(200);
  if(lever){se('lever');fx('PUSH','big t-'+lever[0]);await sleep(900);clearFx()}
  if(hand&&!reachEv)await handDrop(win);
@@ -1219,23 +1418,27 @@ async function finishNormal(res,rushPre,quiet,rev){   // rev: 올빼미 부활�
  addHist(at+'회전','3000 (RUSH 실패)',false);
 }
 // 긴 도입 연출: 손떨 대신 30% 확률, 항상 클라이맥스 야모리 리치로 이어짐
-const PRE_LONG={src:'videos/pre_long.mp4',p:.30};
+const PRE_LONG={src:'videos/pre_hospital.mp4',p:.30,alt:'videos/pre_hand2.mp4',altTo:0};let yLead=null;   // 병실(pre_hospital) → pre_yamori_body 처음부터 / 손떨 옵션2(pre_hand2) → pre_yamori_body 15.04초(꽃밭)부터
 const FILM_RIZE=false;
 const LATE_B=0.10, LATE_J=0.3771;   // 배틀 꽝 1초 뒤 역물 낙하로 당첨(통상 당첨 중 비율) / judgement 성공 중 실패로 보였다가 계수 중 역전하는 비율 (일반 당첨의 RUSH 당첨 중 33% = 0.3771 × judge 까지 가는 87.5%)
 if(TUNE.consts.LATE&&TUNE.consts.LATE.j0===5&&TUNE.consts.LATE.j1===13)delete TUNE.consts.LATE;   // 옛 기본값이 저장돼 있으면 새 실측값으로
 const LATE=Object.assign({j0:.7,j1:14.07},TUNE.consts.LATE);   // judge_tail_lose 안에서 역전 낙하가 가능한 구간(초): 계수가 보이는 첫 장면 ~ 흰색·파란색 안내 카드가 뜨는 프레임(14.083초) 바로 앞
 const REVIVAL=0.06; // 당첨 중 부활 연출 비율(추정)
-const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182},TUNE.consts.B75),DIRECT_7500=0.125,DIRECT_REV=0.6;   // DIRECT_REV: 올빼미 부활 뒤에는 즉시 7500 이 크게 늘어남 (RUSH 당첨 중 60%)
+const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182},TUNE.consts.B75),DIRECT_7500=0.125,DIRECT_REV=1;   // 부활 연출 뒤에는 항상 3000 → 즉시 7500 (그래서 부활은 7500+RUSH 당첨에서만 나옴)
+const RVS=['videos/revival_fukurou.mp4','videos/revival_rize_3.mp4'];async function pickRV(f){const av=[];for(const r of RVS)if(await probe(r))av.push(r);if(f==='rize'||f==='fukurou'){const m=av.find(r=>r.includes(f));if(m)return m}return av.length?av[Math.floor(Math.random()*av.length)]:''}   //   // DIRECT_REV: 올빼미 부활 뒤에는 즉시 7500 이 크게 늘어남 (RUSH 당첨 중 60%)
 //   // RUSH 당첨 중 12.5% (줄인 12.5%p 는 judge 실패 후 역전 LATE_J 로 옮김)
 // 7500 보너스 영상: 정산 구간 동안 획득 수를 올리고, ST 시작 시각에 RUSH 표시로 전환
-async function play7500(base,gain){
+let B75FROM;   // 브레이크 당첨 영상 뒤에만: 7500 보너스를 2.24초부터
+async function play7500(base,gain){const b75f=B75FROM;B75FROM=undefined;
  const lin=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a)));
- const p=await playClip(CLIP.bonus7500,{next:STV.full,skip:[[B75.pay,B75.st]],onTime:t=>{const o=base+Math.round(gain*lin(t,B75.pay,B75.st-3));if(o!==S.out){S.out=o;render()}},marks:[[B75.st,()=>{S.out=base+gain;S.mode='rush';S.st=SPEC.st;render()}]]});
+ const p=await playClip(CLIP.bonus7500,{from:b75f,next:STV.full,skip:[[B75.pay,B75.st]],onTime:t=>{const o=base+Math.round(gain*lin(t,B75.pay,B75.st-3));if(o!==S.out){S.out=o;render()}},marks:[[B75.st,()=>{S.out=base+gain;S.mode='rush';S.st=SPEC.st;render()}]]});
  S.out=base+gain;render();return p;
 }
 // judgement: 상대별 본체(결과 직전까지) + 공통 결말(성공/실패). 본체만 보고는 결과를 알 수 없어요.
-const JB=[{k:'shachi',body:'videos/judge_shachi_body.mp4',pre:'videos/judge_ready.mp4',rel:.26,w:.15},{k:'yamori',body:'videos/judge_yamori_body.mp4',rel:.40,w:.30},{k:'shiro',body:'videos/judge_shiro_body.mp4',rel:.92,w:.25},
+const JB=[{k:'shachi',body:'videos/judge_shachi_body.mp4',pre:'videos/judge_ready.mp4',preFrom:4.2,rel:.26,w:.15},{k:'yamori',body:'videos/judge_yamori_body.mp4',pre:'videos/judge_ready.mp4',rel:.40,w:.30},{k:'ayato',body:'videos/judge_ayato_body.mp4',pre:'videos/judge_ready.mp4',rel:.75,w:.30},{k:'shiro',body:'videos/judge_shiro_body.mp4',pre:'videos/judge_ready.mp4',rel:1,w:.25},
  {k:'break',body:'videos/judge_break_body.mp4',win:'videos/judge_break_win.mp4',loseFrom:.63,rel:.45,w:.30}];
+// 캐릭터 본편은 자기 '7500 JUDGEMENT' 장면까지 담고 있고, 공용 judge_ready 는 7.5초 지점(마지막 버튼 직전)부터 씀. preFrom: 원본이 그 전에 끝나는 캐릭터(샤치·아야토)는 모자란 만큼 judge_ready 를 앞에서부터
+const JSELC='videos/judge_select.mp4';   // 모드 선택 ~ 캐릭터 룰렛의 버튼까지(공용)
 const JT={win:'videos/judge_tail_win.mp4',lose:'videos/judge_tail_lose.mp4'};
 async function pickJudge(success){if(!(speed<20&&await probe(JT.win)&&await probe(JT.lose)))return null;const av=[];for(const j of JB)if(await probe(j.body))av.push(j);
  if(!av.length)return null;
@@ -1243,12 +1446,12 @@ async function pickJudge(success){if(!(speed<20&&await probe(JT.win)&&await prob
  const br=av.filter(x=>x.k==='break'),bt=av.filter(x=>x.k!=='break'),pool=(Math.random()<.5?br:bt);const use=pool.length?pool:av;
  return wpick(use,x=>success?x.w*x.rel:x.w*(1-x.rel))}
 // 선택 화면: 두 본체 영상의 선택 장면을 멈춰 두고(왼쪽 = 배틀, 오른쪽 = 브레이크) 유저가 고름. 성공·실패는 이미 추첨으로 정해져 있음
-const SEL=Object.assign({shachi:[1.0,2.88],yamori:[2.0,8.05],shiro:[1.5,7.55],break:[4.0,8.08],t0:.4,vis:2.95,lead:.5},TUNE.consts.SEL);   // t0: 선택 화면 시작(번쩍임 직전, '모드를 선택해 주세요' 음성 포함), vis: 브레이크 쪽 화면이 선택 장면이 되는 시각(그 전에는 오른쪽을 골라도 배틀 쪽 화면을 보여 줌), lead: 확정 번쩍임 직전에 선택을 마감   // [선택 장면 시각, 영상 속 확정 순간]
+const SEL=Object.assign({ayato:[.3,.85],shachi:[1.0,2.88],yamori:[2.0,8.05],shiro:[1.5,7.55],break:[4.0,8.08],t0:.4,vis:2.95,lead:.5},TUNE.consts.SEL);   // t0: 선택 화면 시작(번쩍임 직전, '모드를 선택해 주세요' 음성 포함), vis: 브레이크 쪽 화면이 선택 장면이 되는 시각(그 전에는 오른쪽을 골라도 배틀 쪽 화면을 보여 줌), lead: 확정 번쩍임 직전에 선택을 마감   // [선택 장면 시각, 영상 속 확정 순간]
 async function chooseMode(success){
  const bt=[],br=[];for(const j of JB)if(await probe(j.body))(j.k==='break'?br:bt).push(j);if(!bt.length||!br.length)return null;
- const jb=wpick(bt,x=>success?x.w*x.rel:x.w*(1-x.rel)),jk=br[0],out=j=>({j,from:Math.max(0,SEL[j.k][1]-SEL.lead)});
+ const jb=wpick(bt,x=>success?x.w*x.rel:x.w*(1-x.rel)),jk=br[0],out=j=>({j,from:Math.max(0,SEL[j.k==='break'?'break':'yamori'][1]-SEL.lead)});
  clearTimeout(hideT);prepSeq++;prepared=null;
- const SRC='videos/judge_yamori_body.mp4';                                                    // 선택 화면의 소리·제한시간 게이지는 배틀(모드1) 영상의 것을 사용
+ const SRC=JSELC;                                                    // 선택 화면의 소리·제한시간 게이지는 배틀(모드1) 영상의 것을 사용
  if(auto||!(await probe(SRC))){return out(Math.random()<.5?jb:jk)}                             // 자동 회전 중에는 기다리지 않고 무작위
  // 두 영상의 선택 화면은 같은 박자로 흐름 → 배틀 쪽(소리 있음)과 브레이크 쪽(무음)을 동시에 틀어 두고, 고른 쪽을 앞에 보여 줌. 제한시간이 끝나면 그때 고른 모드로 진행
  const cur=VIDS.findIndex(v=>v.style.display==='block'),Lel=VIDS[cur===0?1:0],Rel=VIDS[cur===0?0:1];
@@ -1275,14 +1478,18 @@ async function judgement(success,j,jfrom){
  if(j===undefined)j=await pickJudge(success);
  const fJl=take('jlate');
  if(j&&success&&(fJl!==undefined?fJl:Math.random()<LATE_J)){   // 실패로 보인 뒤 계수 중 아무 때나 역물이 떨어지며 역전 (안내 문구가 뜨기 전까지)
-  const tl={src:JT.lose,from:j.loseFrom||undefined};await playClip(j.body,{from:jfrom,next:j.pre||JT.lose,noskip:j.k==='break'});if(j.pre)await playClip(j.pre,{next:JT.lose});
-  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.sqrt(Math.random())*Math.max(0,LATE.j1-LATE.j0)).toFixed(3),next:{src:'videos/direct7500.mp4',from:D75F()}});
+  const tl={src:JT.lose,from:j.loseFrom||undefined};if(j.k!=='break'){await playClip(JSELC,{from:jfrom,next:j.body});jfrom=undefined}await playClip(j.body,{from:jfrom,next:j.pre||JT.lose,noskip:j.k==='break'});if(j.pre)await playClip(j.pre,{from:j.preFrom,next:JT.lose});
+  const BW='videos/judge_break_win.mp4',bwOK=await probe(BW);   // 계수 중 역전: 브레이크 당첨 영상(번쩍임 → 별 → 손 낙하)으로 뒤집고 7500 보너스는 2.24초부터
+  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.sqrt(Math.random())*Math.max(0,LATE.j1-LATE.j0)).toFixed(3),next:bwOK?BW:{src:'videos/direct7500.mp4',from:D75F()}});
+  if(bwOK&&await playClip(BW,{next:{src:CLIP.bonus7500,from:2.24}})){B75FROM=2.24;return true}
   // 실패 계수 도중 → 즉시 7500 영상 → 7500 확정(전체 낙하) → 7500 보너스. 3000 도중의 즉시 7500 분기와 같은 순서
   // 부활 때만: 즉시 7500 영상 맨 앞의 '3000' 프레임(0.03초까지)을 잘라 냄
   if(await playClip('videos/direct7500.mp4',{from:D75F(),next:JT.win}))await playClip(JT.win,{next:CLIP.bonus7500});else if(!(await playClip(JT.win,{next:CLIP.bonus7500}))){clearTimeout(hideT);await handDrop(true)}return true}
  if(j){const tail=success?{src:(j.win&&await probe(j.win))?j.win:JT.win}:{src:JT.lose,from:j.loseFrom||undefined}   /* 배틀 실패는 조정한 시작점(+0.6)부터 */,ns=j.k==='break';   // 브레이크 모드는 화면 클릭 불가
-  await playClip(j.body,{from:jfrom,next:j.pre||tail,noskip:ns});if(j.pre)await playClip(j.pre,{next:tail});
-  await playClip(tail.src,{from:tail.from,next:success?CLIP.bonus7500:null,noskip:ns});return success}
+  if(!ns){await playClip(JSELC,{from:jfrom,next:j.body});jfrom=undefined}
+  await playClip(j.body,{from:jfrom,next:j.pre||tail,noskip:ns});if(j.pre)await playClip(j.pre,{from:j.preFrom,next:tail});
+  const bw=success&&j.win&&tail.src===j.win;if(bw)B75FROM=2.24;
+  await playClip(tail.src,{from:tail.from,next:success?(bw?{src:CLIP.bonus7500,from:2.24}:CLIP.bonus7500):null,noskip:ns});return success}
  const opp=success?wpick(JUDGE,x=>x[2]):wpick(JUDGE,x=>x[2]*(1-x[1])/x[1]);
  if(await playClip(success?CLIP.judge_win:CLIP.judge_lose))return success;
  fx('7500ジャッジメントバトル','mid t-red');fx('VS '+opp[0],'big t-'+(opp[1]>.7?'gold':'white'));await sleep(2200);clearFx();
@@ -1429,6 +1636,34 @@ $('main').insertBefore($('vid'),$('main').firstChild); // 영상은 액정 창 �
 setTimeout(()=>{for(let i=0;i<3;i++)setNum(i,[2,3,5][i])},600);
 renderHolds('');applyMute();render();
 </script>
+<style id="qkcss">
+#qk{position:fixed;top:6px;right:6px;z-index:200;display:flex;gap:4px}
+#qk button{width:28px;height:28px;padding:0;border-radius:50%;border:1px solid #666;background:rgba(18,18,24,.62);color:#fff;font-size:14px;line-height:1;cursor:pointer}
+#qk button.off{opacity:.38;filter:grayscale(1)}
+body.noled .led{display:none!important}
+.led:not(.b):not(.t){filter:brightness(1.3) contrast(1.3) saturate(1.25)}
+body.novib #machine{translate:none!important}
+/* 라이트 = 밝은 실내 매장(선명) / 다크 = 어두운 방(기기 빛이 주변으로 번짐) */
+html.lightm,html.lightm body{background:linear-gradient(180deg,#e9e6df 0%,#dedad1 60%,#cfcabf 100%) fixed!important}
+html.lightm #frameImg.dim{filter:brightness(.8)}
+html.lightm .led:not(.b):not(.t){filter:brightness(1.1) contrast(1.1)}
+html.lightm #view{box-shadow:0 14px 34px rgba(0,0,0,.38),0 0 0 1px rgba(0,0,0,.25)}
+html.lightm #panel,html.lightm #panel2{background:var(--panel);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+html:not(.lightm),html:not(.lightm) body{background:radial-gradient(ellipse at 50% 45%,#0b0a0f 0%,#020203 70%) fixed!important}
+html:not(.lightm) #view{overflow:hidden;box-shadow:0 0 60px 4px hsla(var(--glh,350),var(--gls,80%),62%,var(--gla,.3)),0 0 240px 70px hsla(var(--glh,350),var(--gls,80%),55%,calc(var(--gla,.3)*.5));transition:box-shadow .25s linear}
+html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:#222}
+</style>
+<div id="qk"><button id="qkT" title="라이트 / 다크">🌙</button><button id="qkL" title="LED 켜기 / 끄기">💡</button><button id="qkV" title="진동 켜기 / 끄기">📳</button></div>
+<script>
+(()=>{let q={};try{q=JSON.parse(localStorage.getItem('qkOpt')||'{}')}catch(e){}
+ const H=document.documentElement,B=document.body,T=document.getElementById('qkT'),L=document.getElementById('qkL'),V=document.getElementById('qkV');
+ const ap=()=>{H.classList.toggle('lightm',!!q.light);window.QKDARK=!q.light;B.classList.toggle('noled',!!q.noled);B.classList.toggle('novib',!!q.novib);T.textContent=q.light?'☀️':'🌙';L.classList.toggle('off',!!q.noled);V.classList.toggle('off',!!q.novib);try{localStorage.setItem('qkOpt',JSON.stringify(q))}catch(e){}};
+ T.onclick=()=>{q.light=!q.light;ap()};L.onclick=()=>{q.noled=!q.noled;ap()};V.onclick=()=>{q.novib=!q.novib;ap()};
+ try{const v=navigator.vibrate&&navigator.vibrate.bind(navigator);if(v)navigator.vibrate=function(){return B.classList.contains('novib')?false:v.apply(null,arguments)}}catch(e){}
+ ap();
+ /* 다크 모드의 번짐 색: 오른쪽 기둥 LED 의 지금 색·밝기를 따라감 */
+ setInterval(()=>{if(q.light)return;try{const z=LED.z.right;if(!z)return;const off=B.classList.contains('noled'),a=off?.06:Math.max(.06,Math.min(.6,(z.lc||0)*.55+(z.lt||0)*.25)),h=z.q>=0?Math.floor(z.q/8):225,s_=z.q>=0?Math.round(40+(z.q%8)/7*55):35;const st=H.style;st.setProperty('--glh',h);st.setProperty('--gls',s_+'%');st.setProperty('--gla',a.toFixed(2))}catch(e){}},120)})();
+</script>
 <div id="wcol">
 <div class="wg" id="wA"><div class="hd" id="wAh" title="누르면 접기/펼치기 · 끌면 이동 · 두 번 누르면 원래 자리"><span>PLAY</span><i></i></div><div class="bd">
 <button id="wPlay" class="wide" title="회전 (Enter)">▶ PLAY</button>
@@ -1457,6 +1692,11 @@ renderHolds('');applyMute();render();
  const ready=(async()=>{await navigator.serviceWorker.register('sw.js');await navigator.serviceWorker.ready;
   if(!navigator.serviceWorker.controller)await new Promise(r=>{navigator.serviceWorker.addEventListener('controllerchange',r,{once:true});setTimeout(r,3000)})})();
  const all=()=>Object.keys(window.CLIPS||{}).map(n=>'videos/'+n+'.mp4').concat(['videos/idle_loop.mp4']),absU=f=>new URL(f,location.href).href.split('?')[0];
+ // v.1 때 받아 둔 영상 정리(한 번만): 이름만 바뀐 영상은 새 이름으로 옮기고, 내용이 바뀐 영상과 이제 안 쓰는 영상은 지움 → 그 뒤 '없는 것만' 받음
+ try{const vk='g999cv:'+location.pathname;if(localStorage.getItem(vk)!=='2'&&Object.keys(window.CLIPS||{}).length>10){const c=await caches.open(CN),base=new URL('videos/',location.href).href.split('?')[0],REN={"battle_nishio_lose_4": "battle_nishio_lose", "battle_scrapper_lose_4": "battle_scrapper_lose", "battle_tsukiyama_weak_lose_2": "battle_tsukiyama_body", "pre_hand": "yokoku_hand"},CHG=/\/(judge_yamori_body|judge_shiro_body|judge_shachi_body|judge_ready|judge_break_win|judge_tail_lose)\.mp4$/;
+  for(const n in REN){const an=absU('videos/'+n+'.mp4');if(!(await c.match(an))){const o=await c.match(absU('videos/'+REN[n]+'.mp4'));if(o)await c.put(an,o)}}
+  const keep=new Set(all().map(absU));for(const k of await c.keys()){const u=k.url.split('?')[0];if(u.startsWith(base)&&(!keep.has(u)||CHG.test(u)))await c.delete(k)}
+  localStorage.setItem(vk,'2')}}catch(e){}
  if(!mobile){try{await ready;const c=await caches.open(CN);let miss=0;for(const f of all())if(!(await c.match(absU(f))))miss++;
    if(miss){pcBtn=document.createElement('button');pcBtn.className='wide';pcBtn.id='wDl';pcBtn.textContent='⬇ 영상 미리 받기';pcBtn.title='영상을 전부 받아 두면 끊김 없이 재생돼요';q('wA').querySelector('.bd').appendChild(pcBtn);
     pcBtn.onclick=()=>{pcBtn.blur();if(typeof busy!=='undefined'&&busy)return;q('dlSkip').textContent='취소';box.classList.add('on');run()}}}catch(e){}return}
