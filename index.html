@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<script>window.TMP_BREAKWIN=true;</script><!-- 한시: 당첨은 전부 브레이크 판정 성공. 끄려면 gen_v2.py 의 TMP_BREAKWIN=False -->
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>999 v.2</title>
 <meta name="application-name" content="999 v.2"><meta name="apple-mobile-web-app-title" content="999 v.2">
 <style>
@@ -278,6 +278,13 @@ body.aOff #wA>.hd{height:30px;padding:0 4px 0 8px}
 /* 모바일: 기기 화면 왼쪽 위에 겹쳐 놓음 (기기는 화면 폭 전체 사용) */
 @media (max-width:760px){body{--ww:0px!important}#wcol{left:4px;top:4px;width:200px;max-height:calc(100vh - 8px)}.wg{border-left:1px solid #2b6fb0;background:linear-gradient(180deg,rgba(16,18,26,.88),rgba(6,7,11,.88))}
  #wcol button,#wcol label{height:36px}#wcol #wAuto{height:44px}body.aOff #wA{margin:0}}
+</style>
+<style id="safecss">
+@supports (padding:env(safe-area-inset-top)){
+body{box-sizing:border-box;padding-top:env(safe-area-inset-top)!important}
+#cab{width:min(calc(100vw - var(--ww)),calc((100vh - env(safe-area-inset-top)) * var(--ar)))!important}
+@media (max-width:760px){#wcol{top:calc(4px + env(safe-area-inset-top))!important;max-height:calc(100vh - 8px - env(safe-area-inset-top))!important}}
+}
 </style>
 </head>
 <body>
