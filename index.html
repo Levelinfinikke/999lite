@@ -355,7 +355,7 @@ body{box-sizing:border-box;padding-top:env(safe-area-inset-top)!important}
 <div id="tune"></div>
 <button id="recBtn" title="화면+소리 녹화 (R)">⏺ 녹화</button>
 <script src="videos/clips.js"></script>
-<script src="images/led_data.js?v=48"></script><!-- LED 표를 바꿀 때마다 v 숫자를 올림: 브라우저가 예전 표를 붙잡고 있지 않게 -->
+<script src="images/led_data.js?v=49"></script><!-- LED 표를 바꿀 때마다 v 숫자를 올림: 브라우저가 예전 표를 붙잡고 있지 않게 -->
 <script>
 'use strict';
 // ═══════════ 스펙 (출처: 공략 사이트 공개 수치) ═══════════
@@ -383,7 +383,7 @@ const JUDGE=[['鯱',.26,.15],['ヤモリ',.40,.30],['絢都',.75,.30],['クロ�
 // ═══════════ 소재 파일 슬롯 (없으면 코드 연출) ═══════════
 // 영상: videos/<키>_body.mp4 (리치 본체), videos/<키>_win.mp4 / _lose.mp4 (결말), 그 밖에 아래 이름
 const CLIP={hand:'videos/hand_drop.mp4',zorome:'videos/zorome.mp4',bonus:'videos/bonus.mp4',bonus7500:'videos/bonus7500.mp4',judge_win:'videos/judge_win.mp4',judge_lose:'videos/judge_lose.mp4',rush_in:'videos/rush_in.mp4',rush_end:'videos/rush_end.mp4',loop:'videos/kumax_loop.mp4',charge:'videos/charge.mp4',charge_up:'videos/charge_up.mp4'};
-const IMG={num:n=>'images/num_'+n+'.png',hold:c=>'images/hold_'+(c||'normal')+'.png',frame:'images/machine_frame.webp?v=4'};
+const IMG={num:n=>'images/num_'+n+'.png',hold:c=>'images/hold_'+(c||'normal')+'.png',frame:'images/machine_frame.webp?v=5'};
 const SND={bgm:'audio/bgm_normal.mp3',bgmRush:'audio/bgm_rush.mp3',stop:'audio/se_stop.mp3',reach:'audio/se_reach.mp3',hold:'audio/se_hold.mp3',hand:'audio/se_hand.mp3',win:'audio/se_win.mp3',lever:'audio/se_lever.mp3'};
 
 // 영상에 숫자가 찍혀 있는 클립: 게임 숫자를 영상에 맞춤 [텐파이, 꽝일 때 가운데]
