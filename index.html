@@ -1659,7 +1659,8 @@ html.lightm #frameImg.dim{filter:brightness(.8)}
 html.lightm .led:not(.b):not(.t){filter:brightness(1.1) contrast(1.1)}
 html.lightm #view{box-shadow:0 14px 34px rgba(0,0,0,.38),0 0 0 1px rgba(0,0,0,.25)}
 html.lightm #panel,html.lightm #panel2{background:var(--panel);box-shadow:0 6px 20px rgba(0,0,0,.3)}
-html:not(.lightm) #frameImg.dim{filter:brightness(.42)}   /* 다크: 기기 사진만 조금 어둡게(기본 .64). LED 는 위에 따로 겹쳐 그려서 영향 없음 */
+html:not(.lightm) #frameImg.dim{filter:brightness(.42)}
+#qkFl{position:absolute;z-index:10;pointer-events:none;display:none;filter:brightness(.8)}html:not(.lightm) #qkFl{display:block}   /* 다크: 꽃 자리만 라이트 모드 밝기의 사진을 한 장 더 깔아서 어두워지지 않게 */   /* 다크: 기기 사진만 조금 어둡게(기본 .64). LED 는 위에 따로 겹쳐 그려서 영향 없음 */
 html:not(.lightm),html:not(.lightm) body{background:radial-gradient(ellipse at 50% 45%,#0b0a0f 0%,#020203 70%) fixed!important}
 html:not(.lightm) #view{overflow:hidden;box-shadow:0 0 60px 4px hsla(var(--glh,350),var(--gls,80%),62%,var(--gla,.3)),0 0 240px 70px hsla(var(--glh,350),var(--gls,80%),55%,calc(var(--gla,.3)*.5));transition:box-shadow .25s linear}
 html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:#222}
@@ -1672,6 +1673,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
  T.onclick=()=>{q.light=!q.light;ap()};L.onclick=()=>{q.noled=!q.noled;ap()};V.onclick=()=>{q.novib=!q.novib;ap()};
  try{const v=navigator.vibrate&&navigator.vibrate.bind(navigator);if(v)navigator.vibrate=function(){return B.classList.contains('novib')?false:v.apply(null,arguments)}}catch(e){}
  ap();
+ try{const B_=LED_BOX.flower.c,f=document.createElement('img');f.id='qkFl';f.alt='';f.src='images/led_flower.webp';Object.assign(f.style,{left:B_[0]*100+'%',top:B_[1]*100+'%',width:B_[2]*100+'%',height:B_[3]*100+'%'});document.getElementById('frameImg').after(f)}catch(e){}
  /* 다크 모드의 번짐 색: 오른쪽 기둥 LED 의 지금 색·밝기를 따라감 */
  setInterval(()=>{if(q.light)return;try{const z=LED.z.right;if(!z)return;const off=B.classList.contains('noled'),a=off?.06:Math.max(.06,Math.min(.6,(z.lc||0)*.55+(z.lt||0)*.25)),h=z.q>=0?Math.floor(z.q/8):225,s_=z.q>=0?Math.round(40+(z.q%8)/7*55):35;const st=H.style;st.setProperty('--glh',h);st.setProperty('--gls',s_+'%');st.setProperty('--gla',a.toFixed(2))}catch(e){}},120)})();
 </script>
