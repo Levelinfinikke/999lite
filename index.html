@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>window.TMP_BREAKWIN=true;</script><!-- 한시: 당첨은 전부 브레이크 판정 성공. 끄려면 gen_v2.py 의 TMP_BREAKWIN=False -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>999lite v.2</title>
+<title>999 v.1</title>
 <style>
 :root{--bg:#0b0709;--panel:#1a1014;--line:#4a2530;--ink:#f3e9ea;--dim:#a88c92;--ac:#e0213a;--gold:#f2c14e}
 *{box-sizing:border-box}
@@ -630,7 +631,7 @@ $('tune').addEventListener('click',async e=>{const b=e.target.closest('button');
   case 'tZero':TUNE.trim[TK.sel]=[0,0];delete TUNE.cues[tSrc(TK.sel)];saveTune();tuneDraw();break;
   case 'tExp':{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(TUNE,null,1)],{type:'application/json'}));a.download='ghoul_tune.json';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),2000);break}
   case 'tImp':$('tFile').click();break;
-  case 'tReset':if(confirm('조정값을 모두 지울까요?')){localStorage.removeItem('g999Tune');location.reload()}break;
+  case 'tReset':if(confirm('조정값을 모두 지울까요?')){localStorage.removeItem('g999Tune2');location.reload()}break;
  }});
 $('tune').addEventListener('change',e=>{const t=e.target;
  if(t.id==='tRvF'){TK.rvf=t.value;return tuneDraw()}
@@ -729,9 +730,9 @@ let skipReq=false,stopReq=false,stopAll=false;let LAT=.09; // 재생 시작 지�
 // ── 조정값: 클립별 시작·끝 이동(초), 역물 큐, 분기 시각. 브라우저에 저장되고 조정 화면에서 바꿈 ──
 const CLIPS=window.CLIPS||{};                       // videos/clips.js: {이름:{in:앞 여유, dur:기준 길이}}
 const TUNE_DEFAULT={"trim":{"judge_select":[0.5,-0.119],"judge_tail_win":[0.1,0.6],"judge_tail_lose":[0.6,1.4],"judge_ready":[7.3,0.5],"direct7500":[0,-0.068],"bonus7500":[0.6,2],"st_ep_2":[0,0.1],"st_ep_3":[-2,-0.1],"st_ep_4":[0.234,0],"st_hyper6000":[0.1,-1],"uw_try":[0.185,0],"uw_lose":[0.051,-0.8],"uw_win_21000":[0.087,0],"rush_in":[0.1,1.3],"bonus":[0.568,0],"st_win_omedetou":[5.5,-3.22],"st_win_rize":[0,-61.58],"st_win_tsukiyama":[0.6,-12.7],"pre_hand":[0,0.2],"uw_win_6000":[0.015,0],"uw_win_9000":[0.017,0],"uw_win_12000":[0.017,0],"uw_win_15000":[-0.017,0],"uw_win_18000":[-0.051,0],"st_full":[1.798,0],"revival_fukurou":[0.02,0],"battle_nishio_strong_win_4":[0.1,-0.1],"battle_tsukiyama_weak_lose_2":[1,0],"pre_rize_eat":[0,0],"charge":[0.4,0],"pre_hospital":[39.417,0],"pre_street_weak":[0.8,2.0],"pre_kakuza_fail_1":[0,-2.0],"revival_rize_3":[-0.049,-0.5],"pre_street_human_4":[2.1,-0.1],"battle_mother_lose_4":[0,-3.9],"battle_amon_3":[0,-0.1],"battle_amon_win_3":[-2.266,0],"climax_yamori_lose_2":[0.4,-4.8],"climax_yamori_win":[0.234,0],"battle_scrapper_revival_2":[0.619,0],"pre_tsukiyama_strong":[-0.5,0],"battle_kakuza_1":[0,-0.1],"judge_shachi_body":[0,-3.7],"battle_scrapper_weak_4":[0.533,0],"battle_scrapper_strong_lose_4":[0.533,0],"battle_nishio_weak_4":[0.167,0],"battle_tsukiyama_strong_lose_4":[0.8,0],"pre_rize_drop":[0.1,0]},"cues":{},"consts":{"BT":{"branch":22.8,"judge":98.7},"UWT":{"t2":14.78,"t1":24.81}}}; // 2026-11-21 조정값 7차 반영 (final)
-let TUNE=(()=>{let t={};try{t=JSON.parse(localStorage.getItem('g999Tune')||'{}')}catch(e){}
+let TUNE=(()=>{let t={};try{t=JSON.parse(localStorage.getItem('g999Tune2')||'{}')}catch(e){}
  return {trim:Object.assign({},TUNE_DEFAULT.trim,t.trim),cues:Object.assign({},TUNE_DEFAULT.cues,t.cues),consts:Object.assign({},TUNE_DEFAULT.consts,t.consts)}})();
-const saveTune=()=>{try{localStorage.setItem('g999Tune',JSON.stringify(TUNE))}catch(e){}};
+const saveTune=()=>{try{localStorage.setItem('g999Tune2',JSON.stringify(TUNE))}catch(e){}};
 try{if(!localStorage.getItem('ghoulFix6')){TUNE.cues={};localStorage.setItem('ghoulFix6','1');saveTune()}}catch(e){} // 역물 시각을 전부 다시 측정해서 옛 조정값은 버림
 try{if(!localStorage.getItem('ghoulFix7')){for(const [k,e] of [['st_win_rize',-61.58],['st_win_tsukiyama',-12.7],['st_win_omedetou',-3.22]])TUNE.trim[k]=[(TUNE.trim[k]||[0,0])[0]||0,e];localStorage.setItem('ghoulFix7','1');saveTune()}}catch(e){} // ST 당첨 영상 3개: 마지막 역물 낙하 직전에서 끝나도록 끝 자르기 (이 브라우저에 저장된 값에도 한 번 적용)
 // 영상 속 PUSH·連打·押せ 가 떠 있는 구간 [시작, 넘어갈 지점] (기준 시각 초, 999 = 그 영상의 끝). 이 구간에서 클릭/Space/SKIP 하면 바로 결과로 넘어감
@@ -753,9 +754,9 @@ try{if(!localStorage.getItem('ghoulFix11')){TUNE.trim.direct7500=[0,(TUNE.trim.d
 try{if(!localStorage.getItem('ghoulFix9')){TUNE.trim.revival_fukurou=[0.02,(TUNE.trim.revival_fukurou||[0,0])[1]||0];localStorage.setItem('ghoulFix9','1');saveTune()}}catch(e){} // 올빼미 부활: 숫자(676) 장면을 잘라 내고 번쩍이며 붉은 꽃이 피는 순간부터   // (옛 이전 처리: 기본값에 이미 들어 있어 더 이상 더하지 않음)
 // 오류 복구: 새 브라우저에서 옛 이전 처리가 기본값에 한 번 더 더해져 오메데토 시작이 11초(손이 내려오는 앞부분이 잘림), 배틀 실패 시작이 0.9초가 된 경우 되돌림
 try{if(!localStorage.getItem('ghoulFix8')){const T=TUNE.trim;if(T.st_win_omedetou&&Math.abs(T.st_win_omedetou[0]-11)<.01)T.st_win_omedetou[0]=5.5;if(T.judge_tail_lose&&Math.abs(T.judge_tail_lose[0]-.9)<.01)T.judge_tail_lose[0]=.6;localStorage.setItem('ghoulFix8','1');saveTune()}}catch(e){}
-try{if(!localStorage.getItem('ghoulFix5')){delete TUNE.trim.st_bonus_intro;delete TUNE.trim.st_intro;delete TUNE.cues['videos/st_bonus_intro.mp4'];localStorage.setItem('ghoulFix5','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // st_intro 는 새로 자른 클립
-try{if(!localStorage.getItem('ghoulFix4')){TUNE.trim.pre_long=[39.417,(TUNE.trim.pre_long||[0,0])[1]||0];localStorage.setItem('ghoulFix4','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // pre_long 시작 +39.417
-try{if(!localStorage.getItem('ghoulFix3')){TUNE.trim.pre_hand=[(TUNE.trim.pre_hand||[0,0])[0]||0,0.2];localStorage.setItem('ghoulFix3','1');localStorage.setItem('g999Tune',JSON.stringify(TUNE))}}catch(e){} // pre_hand 끝 +0.2
+try{if(!localStorage.getItem('ghoulFix5')){delete TUNE.trim.st_bonus_intro;delete TUNE.trim.st_intro;delete TUNE.cues['videos/st_bonus_intro.mp4'];localStorage.setItem('ghoulFix5','1');localStorage.setItem('g999Tune2',JSON.stringify(TUNE))}}catch(e){} // st_intro 는 새로 자른 클립
+try{if(!localStorage.getItem('ghoulFix4')){TUNE.trim.pre_long=[39.417,(TUNE.trim.pre_long||[0,0])[1]||0];localStorage.setItem('ghoulFix4','1');localStorage.setItem('g999Tune2',JSON.stringify(TUNE))}}catch(e){} // pre_long 시작 +39.417
+try{if(!localStorage.getItem('ghoulFix3')){TUNE.trim.pre_hand=[(TUNE.trim.pre_hand||[0,0])[0]||0,0.2];localStorage.setItem('ghoulFix3','1');localStorage.setItem('g999Tune2',JSON.stringify(TUNE))}}catch(e){} // pre_hand 끝 +0.2
 try{if(!localStorage.getItem('ghoulFix1')){delete TUNE.trim.amon_winfull;delete TUNE.cues['videos/amon_winfull.mp4'];localStorage.setItem('ghoulFix1','1');saveTune()}}catch(e){} // 아몬 결전 클립을 새로 잘라서 옛 조정값 폐기
 try{for(const k in TUNE_DEFAULT.trim)if(!(k in TUNE.trim))TUNE.trim[k]=TUNE_DEFAULT.trim[k].slice()}catch(e){}   // 위의 이전 처리가 지운 항목은 기본값으로 되돌림(새 브라우저에서도 기본값이 그대로 적용되게)
 const cname=src=>src.split('/').pop().replace('.mp4','');
@@ -1304,7 +1305,7 @@ async function spinNormal(){LED.sw();
  // 예고 추첨
  const holdEv=win?wpick(HOLD,x=>x[2]):chooseEvent(HOLD.slice(1),false,pHit,1,2);
  let holdColor=holdEv?holdEv[0]:'';
- const fRp=take('rushPre');let rushPre=win&&(fRp!==undefined?fRp:Math.random()<SPEC.rushIn); // 대당 시 7500+RUSH 여부는 미리 결정 (연출에 반영)
+ const fRp=take('rushPre');let rushPre=win&&(fRp!==undefined?fRp:(!!window.TMP_BREAKWIN||Math.random()<SPEC.rushIn)); // 대당 시 7500+RUSH 여부는 미리 결정 (연출에 반영)
  if(holdColor==='rainbow'&&!rushPre)holdColor='gold';
  const lever=win?(Math.random()<.16?wpick(LEVER,x=>x[2]):null):chooseEvent(LEVER,false,pHit,1,2);
  const custom=$('selCustom').value;
@@ -1401,8 +1402,8 @@ async function finishNormal(res,rushPre,quiet,rev){   // rev: 올빼미 부활�
   if(!(await playClip(CLIP.zorome))){fx('大当り','big t-gold');await sleep(1500);clearFx()}}
  // 영상 속 시각(초). bonus: 22 즉시 7500 분기 / 41 정산 시작 / 93 judgement 시작.  bonus7500: 52 정산 시작 / 182 ST 시작
  const base=S.out,lin=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a)));
- const fDir=take('direct'),nb=take('noBonus'),fJ=take('judge');
- const direct=rushPre&&(fDir!==undefined?fDir:Math.random()<(rev?DIRECT_REV:DIRECT_7500))&&await probe(CLIP.bonus)&&await probe(CLIP.bonus7500);
+ const fDir=take('direct'),nb=take('noBonus'),fJ=take('judge')||(window.TMP_BREAKWIN?'break':undefined);
+ const direct=rushPre&&(fDir!==undefined?fDir:(window.TMP_BREAKWIN?false:Math.random()<(rev?DIRECT_REV:DIRECT_7500)))&&await probe(CLIP.bonus)&&await probe(CLIP.bonus7500);
  if(direct){
   if(!nb)await playClip(CLIP.bonus,{to:BT.branch,next:'videos/direct7500.mp4'});
   await playClip('videos/direct7500.mp4',{next:JT.win});await playClip(JT.win,{next:CLIP.bonus7500});
@@ -1478,7 +1479,7 @@ async function chooseMode(success){
 async function judgement(success,j,jfrom){
  if(j===undefined)j=await pickJudge(success);
  const fJl=take('jlate');
- if(j&&success&&(fJl!==undefined?fJl:Math.random()<LATE_J)){   // 실패로 보인 뒤 계수 중 아무 때나 역물이 떨어지며 역전 (안내 문구가 뜨기 전까지)
+ if(j&&success&&(fJl!==undefined?fJl:(!window.TMP_BREAKWIN&&Math.random()<LATE_J))){   // 실패로 보인 뒤 계수 중 아무 때나 역물이 떨어지며 역전 (안내 문구가 뜨기 전까지)
   const tl={src:JT.lose,from:j.loseFrom||undefined};if(j.k!=='break'){await playClip(JSELC,{from:jfrom,next:j.body});jfrom=undefined}await playClip(j.body,{from:jfrom,next:j.pre||JT.lose,noskip:j.k==='break'});if(j.pre)await playClip(j.pre,{from:j.preFrom,next:JT.lose});
   const BW='videos/judge_break_win.mp4',bwOK=await probe(BW);   // 계수 중 역전: 브레이크 당첨 영상(번쩍임 → 별 → 손 낙하)으로 뒤집고 7500 보너스는 2.24초부터
   await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.sqrt(Math.random())*Math.max(0,LATE.j1-LATE.j0)).toFixed(3),next:bwOK?BW:{src:'videos/direct7500.mp4',from:D75F()}});
