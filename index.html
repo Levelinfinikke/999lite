@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>999 v.1</title>
+<title>999lite v.1</title>
 <style>
 :root{--bg:#0b0709;--panel:#1a1014;--line:#4a2530;--ink:#f3e9ea;--dim:#a88c92;--ac:#e0213a;--gold:#f2c14e}
 *{box-sizing:border-box}
@@ -787,16 +787,16 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
   const pa=from+(to-from)*(a-s0)/(s1-s0),pb=from+(to-from)*(b-s0)/(s1-s0),lo=Math.min(pa,pb),hi=Math.max(pa,pb);
   h.t.col('hsl('+hue+',100%,58%)');h.b.col('hsl('+hue+','+Math.round(sat*100)+'%,'+Math.round(92-sat*32)+'%)');
   const inc=to>from,loEnd=(a<=s0+.001&&inc)||(b>=s1-.001&&!inc),hiEnd=(b>=s1-.001&&inc)||(a<=s0+.001&&!inc);   // 구역 끝까지 켜진 쪽은 번짐이 잘리지 않게 넉넉히
-  for(const [e,B] of [[h.c,LED_BOX[n].c],[h.t,LED_BOX[n].c],[h.b,LED_BOX[n].b]]){const e0=ax==='y'?B[1]:B[0],es=ax==='y'?B[3]:B[2],w=.012/es*100,q0=loEnd?-60:(lo-e0)/es*100,q1=hiEnd?160:(hi-e0)/es*100,
+  for(const [e,B] of [[h.c,LED_BOX[n].c],[h.t,LED_BOX[n].c],[h.b,LED_BOX[n].b]]){const e0=ax==='y'?B[1]:B[0],es=ax==='y'?B[3]:B[2],w=edgeW/es*100,q0=loEnd?-60:(lo-e0)/es*100,q1=hiEnd?160:(hi-e0)/es*100,
     g='linear-gradient('+(ax==='y'?'to bottom':'to right')+',transparent '+(q0-w).toFixed(1)+'%,#000 '+(q0+w).toFixed(1)+'%,#000 '+(q1-w).toFixed(1)+'%,transparent '+(q1+w).toFixed(1)+'%)';
    if(e._g!==g){e._g=g;e.style.webkitMaskImage=g;e.style.maskImage=g}}
   h.c.style.opacity=1;h.t.style.opacity=sat>0?.9:0;h.b.style.opacity=1;z.ho=1}
- const rotHue={};
+ const rotHue={};let rbP=0,fdt=.0167,edgeW=.012;
  function chase(type,vt,D,fi){
   if(!type||type===3){CH.forEach(c=>hOff(Zs[c[0]]));return}
-  if(type===2){const step=RBT/12;
-   CH.forEach(([n,ax,from,to,s0,s1])=>{const k0=Math.floor((vt-s0*RBD)/step),k1=Math.floor((vt-s1*RBD)/step);rotHue[n]=RB[((k1%12)+12)%12];   // 바탕 = 아직 안 바뀐 색
-    if(k0===k1)return hOff(Zs[n]);const sf=(vt-k0*step)/RBD;hShow(n,ax,from,to,s0,s1,s0,sf,RB[((k0%12)+12)%12],1)})}
+  if(type===2){const r=RBD/(RBT/12);   // 색 경계 위치는 화면 갱신마다 조금씩 나아가는 값(rbP)으로 계산 → 영상 프레임이 낮아도 끊기지 않음
+   CH.forEach(([n,ax,from,to,s0,s1])=>{const k0=Math.floor(rbP-s0*r),k1=Math.floor(rbP-s1*r);rotHue[n]=RB[((k1%12)+12)%12];   // 바탕 = 아직 안 바뀐 색
+    if(k0===k1)return hOff(Zs[n]);const sf=(rbP-k0)/r;hShow(n,ax,from,to,s0,s1,s0,sf,RB[((k0%12)+12)%12],1)})}
   else{const tau=((vt%MGT)+MGT)%MGT,v=D?dec(D.right,fi):[1,0,1],hue=v[2]>0?v[1]:0,sat=v[2]>0?v[2]:1;
    // 켜진 구간 = 꺼짐 경계(sOff)와 켜짐 경계(sOn) 사이
    const on=x=>x<0?.2:x<.12?.2+(x/.12)*.2:x<.22?.4+((x-.12)/.1)*.2:x<.38?.6+((x-.22)/.16)*.4:1.01,sOn=on(tau),sOff=tau<1.22?.2:on(tau-1.22);
@@ -825,6 +825,8 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
   vib(curPlay?vibTbl(cname(curPlay.src)):null,curPlay?Math.floor(ledT(cname(curPlay.src),curPlay.v)*30):0);
   // 회전 구간인지: 표에 적힌 [시작프레임,끝프레임,종류(1 흰빛·표의 색 / 2 무지개)]
   let rot=0;if(D&&Dc.rot)for(const r of Dc.rot)if(fi>=r[0]&&fi<r[1]){rot=r[2];break}
+  // 무지개 회전 속도: 화면이 초당 60번 갱신되면 원래 속도, 갱신이 느린 기기에서는 그만큼 천천히 돌리고 색 경계를 부드럽게 해서 끊겨 보이지 않게 함
+  fdt+=(dt-fdt)*.05;const slow=Math.max(1,Math.min(3,fdt/.0185));edgeW=.012*(1+(slow-1)*2.5);if(rot===2&&!(curPlay&&curPlay.v.paused))rbP+=dt/(RBT/12*slow);
   chase(rot,curPlay?ledT(cname(curPlay.src),curPlay.v):t,D,fi);
   // 통상(실기 관찰): 기둥·중앙 상단·테두리는 스테이지 테마색으로 고정, 머리(흰색)·손(주황)·꽃(빨강)은 변화 없이 켜짐, 스위치+레버만 회전 시작 때 잠깐 점멸. 스테이지가 바뀔 때 기둥이 잠깐 꺼졌다 켜짐
   const cpN=curPlay?+(cname(curPlay.src).match(/^normal_(\d)/)||[])[1]||0:0;   // 조정 목록에서 통상 배경을 직접 재생할 때도 같은 규칙
@@ -1590,6 +1592,10 @@ renderHolds('');applyMute();render();
  // 시작하자마자 대기 영상을 띄움 (정지 배경 그림이 보이는 시간을 없앰)
  setTimeout(()=>{try{if(!busy)idleShow(true)}catch(e){}},200);
 })();
+</script>
+<script>
+// 방문 집계: 웹 주소(http/https)로 열었을 때만. 폴더에서 직접 연 경우에는 보내지 않음
+if(/^https?:$/.test(location.protocol)){const g=document.createElement('script');g.async=true;g.src='https://gc.zgo.at/count.js';g.setAttribute('data-goatcounter','https://999lite.goatcounter.com/count');document.body.appendChild(g)}
 </script>
 </body>
 </html>
