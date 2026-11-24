@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="theme-color" content="#050506">
 <title>999 v.2</title>
 <meta name="application-name" content="999 v.2"><meta name="apple-mobile-web-app-title" content="999 v.2">
 <style>
@@ -823,7 +823,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
  if(!started){try{await v.play()}catch(e){v.style.display='none';return false}}
  v.style.zIndex=6;v.style.display='block';old.style.zIndex=5;old.pause();old.style.display='none';   // 새 영상이 준비된 뒤에 교체 → 이음매에 빈 화면 없음
  const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);{const age=performance.now()-skipAt;if(!(skipReq&&(age<400||(skipIdle&&age<2000))))skipReq=false;skipIdle=false}stopReq=false;let iv=0;
- curPlay={v,g,src,t1};if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
+ curPlay={v,g,src,t1,ns:!!opt.noskip};if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
  if(opt.next)prepClip(opt.next);
  // 다음 영상은 재생을 누른 뒤 실제로 움직이기까지 시간이 걸림(LAT). 그만큼 먼저 눌러 두고, 앞 영상이 끝나는 순간 화면만 바꿈
  let preDone=false;
@@ -1701,7 +1701,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
   // 레버: 아래쪽(Y 의 밑동)이 축, 앞으로 최대 10도. 끝까지(70% 이상) 당기면 한 번 회전
   const MAXDEG=10;let y0=null,done=false;const tilt=p=>{lv.style.transform='perspective('+Math.round(lv.offsetHeight*2.2)+'px) rotateX('+(-MAXDEG*p).toFixed(2)+'deg)'};   // 밑동(아래 끝)은 그대로, 위로 갈수록 앞으로 나와 커짐
   hl.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();y0=e.clientY;done=false;lv.classList.remove('back');lv.classList.add('on');tilt(0);try{hl.setPointerCapture(e.pointerId)}catch(_){}});
-  hl.addEventListener('pointermove',e=>{if(y0==null)return;const p=Math.max(0,Math.min(1,(e.clientY-y0)/Math.max(30,hl.offsetHeight*.35)));tilt(p);if(!done&&p>=.7){done=true;try{LED.kick(.4)}catch(_){}if(typeof selHook!=='undefined'&&selHook&&window.LEVSEL){selHook('T')}else{window.PUSHSRC='lever';setTimeout(()=>{window.PUSHSRC=''},500);spin()}}});
+  hl.addEventListener('pointermove',e=>{if(y0==null)return;const p=Math.max(0,Math.min(1,(e.clientY-y0)/Math.max(30,hl.offsetHeight*.35)));tilt(p);if(!done&&p>=.7){done=true;try{LED.kick(.4)}catch(_){}if(typeof selHook!=='undefined'&&selHook&&window.LEVSEL){selHook('T')}else if(typeof curPlay!=='undefined'&&curPlay&&curPlay.ns){}else{window.PUSHSRC='lever';setTimeout(()=>{window.PUSHSRC=''},500);spin()}}});   // 판정 2번(브레이크) 모드 영상 중에는 레버로 넘기지 않음
   const end=()=>{if(y0==null)return;y0=null;lv.classList.add('back');tilt(0);setTimeout(()=>{if(y0==null)lv.classList.remove('on','back')},200)};hl.addEventListener('pointerup',end);hl.addEventListener('pointercancel',end)}catch(e){}
  try{const B_=LED_BOX.flower.c,f=document.createElement('img');f.id='qkFl';f.alt='';f.src='images/led_flower.webp';Object.assign(f.style,{left:B_[0]*100+'%',top:B_[1]*100+'%',width:B_[2]*100+'%',height:B_[3]*100+'%'});document.getElementById('frameImg').after(f)}catch(e){}
  /* 다크 모드의 번짐 색: 오른쪽 기둥 LED 의 지금 색·밝기를 따라감 */
