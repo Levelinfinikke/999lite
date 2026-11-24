@@ -735,7 +735,7 @@ function pressBtn(){if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=fals
 function pressSkip(){if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}}   // SKIP 을 누르면 자동 회전은 꺼짐
  if(selHook)return selHook('ok');
  if(busy&&skipPend&&!curPlay)return;   // SKIP 으로 다음 당첨을 부른 직후 영상을 불러오는 중: 추가로 누른 건 버림(불러온 영상이 바로 건너뛰어지지 않게)
- if(busy&&chargeSkip&&curPlay&&cname(curPlay.src)==='charge'){chargeSkip=false;stopReq=true;skipNext=true;return}   // 차지(승격 없음) 중 SKIP: 차지를 바로 끝내고 다음 당첨까지 넘김
+ if(busy&&chargeSkip&&curPlay&&cname(curPlay.src)==='charge'){chargeSkip=false;stopReq=true;if(!auto)skipNext=true;return}   /* AUTO 중에는 차지만 끝내고, 이어지는 통상 회전은 AUTO 가 돌림 */   // 차지(승격 없음) 중 SKIP: 차지를 바로 끝내고 다음 당첨까지 넘김
  if(busy&&!curPlay&&S.mode==='normal'&&!curEv){skipNext=true;return}   // AUTO 처럼 통상 회전이 계속 도는 중: 이 회전을 바로 끝내고 다음 당첨까지 넘김 (전에는 여기서 누른 SKIP 이 버려졌음)
  if(busy){pushReq=true;skipReq=true;skipAt=performance.now();skipIdle=!curPlay;return}
  if(S.mode!=='normal')return;let r=drawNormal(),n=0;while(r==='lose'&&n<200000){S.spins++;S.cur++;S.used+=spinCost();n++;r=drawNormal()}
@@ -1484,7 +1484,7 @@ async function chooseMode(success){
  const jb=wpick(bt,x=>success?x.w*x.rel:x.w*(1-x.rel)),jk=br[0],out=j=>({j,from:Math.max(0,SEL[j.k==='break'?'break':'yamori'][1]-SEL.lead)});
  clearTimeout(hideT);prepSeq++;prepared=null;
  const SRC=JSELC;                                                    // 선택 화면의 소리·제한시간 게이지는 배틀(모드1) 영상의 것을 사용
- if(auto||!(await probe(SRC))){return out(Math.random()<.5?jb:jk)}                             // 자동 회전 중에는 기다리지 않고 무작위
+ if(!(await probe(SRC))){return out(Math.random()<.5?jb:jk)}                             // AUTO 중에도 모드는 직접 고름 (제한시간이 끝나면 그때 고른 쪽으로 진행)
  // 두 영상의 선택 화면은 같은 박자로 흐름 → 배틀 쪽(소리 있음)과 브레이크 쪽(무음)을 동시에 틀어 두고, 고른 쪽을 앞에 보여 줌. 제한시간이 끝나면 그때 고른 모드로 진행
  const cur=VIDS.findIndex(v=>v.style.display==='block'),Lel=VIDS[cur===0?1:0],Rel=VIDS[cur===0?0:1];
  const load=async(v,src,t)=>{v.src=src;v.muted=true;v.playbackRate=1;await new Promise(r=>{v.onloadedmetadata=r;v.onerror=r;setTimeout(r,2500)});const g=clipGeom(src,v);
