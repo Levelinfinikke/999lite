@@ -227,7 +227,7 @@ body.v-max{--ar:1.189;--mw:157.64%;--tx:-18.126%;--ty:-27.15%}
 #wcol button:hover{border-color:#39c2ff;background:#222634}
 #wcol button.sel{background:linear-gradient(180deg,#ffb23d,#e07a12);border-color:#ffd08a;color:#1a0d00}
 #wcol .wide{grid-column:1/3}
-#wQk{display:flex;align-items:center;justify-content:space-around}#wQk #qk{position:static;gap:6px}#wQk #qk button{width:26px;height:26px;clip-path:none}
+#wQk{display:flex;align-items:center;justify-content:space-around}#wQk #qk{position:static;gap:3px}#wQk #qk button{width:24px;height:24px;font-size:12.5px;clip-path:none}#wcol #wHyp{letter-spacing:.12em}#wcol #wHyp.sel{background:linear-gradient(180deg,#c42bff,#5d0f9a);border-color:#e3a6ff;color:#fff}
 #wcol #wAuto{height:42px;font-size:14px;background:linear-gradient(180deg,#e01b2c,#8a0b15);border-color:#ff5364;color:#fff;letter-spacing:.18em}
 #wcol label{cursor:default;color:#9fb2c8;font-weight:600;font-size:11px;justify-content:space-between;gap:2px;padding:0 5px 0 7px;overflow:visible}
 #wcol #inCost::-webkit-inner-spin-button{display:none}
@@ -708,6 +708,8 @@ const CLIP_OFF=new Set([]); // 소재 보강 전까지 쓰지 않는 클립
 function probe(src){if(CLIP_OFF.has(src))return Promise.resolve(false);if(src in clipState)return clipState[src];
  if(/^https?:$/.test(location.protocol)&&Object.keys(CLIPS).length)return clipState[src]=Promise.resolve(cname(src) in CLIPS||/idle_loop\.mp4$/.test(src));
  return clipState[src]=new Promise(res=>{const v=document.createElement('video');v.preload='metadata';let done=false;const fin=ok=>{if(!done){done=true;res(ok)}};v.onloadedmetadata=()=>fin(true);v.onerror=()=>fin(false);setTimeout(()=>fin(false),1500);v.src=src})}
+// 20배속 이상은 원래 영상 없이 빠르게 돌림. 단 v.2 의 AUTO(AUTOX)는 배속을 통상 회전에만 쓰고, 연출이 뜨면 1배속으로 영상을 보여 줌
+const NOCLIP=()=>speed>=20&&!window.AUTOX;
 let slowed=false;   // 당첨 연출 중: 배속을 잠시 멈추고 1배속으로 보여 줌 (자동 회전은 유지, 정산·RUSH가 끝나면 원래 배속으로)
 function slowOn(){if(speed!==1){slowed=true;speed=1;$('spdNote').style.display='inline'}}
 function slowOff(){if(slowed){slowed=false;speed=userSpeed;$('spdNote').style.display='none'}}
@@ -726,8 +728,8 @@ if(IOS){const unlock=()=>{for(const v of document.querySelectorAll('video')){if(
 let nextRes=null,skipPend=false,loadT=0,skipFast=false,skipAt=0,skipIdle=false,chargeSkip=false,skipNext=false;
 // SKIP 버튼: 연출 중이면 건너뛰기/PUSH. 통상 대기 중이면 꽝 회전을 한꺼번에 넘기고 다음 당첨 회전부터 보여 줌 (회전수·투입 구슬은 그대로 계산)
 // 기기 버튼: 연출 중이면 5초 앞으로(PUSH 구간에서는 PUSH), 판정 선택 중이면 결정, 대기 중이면 한 번 회전
-let skip5Req=false;function pressBtn(){if(auto){auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}if(selHook)return selHook('ok');if(busy){if(curPlay)skip5Req=true;return}spin()}
-function pressSkip(){if(auto){auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}   // SKIP 을 누르면 자동 회전은 꺼짐
+let skip5Req=false;function pressBtn(){if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}}if(selHook)return selHook('ok');if(busy){if(curPlay)skip5Req=true;return}spin()}
+function pressSkip(){if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}}   // SKIP 을 누르면 자동 회전은 꺼짐
  if(selHook)return selHook('ok');
  if(busy&&skipPend&&!curPlay)return;   // SKIP 으로 다음 당첨을 부른 직후 영상을 불러오는 중: 추가로 누른 건 버림(불러온 영상이 바로 건너뛰어지지 않게)
  if(busy&&chargeSkip&&curPlay&&cname(curPlay.src)==='charge'){chargeSkip=false;stopReq=true;skipNext=true;return}   // 차지(승격 없음) 중 SKIP: 차지를 바로 끝내고 다음 당첨까지 넘김
@@ -802,7 +804,7 @@ setTimeout(()=>idleShow(true),300);
 const VIDS=[$('vid'),$('vid2')];let vidI=0,hideT=0,curPlay=null,prepared=null,prepSeq=0;
 // 다음에 나올 영상을 쉬는 쪽 화면에 미리 올려 시작점까지 찾아 둠 → 앞 영상이 끝나는 프레임에 바로 이어 재생
 const nextOf=n=>!n?null:(typeof n==='string'?{src:n}:n);
-async function prepClip(nx){nx=nextOf(nx);if(!nx||!nx.src||speed>=20||!(await probe(nx.src)))return;
+async function prepClip(nx){nx=nextOf(nx);if(!nx||!nx.src||NOCLIP()||!(await probe(nx.src)))return;
  const my=++prepSeq,v=VIDS[vidI^1];prepared=null;v.preload='auto';v.muted=true;v.src=nx.src;
  await new Promise(r=>{if(v.readyState>=1)r();else{v.onloadedmetadata=r;v.onerror=r;setTimeout(r,2500)}});if(my!==prepSeq)return;
  const g=clipGeom(nx.src,v),t0=Math.max(0,g.base+(nx.from!=null?nx.from:g.tin));
@@ -810,7 +812,7 @@ async function prepClip(nx){nx=nextOf(nx);if(!nx||!nx.src||speed>=20||!(await pr
  await new Promise(r=>{if(v.readyState>=3)r();else{v.oncanplay=r;setTimeout(r,1500)}});
  if(my===prepSeq)prepared={src:nx.src,t0,v,g}}
 // opt: {from,to,skip:[[a,b]]|'all',marks:[[t,fn]],onTime:fn(t,d)}  (모두 기준 시각, 초)
-async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(!(await probe(src)))return false;
+async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!(await probe(src)))return false;if(window.AUTOX)slowOn();
  clearTimeout(hideT);const v=VIDS[vidI^=1],old=VIDS[vidI^1];let g,t0;
  document.body.classList.add('inclip');bgPause();idleHide();
  const want=x=>x&&x.src===src&&x.v===v;
@@ -955,8 +957,8 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
   vbC.k=key;vbC.t=a;return a}
  function vib(tbl,fi){const a=tbl&&fi>=0&&fi<tbl.length&&!curPlay.v.paused?(typeof tbl==='string'?parseInt(tbl[fi],36):tbl[fi]):0;
   if(!a){if(vbOn){vbOn=0;MC.style.translate=''}return}
-  vbOn=1;vbPh^=1;const w=MC.offsetWidth,r=a/9*w*.006,dx=(vbPh?1:-1)*r*(.6+.4*Math.random()),dy=(Math.random()-.5)*r*1.2;MC.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px';
-  if(navigator.vibrate&&a>=5&&pt-vbBuzz>.25){vbBuzz=pt;try{navigator.vibrate(a>=8?120:60)}catch(e){}}}
+  const HX=window.HYPER?2:1;vbOn=1;vbPh^=1;const w=MC.offsetWidth,r=a*HX/9*w*.006,dx=(vbPh?1:-1)*r*(.6+.4*Math.random()),dy=(Math.random()-.5)*r*1.2;MC.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px';
+  if(navigator.vibrate&&a*HX>=5&&pt-vbBuzz>.25/HX){vbBuzz=pt;try{navigator.vibrate(a*HX>=8?120*HX:60*HX)}catch(e){}}}   // HYPER: 흔들림 폭·진동 길이 2배, 더 자주
  let tkL=0;
  function tick(now){requestAnimationFrame(tick);if(now-tkL<30)return;tkL=now;   // LED 표가 초당 30칸이라 갱신도 30번이면 충분
   const t=now/1000,dt=Math.min(.1,t-pt);pt=t;let G,D=null,fi=0;
@@ -986,9 +988,10 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
    else if(NM){L=NM[n][0];hue=NM[n][1];sat=NM[n][2]}
    else L=G;
    if(rot&&(n==='left'||n==='right'||n==='top')){if(rot===2){L=Math.max(L,1);hue=rotHue[n];sat=1}else if(rot===3){const vt=curPlay?curPlay.v.currentTime:t,dl=n==='left'?0:n==='top'?.014:.028;if((((vt-dl)%.0833)+.0833)%.0833<.034)L=.02}else L=.02}   // 종류 3: 전부 켜진 채 1/30초 꺼짐이 초당 12번, 왼쪽→상단→오른쪽 순으로 아주 빠르게 지나감(실측)   // 무지개: 바탕도 전부 켜고 색만 바뀜 / 오른쪽 노림: 바탕은 끄고 켜진 구간만 표시
-   L=Math.min(1.5,L+kick);
+   if(window.HYPER&&(D||rot)){L=L>.35?L*1.45:L*.55;sat=Math.min(1,sat*1.35);if(D&&L>.6&&Math.sin(t*52)>.55)L*=.55}   // HYPER: 대비·채도 올리고 밝은 순간에 빠른 깜빡임
+   L=Math.min(1.5,L+kick*(window.HYPER?1.6:1));
    const z=Zs[n];if(!z){if(ov==null||fix[n]!=null)parts(n,L,hue,sat);continue}
-   const oc=Math.min(1,L)*(1-.15*sat),ob=Math.min(1,L*(window.QKDARK?.95:.35))*(1-.2*sat),ot=sat*Math.min(1,L),   /* 색이 진할수록 흰 바탕을 조금 낮춰 색이 덜 바래 보이게 */ok_=L<.3?(.3-L)/.3*.45:0;if(Math.abs(ok_-z.lk)>.004){z.lk=ok_;z.k.style.opacity=ok_.toFixed(3)}
+   const oc=Math.min(1,L)*(1-.15*sat),ob=Math.min(1,L*(window.QKDARK?.95:.35)*(window.HYPER?1.6:1))*(1-.2*sat),ot=sat*Math.min(1,L),   /* 색이 진할수록 흰 바탕을 조금 낮춰 색이 덜 바래 보이게 */ok_=L<.3?(.3-L)/.3*.45:0;if(Math.abs(ok_-z.lk)>.004){z.lk=ok_;z.k.style.opacity=ok_.toFixed(3)}
    const q=sat>0?hue*8+Math.round(sat*7):-1;
    if(q!==z.q){z.q=q;if(q<0)z.b.col(DEF[n]||'#d4e2ff');else{z.t.col('hsl('+hue+',100%,55%)');z.b.col('hsl('+hue+','+Math.round(sat*100)+'%,'+Math.round(88-sat*40)+'%)')}}
    if(Math.abs(oc-z.lc)>.004){z.lc=oc;z.c.style.opacity=oc.toFixed(3)}if(Math.abs(ob-z.lb)>.004){z.lb=ob;z.b.style.opacity=ob.toFixed(3)}if(Math.abs(ot-z.lt)>.004){z.lt=ot;z.t.style.opacity=ot.toFixed(3)}}}
@@ -1297,7 +1300,7 @@ const HAND_WIN={strong:.7,weak:.3},HAND_LOSE_STRONG=.4;
 const handLoseWeak=()=>{const w=TIER_WIN_STRONG*HAND_WIN.strong+(1-TIER_WIN_STRONG)*HAND_WIN.weak,need=w*(1-HAND_REL)/HAND_REL,ls=TIER_WIN_STRONG*(1-TIER_REL.strong)/TIER_REL.strong,lw=(1-TIER_WIN_STRONG)*(1-TIER_REL.weak)/TIER_REL.weak;return Math.max(0,Math.min(1,(need-ls*HAND_LOSE_STRONG)/lw))};
 const loseTierRate=pHit=>({strong:pHit*TIER_WIN_STRONG*(1-TIER_REL.strong)/TIER_REL.strong,weak:pHit*(1-TIER_WIN_STRONG)*(1-TIER_REL.weak)/TIER_REL.weak});
 const segsOK=async l=>{for(const n of l)if(!(await probe(segOf(n).src)))return false;return true};
-async function newFlowOK(){return speed<20&&await segsOK(['battle_nishio_strong','battle_nishio_weak_4','battle_nishio_lose_4'])}
+async function newFlowOK(){return !NOCLIP()&&await segsOK(['battle_nishio_strong','battle_nishio_weak_4','battle_nishio_lose_4'])}
 // 영상 순서 재생: 같은 파일에서 바로 이어지는 구간은 끊지 않고 한 번에 재생
 async function playChain(list,fin){const m=[];for(const n of list){const s=segNow(n),p=m[m.length-1];if(p&&p.src===s.src&&p.b!=null&&s.a!=null&&Math.abs(p.b-s.a)<.01)p.b=s.b;else m.push({src:s.src,a:s.a,b:s.b})}
  const spec=s=>s.a?{src:s.src,from:s.a}:s.src;let ok=false;
@@ -1332,21 +1335,22 @@ async function spinNormal(){LED.sw();
  let hand=win?Math.random()<HAND_WIN_SHARE:Math.random()<loseRate(pHit,HAND_WIN_SHARE,HAND_REL);const fHand=take('hand');if(fHand!==undefined)hand=fHand;
  let reachEv=win?wpick(N_REACH,x=>x[3]):chooseEvent(N_REACH,false,pHit);
  // 영상이 준비된 리치만 사용 (코드로 그린 리치 연출과 게임 숫자가 영상 사이에 끼지 않게)
- if(reachEv&&speed<20){const av=[];for(const e of N_REACH)if(await reachOK(e[0],win))av.push(e);
+ if(reachEv&&!NOCLIP()){const av=[];for(const e of N_REACH)if(await reachOK(e[0],win))av.push(e);
   if(av.length){if(win||!av.includes(reachEv))reachEv=av[Math.floor(Math.random()*av.length)]}else if(!win)reachEv=null}   // 당첨은 보유 영상 중 고르게, 꽝은 영상 없는 것만 교체
  // 뒤늦은 당첨: 꽝 영상이 끝나고 1초 뒤 역물이 떨어지며 당첨
  const fReach=take('reach'),fLate=take('late'),fRev=take('revival'),fIntro=take('intro'),fTier=take('tier'),fPre=take('pre');if(fReach)reachEv=N_REACH.find(x=>x[0]===fReach)||reachEv;
  // 새 흐름(예고 → 배틀 strong/weak): 당첨은 60% strong, 꽝은 강약별 출현율로 리치가 뜸
  const NF=await newFlowOK();let tier=null;
  if(NF){if(win)tier=fTier||(Math.random()<TIER_WIN_STRONG?'strong':'weak');else{const lr=loseTierRate(pHit),r=Math.random();tier=fTier||(fReach?'weak':r<lr.strong?'strong':r<lr.strong+lr.weak?'weak':null);reachEv=null}}
- let late=win&&speed<20&&(fLate!==undefined?fLate:Math.random()<LATE_B);
+ let late=win&&!NOCLIP()&&(fLate!==undefined?fLate:Math.random()<LATE_B);
  if(late&&!NF&&!(fReach&&await reachOK(fReach,false))){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);if(av.length)reachEv=av[Math.floor(Math.random()*av.length)];else late=false}
  // 꽝 뒤의 부활은 항상 올빼미 부활 영상으로 (코드로 만든 역물 낙하는 쓰지 않음). 뒤늦은 당첨으로 뽑힌 경우도 여기에 합침
  if(win&&(fRev||fLate))rushPre=true;if(!rushPre)late=false;   // 부활·뒤늦은 당첨은 7500+RUSH 당첨에서만 (비율은 전체 당첨 기준 그대로가 되게 보정)
- const RVc=win&&rushPre&&speed<20?await pickRV(fRev):'';let rev=!!RVc&&(late||(fRev!==undefined?!!fRev:Math.random()<Math.min(1,REVIVAL/SPEC.rushIn)));if(rev)late=false;
+ const RVc=win&&rushPre&&!NOCLIP()?await pickRV(fRev):'';let rev=!!RVc&&(late||(fRev!==undefined?!!fRev:Math.random()<Math.min(1,REVIVAL/SPEC.rushIn)));if(rev)late=false;
  // 긴 도입(병실 → 리제)은 항상 클라이맥스 야모리로 이어짐
- const long=win&&!late&&!rev&&speed<20&&!(NF&&(fTier||fReach))&&(fIntro?(fIntro==='long'||fIntro==='long2'):Math.random()<PRE_LONG.p)&&await probe(PRE_LONG.src)&&await segsOK(BTL.yamori.strong.win);
+ const long=win&&!late&&!rev&&!NOCLIP()&&!(NF&&(fTier||fReach))&&(fIntro?(fIntro==='long'||fIntro==='long2'):Math.random()<PRE_LONG.p)&&await probe(PRE_LONG.src)&&await segsOK(BTL.yamori.strong.win);
  if(long)reachEv=N_REACH.find(x=>x[0]==='climax_yamori');
+ if(window.AUTOX&&(holdColor||lever||hand||reachEv||(NF&&tier)||late||rev||long||custom!=='def'))slowOn();   // v.2 AUTO: 꽝이라도 연출이 뜨면 1배속으로 (끝나면 다시 배속)
  const normalReach=false;   // 코드로 그린 노멀 리치는 쓰지 않음 (영상 연출만)
  renderHolds(holdColor&&holdColor!=='blink'?'':holdColor);
  if(holdColor&&holdColor!=='blink'){await sleep(250);se('hold');renderHolds(holdColor);await sleep(400)}
@@ -1432,7 +1436,7 @@ async function finishNormal(res,rushPre,quiet,rev){   // rev: 올빼미 부활�
  let jsel=(fJ&&JB.find(x=>x.k===fJ))||await pickJudge(rushPre);
  if(!nb&&!(await playClip(CLIP.bonus,{to:BT.judge,next:fJ&&jsel?jsel.body:null,skip:[[BT.pay,Math.min(BT.jintro,BT.judge)]],onTime:t=>{const o=base+Math.round(3000*lin(t,BT.pay,Math.min(BT.jintro,BT.judge)-3));if(o!==S.out){S.out=o;render()}}}))){fx('HYPER喰種BONUS','mid t-red');const c=fx('0','big t-gold');for(let v=0;v<=3000;v+=150){c.textContent=v.toLocaleString();await sleep(45)}await sleep(500);clearFx()}
  S.out=base+3000;render();
- let jfrom;if(!fJ&&!nb&&speed<20){const c=await chooseMode(rushPre);if(c){jsel=c.j;jfrom=c.from}}
+ let jfrom;if(!fJ&&!nb&&!NOCLIP()){const c=await chooseMode(rushPre);if(c){jsel=c.j;jfrom=c.from}}
  // 촬영용(999 v.1 에서만 켬): 선택 화면에서 브레이크(2모드)를 고르면 반드시 성공 (브레이크 본편 → 브레이크 성공 영상 → 7500 보너스. 실패 화면·역전 없음)
  const film=FILM_RIZE&&jfrom!==undefined&&jsel&&jsel.k==='break';if(film)FORCE=Object.assign(FORCE||{},{jlate:false});
  const ok=await judgement(film?true:rushPre,jsel,jfrom);
@@ -1462,7 +1466,7 @@ const JB=[{k:'shachi',body:'videos/judge_shachi_body.mp4',pre:'videos/judge_read
 // 캐릭터 본편은 자기 '7500 JUDGEMENT' 장면까지 담고 있고, 공용 judge_ready 는 7.5초 지점(마지막 버튼 직전)부터 씀. preFrom: 원본이 그 전에 끝나는 캐릭터(샤치·아야토)는 모자란 만큼 judge_ready 를 앞에서부터
 const JSELC='videos/judge_select.mp4';   // 모드 선택 ~ 캐릭터 룰렛의 버튼까지(공용)
 const JT={win:'videos/judge_tail_win.mp4',lose:'videos/judge_tail_lose.mp4'};
-async function pickJudge(success){if(!(speed<20&&await probe(JT.win)&&await probe(JT.lose)))return null;const av=[];for(const j of JB)if(await probe(j.body))av.push(j);
+async function pickJudge(success){if(!(!NOCLIP()&&await probe(JT.win)&&await probe(JT.lose)))return null;const av=[];for(const j of JB)if(await probe(j.body))av.push(j);
  if(!av.length)return null;
  // 모드는 배틀 / 브레이크 50:50, 배틀이면 상대를 신뢰도에 맞춰 고름
  const br=av.filter(x=>x.k==='break'),bt=av.filter(x=>x.k!=='break'),pool=(Math.random()<.5?br:bt);const use=pool.length?pool:av;
@@ -1522,7 +1526,7 @@ async function judgement(success,j,jfrom){
 
 // ═══════════ RUSH ═══════════
 // 영상 ST는 회전 버튼 없이 자동으로 이어짐: 돌입 → 5회전 영상 → (당첨이면 보너스 → 다시 5회전) → 종료까지
-async function stAuto(){while(S.mode==='rush'&&speed<20&&await probe(STV.full))await stVideo()}
+async function stAuto(){while(S.mode==='rush'&&!NOCLIP()&&await probe(STV.full))await stVideo()}
 async function enterRush(skipIntro){await enterRush0(skipIntro);await stAuto()}
 async function enterRush0(skipIntro){
  S.mode='rush';S.st=SPEC.st;S.chain=1;S.rushGain=0;S.rushes++;bgm('bgmRush');render();
@@ -1551,7 +1555,7 @@ async function stVideo(){
  await rushBonus(played&&w.intro);S.st=SPEC.st;render();save();
 }
 async function spinRush(){
- if(speed<20&&await probe(STV.full))return stAuto();
+ if(!NOCLIP()&&await probe(STV.full))return stAuto();
  S.spins++;const win=forceWin||Math.random()<SPEC.rushP;if(forceWin){forceWin=false;$('bForce').classList.remove('on')}
  S.st--;render();
  const ev=win?wpick(R_REACH,x=>x[3]):chooseEvent(R_REACH,false,SPEC.rushP);
@@ -1588,10 +1592,10 @@ async function rushBonus(skipIntro){
  const set=g=>{if(S.out!==base+g){S.out=base+g;S.rushGain=rb+g;render()}};
  let gain=3000;
  const fHy=take('hyper'),fUw=take('uw'),uwOnly=take('uwOnly');if(uwOnly)skipIntro=true;
- const real=speed<20&&await probe(UW.try)&&await probe(UW.lose);
+ const real=!NOCLIP()&&await probe(UW.try)&&await probe(UW.lose);
  let wins=0;if(real){if(fUw)wins=fUw.length;else while(Math.random()<SPEC.loop)wins++}            // 추가 3000 성공 횟수를 미리 정해 두고 영상을 끊김 없이 이어 붙임
  // HYPER 6000: 추가 3000 을 한 번 이상 성공하는 판의 일부를 '처음부터 6000' 연출로 보여 줌. 그 한 번은 6000 에 이미 포함된 것으로 치므로 지급 기댓값은 그대로
- const hyper=!skipIntro&&speed<20&&(fHy!==undefined?fHy:(wins>0&&Math.random()<HYPER6000*2))&&await probe('videos/st_hyper6000.mp4');if(hyper&&fHy===undefined)wins--;
+ const hyper=!skipIntro&&!NOCLIP()&&(fHy!==undefined?fHy:(wins>0&&Math.random()<HYPER6000*2))&&await probe('videos/st_hyper6000.mp4');if(hyper&&fHy===undefined)wins--;
  const eps=[];if(!hyper)for(const n of [2,3,4,6])if(await probe('videos/st_ep_'+n+'.mp4'))eps.push(n);
  const ep=eps.length&&!uwOnly?'videos/st_ep_'+(eps.includes(S.chain)?S.chain:eps[Math.floor(Math.random()*eps.length)])+'.mp4':'';
  const first=hyper?'videos/st_hyper6000.mp4':(ep||(real?UW.try:''));
@@ -1715,12 +1719,12 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
 
 <div id="wcol">
 <div class="wg" id="wA"><div class="hd" id="wAh" title="누르면 접기/펼치기 · 끌면 이동 · 두 번 누르면 원래 자리"><span>PLAY</span><i></i></div><div class="bd">
-<button id="wAuto" class="wide" title="누를 때마다: 자동 x1 → x2 → x4 → x8 → 끄기 (한 번 회전은 Enter)">AUTO OFF</button>
+<button id="wAuto" class="wide" title="누를 때마다: 자동 x1 → x5 → x10 → x50 → 끄기 (연출이 뜨면 1배, 끝나면 다시 배속 · 한 번 회전은 Enter)">AUTO OFF</button>
 <div id="wQk"></div>
 <button id="wSkip" title="건너뛰기 / PUSH / 다음 당첨까지 (Space)">SKIP</button>
 <label id="wRate" title="1,000엔(250발)으로 도는 횟수">회전율</label>
-<button id="wSnd" title="소리 (M)">🔊 소리</button>
-<button id="wView" class="wide" title="화면: 액정 확대 → 전체 기기 → 최대 화면"></button>
+<button id="wHyp" title="HYPER MODE: 진동 2배 · LED 더 요란하게">HYPER</button>
+<button id="wView" title="화면: 액정 확대 → 전체 기기 → 최대 화면"></button><button id="wHelp" title="조작법">?</button>
 <div id="wB" class="wide"><div class="hd" id="wBh" title="기록 펼치기/접기"><span>RECORD</span><i></i></div><div class="bd">
 <canvas id="wData" width="400" height="388"></canvas>
 <button id="wReset" title="기록 초기화">기록 초기화</button>
@@ -1793,11 +1797,14 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
   ms.style.transform=`translate(${(ox+w-(SZ+MG)*k).toFixed(1)}px,${(oy+h-(SZ+MG+14)*k).toFixed(1)}px) scale(${k.toFixed(4)})`};
  place();addEventListener('resize',place);if(window.visualViewport){visualViewport.addEventListener('resize',place);visualViewport.addEventListener('scroll',place)}
  // AUTO: 한 버튼으로 x1 → x2 → x4 → x8 → 끄기
- const SP=[1,2,4,8];let ai=-1;
+ const SP=[1,5,10,50];let ai=-1;window.AUTOX=true;
  const setSpd=x=>{userSpeed=x;if(!slowed)speed=x};
  q('wAuto').onclick=()=>{q('wAuto').blur();ai=ai+1>=SP.length?-1:ai+1;
   if(ai<0){auto=false;setSpd(1)}else{setSpd(SP[ai]);auto=true;if(!busy&&!selHook)spin()}paint()};
- q('wSnd').onclick=()=>{q('wSnd').blur();muted=!muted;applyMute();paint()};
+ window.AUTODOWN=()=>{if(ai>0){ai=0;setSpd(1);paint()}};   // SKIP·레버·버튼: 자동 회전은 유지하고 1배로
+ try{window.HYPER=localStorage.getItem('g999Hyper')==='1'}catch(e){}
+ q('wHyp').onclick=()=>{q('wHyp').blur();window.HYPER=!window.HYPER;try{localStorage.setItem('g999Hyper',window.HYPER?'1':'0')}catch(e){}paint()};
+ {const sb=document.createElement('button');sb.id='qkS';sb.title='소리 켜기 / 끄기 (M)';q('qk').insertBefore(sb,q('qkT'));const up=()=>{sb.textContent=muted?'🔇':'🔊';sb.classList.toggle('off',muted)};sb.onclick=()=>{sb.blur();muted=!muted;applyMute()};const am=applyMute;applyMute=function(){am.apply(this,arguments);up()};up()}
  const VW=[['v-zoom','액정 확대'],['v-full','전체 기기'],['v-max','최대 화면']];let vi=0;try{vi=Math.max(0,VW.findIndex(v=>v[0]===localStorage.getItem('g999View')))}catch(e){}
  const setView=()=>{document.body.classList.remove('full','v-zoom','v-full','v-max');document.body.classList.add(VW[vi][0]);q('wView').textContent='화면: '+VW[vi][1];try{localStorage.setItem('g999View',VW[vi][0])}catch(e){}};
  // 최대 화면: 액정이 화면 높이를 꽉 채우는 배율은 그대로 두고, 남는 가로 공간만큼 양옆 기기를 더 보여 줌 (기기 전체 폭까지)
@@ -1887,13 +1894,31 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
   x.textAlign='left';x.fillStyle=cur>=0?'#ffd27a':'#7fc4ff';x.fillText('차구슬 '+f(cur),pl,17);
   x.textAlign='right';x.fillStyle='#8a8a8a';x.font='600 14px "Malgun Gothic",system-ui,sans-serif';x.fillText('최고 '+f(hi>0?Math.max(...g.map(p=>p[1])):0)+'  최저 '+f(Math.min(...g.map(p=>p[1]))),W-pr,16)};
  function paint(){if(!auto&&ai>=0){ai=-1;setSpd(1)}   // 다른 이유로 자동이 꺼졌으면 버튼도 맞춤
-  q('wAuto').textContent=ai<0?'AUTO OFF':'AUTO x'+SP[ai];q('wAuto').classList.toggle('sel',ai>=0);q('wSnd').textContent=muted?'🔇 끔':'🔊 소리'}
+  q('wAuto').textContent=ai<0?'AUTO OFF':'AUTO x'+SP[ai];q('wAuto').classList.toggle('sel',ai>=0);q('wHyp').classList.toggle('sel',!!window.HYPER);q('wHyp').textContent=window.HYPER?'HYPER ON':'HYPER'}
  paint();setInterval(paint,250);draw();gDraw();
  // 시작하자마자 대기 영상을 띄움 (정지 배경 그림이 보이는 시간을 없앰)
  setTimeout(()=>{try{if(!busy)idleShow(true)}catch(e){}},200);
 })();
 </script>
-<script>
+<div id="helpBox" hidden><div class="hb"><button id="helpX" title="닫기">✕</button><h3>조작법</h3>
+<h4>기기</h4><table>
+<tr><td>버튼</td><td>연출 중: 5초 앞으로<br>PUSH 구간: PUSH<br>대기 중: 한 번 회전<br>판정 선택: 결정</td></tr>
+<tr><td>레버<br><small>아래로 당기기</small></td><td>SKIP 버튼과 같음<br>판정 선택: 모드 바꾸기<br>레버 지시(초록 ▼): 결과로<br>브레이크 모드 중에는 넘어가지 않음</td></tr></table>
+<h4>위젯</h4><table>
+<tr><td>AUTO</td><td>누를 때마다 x1 → x5 → x10 → x50 → 끄기<br>배속은 통상 회전에만: 연출이 뜨면(꽝 포함) 1배, 끝나면 다시 배속</td></tr>
+<tr><td>SKIP</td><td>연출 건너뛰기 · 대기 중이면 다음 당첨까지<br>AUTO 중이면 AUTO x1 로 낮춤</td></tr><tr><td>HYPER</td><td>진동 2배 · LED 더 요란하게</td></tr>
+<tr><td>화면</td><td>액정 확대 → 전체 기기 → 최대 화면<br>(PC 액정 확대: 마우스 휠로 위아래 이동)</td></tr>
+<tr><td>🔊 🌙 💡 📳</td><td>소리 · 다크/라이트 · LED · 진동 켜기/끄기</td></tr>
+<tr><td>PLAY<br>RECORD</td><td>제목을 누르면 접기/펼치기 · 끌면 이동</td></tr></table>
+<h4 class="kb">키보드 (PC)</h4><table class="kb">
+<tr><td>Enter</td><td>한 번 회전</td></tr><tr><td>Space</td><td>SKIP</td></tr><tr><td>← →</td><td>판정 모드 고르기</td></tr><tr><td>M</td><td>소리 켜기/끄기</td></tr></table></div></div><style id="helpcss">
+#wcol #wHelp{font-size:15px;color:#8fb8e6}
+#helpBox{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center}#helpBox[hidden]{display:none}
+#helpBox .hb{position:relative;width:min(92vw,420px);max-height:86vh;overflow-y:auto;background:linear-gradient(180deg,#141720,#07080c);border:1px solid #2b6fb0;box-shadow:0 0 0 1px #000,0 10px 40px rgba(0,0,0,.7);padding:14px 16px 16px;color:#e9edf5;font:13px/1.5 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
+#helpBox h3{margin:0 0 8px;font-size:15px;letter-spacing:.12em;color:#8fb8e6}#helpBox h4{margin:12px 0 4px;font-size:11.5px;letter-spacing:.14em;color:#39c2ff}
+#helpBox table{width:100%;border-collapse:collapse}#helpBox td{padding:5px 6px;border-top:1px solid #252a36;vertical-align:top}#helpBox td:first-child{width:92px;font-weight:700;color:#ffd08a;white-space:nowrap}#helpBox small{color:#8a93a3;font-weight:400}html.mob #helpBox .kb{display:none}
+#helpX{position:absolute;right:8px;top:8px;width:28px;height:28px;background:#1a1d26;border:1px solid #3a3f4d;border-radius:3px;color:#e9edf5;cursor:pointer}
+</style><script>(()=>{const b=document.getElementById('helpBox'),o=v=>{b.hidden=!v};document.getElementById('wHelp').onclick=e=>{e.currentTarget.blur();o(b.hidden)};document.getElementById('helpX').onclick=()=>o(false);b.addEventListener('pointerdown',e=>{if(e.target===b)o(false)});addEventListener('keydown',e=>{if(!b.hidden&&(e.key==='Escape'||e.key==='?')){e.preventDefault();e.stopImmediatePropagation();o(false)}else if(e.key==='?'){o(true)}},true)})();</script><script>
 // 방문 집계: 웹 주소(http/https)로 열었을 때만. 폴더에서 직접 연 경우에는 보내지 않음
 if(/^https?:$/.test(location.protocol)){const g=document.createElement('script');g.async=true;g.src='https://gc.zgo.at/count.js';g.setAttribute('data-goatcounter','https://999lite.goatcounter.com/count');document.body.appendChild(g)}
 </script>
