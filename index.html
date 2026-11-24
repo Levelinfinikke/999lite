@@ -396,6 +396,7 @@ const NUMS=[1,2,3,4,5,6,7,8]; // 도안 이미지가 있는 숫자만 사용 (1�
 const rd=()=>NUMS[Math.floor(Math.random()*NUMS.length)],nx=n=>NUMS[(NUMS.indexOf(n)+1)%NUMS.length];
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms/speed));
+const sleepSk=ms=>new Promise(r=>{const e=performance.now()+ms/speed,f=()=>{if(skipNext||performance.now()>=e)r();else setTimeout(f,20)};f()});   // 통상 회전 대기: SKIP 을 누르면 바로 끝냄
 const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
 function wpick(items,w){let t=0;for(const x of items)t+=w(x);let r=Math.random()*t;for(const x of items){r-=w(x);if(r<0)return x}return items[items.length-1]}
 let speed=1,userSpeed=1,muted=false,busy=false,auto=false,forceWin=false,mult=1;
@@ -725,14 +726,17 @@ if(IOS){const unlock=()=>{for(const v of document.querySelectorAll('video')){if(
    try{v.muted=true;const p=v.play();if(p)p.then(()=>{if((v.currentSrc||'')===s0){v.pause();v.muted=m}}).catch(()=>{if((v.currentSrc||'')===s0)v.muted=m});else v.muted=m}catch(e){v.muted=m}}
   dbg('unlock');removeEventListener('touchend',unlock,true);removeEventListener('click',unlock,true)};addEventListener('touchend',unlock,true);addEventListener('click',unlock,true)}
 // 건너뛰기 요청: Space · SKIP 버튼 (화면 클릭은 PUSH 창에서만 반응)
+let curEv=false,skipCarry=0;   // curEv: 지금 통상 회전에 연출이 붙었는지 / skipCarry: 영상 마지막 1초에 누른 SKIP 을 이어지는 다음 영상에 넘김
 let nextRes=null,skipPend=false,loadT=0,skipFast=false,skipAt=0,skipIdle=false,chargeSkip=false,skipNext=false;
 // SKIP 버튼: 연출 중이면 건너뛰기/PUSH. 통상 대기 중이면 꽝 회전을 한꺼번에 넘기고 다음 당첨 회전부터 보여 줌 (회전수·투입 구슬은 그대로 계산)
 // 기기 버튼: 연출 중이면 5초 앞으로(PUSH 구간에서는 PUSH), 판정 선택 중이면 결정, 대기 중이면 한 번 회전
-let skip5Req=false;function pressBtn(){if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}}if(selHook)return selHook('ok');if(busy){if(curPlay)skip5Req=true;return}spin()}
+let skip5Req=false,seekReq=0;   // seekReq: 화살표 ← → 로 영상 안에서 5초 뒤로/앞으로
+function pressBtn(){if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}}if(selHook)return selHook('ok');if(busy){if(curPlay)skip5Req=true;return}spin()}
 function pressSkip(){if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}}   // SKIP 을 누르면 자동 회전은 꺼짐
  if(selHook)return selHook('ok');
  if(busy&&skipPend&&!curPlay)return;   // SKIP 으로 다음 당첨을 부른 직후 영상을 불러오는 중: 추가로 누른 건 버림(불러온 영상이 바로 건너뛰어지지 않게)
  if(busy&&chargeSkip&&curPlay&&cname(curPlay.src)==='charge'){chargeSkip=false;stopReq=true;skipNext=true;return}   // 차지(승격 없음) 중 SKIP: 차지를 바로 끝내고 다음 당첨까지 넘김
+ if(busy&&!curPlay&&S.mode==='normal'&&!curEv){skipNext=true;return}   // AUTO 처럼 통상 회전이 계속 도는 중: 이 회전을 바로 끝내고 다음 당첨까지 넘김 (전에는 여기서 누른 SKIP 이 버려졌음)
  if(busy){pushReq=true;skipReq=true;skipAt=performance.now();skipIdle=!curPlay;return}
  if(S.mode!=='normal')return;let r=drawNormal(),n=0;while(r==='lose'&&n<200000){S.spins++;S.cur++;S.used+=spinCost();n++;r=drawNormal()}
  if(r==='lose'){render();save();return}nextRes=r;skipFast=true;skipReq=false;pushReq=false;skipPend=true;render();
@@ -827,7 +831,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!
  v.muted=muted;v.playbackRate=1 /* 연출 영상은 배속하지 않음 (배속은 통상 회전에만 적용) */;
  if(!started){try{await v.play()}catch(e){v.style.display='none';return false}}
  v.style.zIndex=6;v.style.display='block';old.style.zIndex=5;old.pause();old.style.display='none';   // 새 영상이 준비된 뒤에 교체 → 이음매에 빈 화면 없음
- const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);{const age=performance.now()-skipAt;if(!(skipReq&&(age<400||(skipIdle&&age<2000))))skipReq=false;skipIdle=false}stopReq=false;let iv=0;
+ const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);{const now_=performance.now(),age=now_-skipAt;if(!(skipReq&&(age<400||(skipIdle&&age<2000))))skipReq=false;skipIdle=false;if(skipCarry&&now_-skipCarry<1500){skipReq=true;skipAt=now_}skipCarry=0}stopReq=false;let iv=0;
  curPlay={v,g,src,t1,ns:!!opt.noskip};if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
  if(opt.next)prepClip(opt.next);
  // 다음 영상은 재생을 누른 뒤 실제로 움직이기까지 시간이 걸림(LAT). 그만큼 먼저 눌러 두고, 앞 영상이 끝나는 순간 화면만 바꿈
@@ -850,15 +854,16 @@ async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!
   if(inPush!==pushShown){pushShown=inPush;$('pushHint').style.display=inPush&&!LEVONLY[g.n]?'block':'none'}
   if(opt.noskip)pushReq=false;   // 브레이크 모드: 화면 클릭(PUSH)은 불가, SKIP 버튼·Space 는 가능
   if(pushReq){pushReq=false;if(inPush){pw.done=true;skipReq=false;inputLock=performance.now()+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
+  if(seekReq){const d=seekReq;seekReq=0;if(!levW){const to=d>0?Math.min(t+d,t1-g.base-1):Math.max(0,t+d);if(Math.abs(to-t)>.05){pws.forEach(w=>{if(w[0]>=to-.01)w.done=false});marks.forEach(m=>{if(m[0]>=to)m[2]=false});skipReq=pushReq=false;try{v.currentTime=g.base+to}catch(e){}return}}}   // → 5초 앞(끝나기 1초 전까지) / ← 5초 뒤(영상 처음까지). 되돌아간 구간의 PUSH 창은 다시 쓸 수 있게
   if(skip5Req){skip5Req=false;const now=performance.now();if(now>=inputLock&&!levW){if(inPush&&!opt.noskip){pw.done=true;skipReq=pushReq=false;inputLock=now+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}
-   const to=Math.min(t+5,t1-g.base-1);if(to>t+.05){inputLock=now+150;try{v.currentTime=g.base+to}catch(e){}return}}}   // 버튼: 5초 앞으로 (끝나기 1초 전까지만)
+   const to=Math.min(t+5,t1-g.base-1);if(to>t+.05){try{v.currentTime=g.base+to}catch(e){}return}}}   // 버튼: 5초 앞으로 (끝나기 1초 전까지만). 바로 뒤의 SKIP 을 막지 않게 입력 잠금은 걸지 않음
   if(skipReq&&performance.now()<inputLock)skipReq=false;
   if(skipReq){const now=performance.now(),e1=t1-g.base-1,nx=sr.find(x=>x[0]>t),go=(to,lock)=>{skipReq=false;inputLock=now+lock;try{v.currentTime=g.base+to}catch(e){}};
    if(sk){go(sk[1],1200);return}                                  // 정해 둔 구간(정산·ST 한 회전) 안: 그 구간 끝으로. 이어지는 1.2초는 추가 입력을 버림(다음 회전까지 딸려 넘어가지 않게)
    else if(nx&&nx[0]-t<2.5){if(now-skipAt>3000)skipReq=false}     // 다음 구간이 곧 시작: 기다렸다가 그 구간에 적용 (영상 끝으로 건너뛰지 않음)
    else if(nx){go(nx[0]+.05,200);return}                          // 다음 구간이 멀리 있음: 그 구간의 시작으로
    else if(t<e1-.05){go(e1,200);return}                           // 구간이 더 없음: 끝나기 1초 전으로
-   else skipReq=false}
+   else{skipReq=false;skipCarry=now}}
   for(const m of marks)if(!m[2]&&t>=m[0]){m[2]=true;try{m[1]()}catch(e){console.error(e)}}
   if(opt.onTime)try{opt.onTime(t,g.dur)}catch(e){}
   const tEnd=Math.min(t1,v.duration||1e9);if(!preDone&&(tEnd-v.currentTime)/(v.playbackRate||1)<=LAT)pre();
@@ -1321,7 +1326,7 @@ async function pickBattle(tier,vwin,fB,fPre,rvOK){const av=[];for(const k of Obj
  else if(BTL[b].human){const st=[];for(const p of PRES)if(SEG[p.n+'_eye']&&await segsOK([p.n]))st.push(p);const sp=(fPre&&SEG[fPre+'_eye'])?{n:fPre}:st[Math.floor(Math.random()*st.length)];lead=(sp?[sp.n+'_eye']:[]).concat(['pre_street_human_4'])}
  return {b,tier,pre:lead,list:T[vwin?'win':'lose'],num,rv:vwin&&!!T.rv}}
 async function spinNormal(){LED.sw();
- const res=take('res')||nextRes||drawNormal(),win=res==='zorome',fast=skipFast;nextRes=null;skipFast=false;const pHit=SPEC.zorome*mult;
+ const res=take('res')||nextRes||drawNormal(),win=res==='zorome',fast=skipFast;nextRes=null;skipFast=false;const pHit=SPEC.zorome*mult;curEv=res!=='lose';
  if(res!=='lose')slowOn();
  S.spins++;S.cur++;S.used+=spinCost();render();   // 회전마다 바로 차감하고 그래프에 반영
  if(fast&&res==='charge')return finishNormal(res,false);   // SKIP 으로 온 차지: 통상 화면을 거치지 않고 바로 차지 연출
@@ -1350,13 +1355,14 @@ async function spinNormal(){LED.sw();
  // 긴 도입(병실 → 리제)은 항상 클라이맥스 야모리로 이어짐
  const long=win&&!late&&!rev&&!NOCLIP()&&!(NF&&(fTier||fReach))&&(fIntro?(fIntro==='long'||fIntro==='long2'):Math.random()<PRE_LONG.p)&&await probe(PRE_LONG.src)&&await segsOK(BTL.yamori.strong.win);
  if(long)reachEv=N_REACH.find(x=>x[0]==='climax_yamori');
- if(window.AUTOX&&(holdColor||lever||hand||reachEv||(NF&&tier)||late||rev||long||custom!=='def'))slowOn();   // v.2 AUTO: 꽝이라도 연출이 뜨면 1배속으로 (끝나면 다시 배속)
+ if(holdColor||lever||hand||reachEv||(NF&&tier)||late||rev||long||custom!=='def')curEv=true;
+ if(window.AUTOX&&curEv)slowOn();   // v.2 AUTO: 꽝이라도 연출이 뜨면 1배속으로 (끝나면 다시 배속)
  const normalReach=false;   // 코드로 그린 노멀 리치는 쓰지 않음 (영상 연출만)
  renderHolds(holdColor&&holdColor!=='blink'?'':holdColor);
  if(holdColor&&holdColor!=='blink'){await sleep(250);se('hold');renderHolds(holdColor);await sleep(400)}
  // 선역물 커스텀: 변동 개시 때 낙하 (당첨 확률 연동)
  if(custom!=='def'){const rel=custom==='ex'?1:(+custom/100);const drop=win?(custom==='ex'?rushPre:Math.random()<.5):Math.random()<loseRate(pHit,.5,rel);if(drop)await handDrop(win,custom==='ex'?'gold':'')}
- startReels();await sleep(speed>=20?20:1200);
+ startReels();await sleepSk(speed>=20?20:1200);
  const t=win?rd():0;
  let tenpai=win?(rushPre?t:[1,3,4,5][Math.floor(Math.random()*4)]):rd();
  if(!win&&(tenpai===7||tenpai===8))tenpai=[1,3,5][Math.floor(Math.random()*3)];
@@ -1380,7 +1386,7 @@ async function spinNormal(){LED.sw();
   if(lr){const lf=await reachFirst(lr[0],false);if(hand)await playClip('videos/pre_hand.mp4',{next:lf});await doReach(lr,0,false,false,{quiet:true,next:RV})}
   else if(hand)await playClip('videos/pre_hand.mp4',{next:RV});
   await playClip(RV,{next:CLIP.bonus});return finishNormal(res,rushPre,true,true)}
- if(!reach){await sleep(speed>=20?0:850);return finishNormal(res,rushPre)}   // 연출 없는 꽝: 통상 화면은 그대로 흐르고 추첨만 진행
+ if(!reach){await sleepSk(speed>=20?0:850);return finishNormal(res,rushPre)}   // 연출 없는 꽝: 통상 화면은 그대로 흐르고 추첨만 진행
  const mid=win?tenpai:(cn&&cn.mid&&tenpai===cn.t?cn.mid:nx(tenpai));
  // 영상 리치: 영상 안에 텐파이·결과 숫자가 다 들어 있으므로 게임 쪽 숫자 정지·리치 문구·당첨 연출 없이 영상만 이어 붙임
  const vwin=win&&!late,first=reachEv?await reachFirst(reachEv[0],vwin):'';
@@ -1638,7 +1644,7 @@ async function spin(){if(selHook)return selHook('ok');if(busy){pushReq=true;skip
  if(!AC)ac();if(!bgmNow)bgm('bgm');
  S.holds=[1,1,1].slice(0,auto?4:3);
  if(S.mode==='rush')await spinRush();else await spinNormal();
-}catch(e){console.error(e)}finally{busy=false;if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}slowOff();if(skipNext){skipNext=false;if(S.mode==='normal')setTimeout(pressSkip,0)}if(S.mode==='normal'){document.body.classList.remove('inclip');clearTimeout(hideT);VIDS.forEach(v=>{if(v.paused)v.style.display='none'});bgResume()}idleArm();render()}if(auto)setTimeout(spin,speed>=20?0:350/speed)}
+}catch(e){console.error(e)}finally{busy=false;curEv=false;skipCarry=0;if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}slowOff();if(skipNext){skipNext=false;if(S.mode==='normal')setTimeout(pressSkip,0)}if(S.mode==='normal'){document.body.classList.remove('inclip');clearTimeout(hideT);VIDS.forEach(v=>{if(v.paused)v.style.display='none'});bgResume()}idleArm();render()}if(auto)setTimeout(spin,speed>=20?0:350/speed)}
 $('bSpin').onclick=spin;
 $('bAuto').onclick=()=>{auto=!auto;$('bAuto').classList.toggle('on',auto);if(auto&&!busy)spin()};
 $('bForce').onclick=()=>{forceWin=!forceWin;$('bForce').classList.toggle('on',forceWin)};
@@ -1654,7 +1660,7 @@ $('tClipHand').onclick=()=>tClip('videos/bonus.mp4');$('tClip7500').onclick=()=>
 $('tJudge').onclick=async()=>{if(busy)return;busy=true;try{await judgement(Math.random()<.5)}finally{busy=false}};
 $('tRB').onclick=async()=>{if(busy)return;busy=true;try{if(S.mode!=='rush'){S.mode='rush';S.chain=1;S.rushGain=0;S.st=SPEC.st}S.chain++;S.hits++;await rushBonus();S.st=SPEC.st}finally{busy=false;render()}};
 $('tLoop').onclick=async()=>{if(busy)return;busy=true;try{await kumaxLoop()}finally{busy=false}};
-document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;if(e.code==='Space'||e.code==='Enter'){e.preventDefault();if(e.repeat)return;spin()}else if(selHook&&(e.code==='ArrowLeft'||e.code==='ArrowRight')){e.preventDefault();selHook(e.code==='ArrowLeft'?'L':'R')}else if(e.key==='m'||e.key==='M'){muted=!muted;applyMute()}else if(e.key==='r'||e.key==='R'){recToggle()}else if(e.key==='t'||e.key==='T'){tuneToggle()}});
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;if(e.code==='Space'||e.code==='Enter'){e.preventDefault();if(e.repeat)return;spin()}else if(selHook&&(e.code==='ArrowLeft'||e.code==='ArrowRight')){e.preventDefault();selHook(e.code==='ArrowLeft'?'L':'R')}else if(e.key==='m'||e.key==='M'){muted=!muted;applyMute()}else if(/^Arrow(Left|Right|Up|Down)$/.test(e.code)){e.preventDefault();if(e.code==='ArrowUp'){if(!e.repeat)(window.hwBtn||pressBtn)()}else if(e.code==='ArrowDown'){if(!e.repeat&&window.hwLev)window.hwLev()}else if(!selHook&&busy&&curPlay)seekReq=e.code==='ArrowRight'?5:-5}else if(e.key==='r'||e.key==='R'){recToggle()}else if(e.key==='t'||e.key==='T'){tuneToggle()}});
 let fullView=false;try{fullView=localStorage.getItem('g999Full')==='1'}catch(e){}
 function applyView(){document.body.classList.toggle('full',fullView);$('bView').textContent=fullView?'액정 확대 보기':'기기 전체 보기';try{localStorage.setItem('g999Full',fullView?'1':'0')}catch(e){}}
 $('bView').onclick=()=>{fullView=!fullView;applyView()};applyView();
@@ -1706,11 +1712,14 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
   let bDown=0;const setBtn=on=>{for(const x of [bh,bt,br])x.classList.toggle('on',on)};
   // 누르고 있는 동안은 내려가 있고, 떼면 올라옴 (아주 짧게 눌러도 0.12초는 내려가 보이게)
   hb.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();clearTimeout(bT);bDown=performance.now();setBtn(true);try{hb.setPointerCapture(e.pointerId)}catch(_){}try{LED.kick(.5)}catch(_){}pressBtn()});
+  window.hwBtn=()=>{clearTimeout(bT);setBtn(true);bT=setTimeout(()=>setBtn(false),140);try{LED.kick(.5)}catch(_){}pressBtn()};   // ↑ 키
   const bUp=()=>{if(!bDown)return;const w=Math.max(0,120-(performance.now()-bDown));bDown=0;clearTimeout(bT);bT=setTimeout(()=>setBtn(false),w)};hb.addEventListener('pointerup',bUp);hb.addEventListener('pointercancel',bUp);
   // 레버: 아래쪽(Y 의 밑동)이 축, 앞으로 최대 10도. 끝까지(70% 이상) 당기면 한 번 회전
   const MAXDEG=10;let y0=null,done=false;const tilt=p=>{lv.style.transform='perspective('+Math.round(lv.offsetHeight*2.2)+'px) rotateX('+(-MAXDEG*p).toFixed(2)+'deg)'};   // 밑동(아래 끝)은 그대로, 위로 갈수록 앞으로 나와 커짐
   hl.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();y0=e.clientY;done=false;lv.classList.remove('back');lv.classList.add('on');tilt(0);try{hl.setPointerCapture(e.pointerId)}catch(_){}});
-  hl.addEventListener('pointermove',e=>{if(y0==null)return;const p=Math.max(0,Math.min(1,(e.clientY-y0)/Math.max(30,hl.offsetHeight*.35)));tilt(p);if(!done&&p>=.7){done=true;try{LED.kick(.4)}catch(_){}if(typeof selHook!=='undefined'&&selHook&&window.LEVSEL){selHook('T')}else if(typeof curPlay!=='undefined'&&curPlay&&curPlay.ns){}else{window.PUSHSRC='lever';setTimeout(()=>{window.PUSHSRC=''},500);pressSkip()}}});   // 판정 2번(브레이크) 모드 영상 중에는 레버로 넘기지 않음
+  hl.addEventListener('pointermove',e=>{if(y0==null)return;const p=Math.max(0,Math.min(1,(e.clientY-y0)/Math.max(30,hl.offsetHeight*.35)));tilt(p);if(!done&&p>=.7){done=true;levAct()}});   // 판정 2번(브레이크) 모드 영상 중에는 레버로 넘기지 않음
+  function levAct(){try{LED.kick(.4)}catch(_){}if(typeof selHook!=='undefined'&&selHook&&window.LEVSEL){selHook('T')}else if(typeof curPlay!=='undefined'&&curPlay&&curPlay.ns){}else{window.PUSHSRC='lever';setTimeout(()=>{window.PUSHSRC=''},500);pressSkip()}}   // 판정 2번(브레이크) 모드 영상 중에는 레버로 넘기지 않음
+  window.hwLev=()=>{if(y0!=null)return;lv.classList.remove('back');lv.classList.add('on');tilt(1);levAct();setTimeout(()=>{if(y0!=null)return;lv.classList.add('back');tilt(0);setTimeout(()=>{if(y0==null)lv.classList.remove('on','back')},200)},160)};   // ↓ 키: 끝까지 당겼다 놓는 모습
   const end=()=>{if(y0==null)return;y0=null;lv.classList.add('back');tilt(0);setTimeout(()=>{if(y0==null)lv.classList.remove('on','back')},200)};hl.addEventListener('pointerup',end);hl.addEventListener('pointercancel',end)}catch(e){}
  try{const B_=LED_BOX.flower.c,f=document.createElement('img');f.id='qkFl';f.alt='';f.src='images/led_flower.webp';Object.assign(f.style,{left:B_[0]*100+'%',top:B_[1]*100+'%',width:B_[2]*100+'%',height:B_[3]*100+'%'});document.getElementById('frameImg').after(f)}catch(e){}
  /* 다크 모드의 번짐 색: 오른쪽 기둥 LED 의 지금 색·밝기를 따라감 */
@@ -1801,7 +1810,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
  const setSpd=x=>{userSpeed=x;if(!slowed)speed=x};
  q('wAuto').onclick=()=>{q('wAuto').blur();ai=ai+1>=SP.length?-1:ai+1;
   if(ai<0){auto=false;setSpd(1)}else{setSpd(SP[ai]);auto=true;if(!busy&&!selHook)spin()}paint()};
- window.AUTODOWN=()=>{if(ai>0){ai=0;setSpd(1);paint()}};   // SKIP·레버·버튼: 자동 회전은 유지하고 1배로
+ window.AUTODOWN=()=>{};   // SKIP·레버·버튼은 AUTO 에 영향 없음
  try{window.HYPER=localStorage.getItem('g999Hyper')==='1'}catch(e){}
  q('wHyp').onclick=()=>{q('wHyp').blur();window.HYPER=!window.HYPER;try{localStorage.setItem('g999Hyper',window.HYPER?'1':'0')}catch(e){}paint()};
  {const sb=document.createElement('button');sb.id='qkS';sb.title='소리 켜기 / 끄기 (M)';q('qk').insertBefore(sb,q('qkT'));const up=()=>{sb.textContent=muted?'🔇':'🔊';sb.classList.toggle('off',muted)};sb.onclick=()=>{sb.blur();muted=!muted;applyMute()};const am=applyMute;applyMute=function(){am.apply(this,arguments);up()};up()}
@@ -1906,12 +1915,12 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
 <tr><td>레버<br><small>아래로 당기기</small></td><td>SKIP 버튼과 같음<br>판정 선택: 모드 바꾸기<br>레버 지시(초록 ▼): 결과로<br>브레이크 모드 중에는 넘어가지 않음</td></tr></table>
 <h4>위젯</h4><table>
 <tr><td>AUTO</td><td>누를 때마다 x1 → x5 → x10 → x50 → 끄기<br>배속은 통상 회전에만: 연출이 뜨면(꽝 포함) 1배, 끝나면 다시 배속</td></tr>
-<tr><td>SKIP</td><td>연출 건너뛰기 · 대기 중이면 다음 당첨까지<br>AUTO 중이면 AUTO x1 로 낮춤</td></tr><tr><td>HYPER</td><td>진동 2배 · LED 더 요란하게</td></tr>
+<tr><td>SKIP</td><td>연출 건너뛰기 · 통상 회전 중이면 다음 당첨까지<br>AUTO 는 그대로 유지</td></tr><tr><td>HYPER</td><td>진동 2배 · LED 더 요란하게</td></tr>
 <tr><td>화면</td><td>액정 확대 → 전체 기기 → 최대 화면<br>(PC 액정 확대: 마우스 휠로 위아래 이동)</td></tr>
 <tr><td>🔊 🌙 💡 📳</td><td>소리 · 다크/라이트 · LED · 진동 켜기/끄기</td></tr>
 <tr><td>PLAY<br>RECORD</td><td>제목을 누르면 접기/펼치기 · 끌면 이동</td></tr></table>
 <h4 class="kb">키보드 (PC)</h4><table class="kb">
-<tr><td>Enter</td><td>한 번 회전</td></tr><tr><td>Space</td><td>SKIP</td></tr><tr><td>← →</td><td>판정 모드 고르기</td></tr><tr><td>M</td><td>소리 켜기/끄기</td></tr></table></div></div><style id="helpcss">
+<tr><td>Enter</td><td>한 번 회전</td></tr><tr><td>Space</td><td>SKIP</td></tr><tr><td>→ / ←</td><td>영상 5초 앞으로 / 5초 뒤로<br>판정 선택 중: 모드 고르기</td></tr><tr><td>↑</td><td>기기 버튼</td></tr><tr><td>↓</td><td>레버 당기기</td></tr><tr><td>M</td><td>소리 켜기/끄기</td></tr></table></div></div><style id="helpcss">
 #wcol #wHelp{font-size:15px;color:#8fb8e6}
 #helpBox{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center}#helpBox[hidden]{display:none}
 #helpBox .hb{position:relative;width:min(92vw,420px);max-height:86vh;overflow-y:auto;background:linear-gradient(180deg,#141720,#07080c);border:1px solid #2b6fb0;box-shadow:0 0 0 1px #000,0 10px 40px rgba(0,0,0,.7);padding:14px 16px 16px;color:#e9edf5;font:13px/1.5 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
