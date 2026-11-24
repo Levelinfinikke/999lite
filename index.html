@@ -725,6 +725,8 @@ if(IOS){const unlock=()=>{for(const v of document.querySelectorAll('video')){if(
 // 건너뛰기 요청: Space · SKIP 버튼 (화면 클릭은 PUSH 창에서만 반응)
 let nextRes=null,skipPend=false,loadT=0,skipFast=false,skipAt=0,skipIdle=false,chargeSkip=false,skipNext=false;
 // SKIP 버튼: 연출 중이면 건너뛰기/PUSH. 통상 대기 중이면 꽝 회전을 한꺼번에 넘기고 다음 당첨 회전부터 보여 줌 (회전수·투입 구슬은 그대로 계산)
+// 기기 버튼: 연출 중이면 5초 앞으로(PUSH 구간에서는 PUSH), 판정 선택 중이면 결정, 대기 중이면 한 번 회전
+let skip5Req=false;function pressBtn(){if(auto){auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}if(selHook)return selHook('ok');if(busy){if(curPlay)skip5Req=true;return}spin()}
 function pressSkip(){if(auto){auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}   // SKIP 을 누르면 자동 회전은 꺼짐
  if(selHook)return selHook('ok');
  if(busy&&skipPend&&!curPlay)return;   // SKIP 으로 다음 당첨을 부른 직후 영상을 불러오는 중: 추가로 누른 건 버림(불러온 영상이 바로 건너뛰어지지 않게)
@@ -746,7 +748,8 @@ try{if(!localStorage.getItem('ghoulFix6')){TUNE.cues={};localStorage.setItem('gh
 try{if(!localStorage.getItem('ghoulFix7')){for(const [k,e] of [['st_win_rize',-61.58],['st_win_tsukiyama',-12.7],['st_win_omedetou',-3.22]])TUNE.trim[k]=[(TUNE.trim[k]||[0,0])[0]||0,e];localStorage.setItem('ghoulFix7','1');saveTune()}}catch(e){} // ST 당첨 영상 3개: 마지막 역물 낙하 직전에서 끝나도록 끝 자르기 (이 브라우저에 저장된 값에도 한 번 적용)
 // 영상 속 PUSH·連打·押せ 가 떠 있는 구간 [시작, 넘어갈 지점] (기준 시각 초, 999 = 그 영상의 끝). 이 구간에서 클릭/Space/SKIP 하면 바로 결과로 넘어감
 // 배틀 모드 본체는 구간이 둘: ① 상대 캐릭터 선택 화면 → 누르면 상대가 정해지는 순간으로, ② 마지막 PUSH → 결과로
-const PUSH=Object.assign({judge_select:[10.6,14.68],judge_ready:[7.98,999],revival_fukurou:[34.3,37.4],climax_yamori_lose_2:[.77,3.7],battle_kakuza_1:[80.93,83.93],battle_mother_strong_win_8:[69.27,72.23],battle_amon_3:[69.2,72.2],st_win_omedetou:[16.15,18.9]},TUNE.consts.PUSH),LEVONLY={st_win_omedetou:1};   // omedetou: 초록 ▼(레버를 당기라는 지시)가 떠 있는 동안 레버를 당겨야만 바로 결과로 (버튼·SKIP·키보드는 이 구간에서 무시)
+const PUSH=Object.assign({judge_select:[10.6,14.68],judge_ready:[7.98,999],revival_fukurou:[34.3,37.4],climax_yamori_lose_2:[.77,3.7],battle_kakuza_1:[80.93,83.93],battle_mother_strong_win_8:[69.27,72.23],battle_amon_3:[69.2,72.2],st_win_omedetou:[16.15,18.9],pre_button:[0,1.86]},TUNE.consts.PUSH),LEVONLY={st_win_omedetou:1};   // pre_button: 앞부분 PUSH 버튼 구간에서 누르면 버튼 연출이 끝나는 1.86초(번쩍임 직전)로만 넘어감
+   // omedetou: 초록 ▼(레버를 당기라는 지시)가 떠 있는 동안 레버를 당겨야만 바로 결과로 (버튼·SKIP·키보드는 이 구간에서 무시)
 // 요청받은 이동량을 이 브라우저에 저장된 값에도 한 번만 더함 (judge_tail_lose 시작 +0.3, st_win_omedetou 시작 +5.5)
 try{localStorage.setItem('ghoulFix2','1')}catch(e){}
 try{if(!localStorage.getItem('ghoulFix12')){TUNE.trim.direct7500=[0,-0.068];TUNE.trim.st_win_tsukiyama=[0.6,-12.7];TUNE.trim.revival_fukurou=[0.02,0];localStorage.setItem('ghoulFix12','1');saveTune()}}catch(e){}
@@ -845,6 +848,8 @@ async function playClip(src,opt){opt=opt||{};if(!src||speed>=20)return false;if(
   if(inPush!==pushShown){pushShown=inPush;$('pushHint').style.display=inPush&&!LEVONLY[g.n]?'block':'none'}
   if(opt.noskip)pushReq=false;   // 브레이크 모드: 화면 클릭(PUSH)은 불가, SKIP 버튼·Space 는 가능
   if(pushReq){pushReq=false;if(inPush){pw.done=true;skipReq=false;inputLock=performance.now()+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
+  if(skip5Req){skip5Req=false;const now=performance.now();if(now>=inputLock&&!levW){if(inPush&&!opt.noskip){pw.done=true;skipReq=pushReq=false;inputLock=now+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}
+   const to=Math.min(t+5,t1-g.base-1);if(to>t+.05){inputLock=now+150;try{v.currentTime=g.base+to}catch(e){}return}}}   // 버튼: 5초 앞으로 (끝나기 1초 전까지만)
   if(skipReq&&performance.now()<inputLock)skipReq=false;
   if(skipReq){const now=performance.now(),e1=t1-g.base-1,nx=sr.find(x=>x[0]>t),go=(to,lock)=>{skipReq=false;inputLock=now+lock;try{v.currentTime=g.base+to}catch(e){}};
    if(sk){go(sk[1],1200);return}                                  // 정해 둔 구간(정산·ST 한 회전) 안: 그 구간 끝으로. 이어지는 1.2초는 추가 입력을 버림(다음 회전까지 딸려 넘어가지 않게)
@@ -1688,20 +1693,20 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
   VW_.addEventListener('wheel',e=>{if(B.classList.contains('full')||B.classList.contains('v-full')||B.classList.contains('v-max'))return;const min=-(1-VW_.clientHeight/MC_.offsetHeight)*100;if(!(min<0))return;
    const cur=parseFloat(getComputedStyle(B).getPropertyValue('--ty'))||0,n=Math.max(min,Math.min(0,cur-e.deltaY*.04));B.style.setProperty('--ty',n.toFixed(2)+'%');e.preventDefault()},{passive:false});
   new MutationObserver(()=>{const k=vkey();if(k!==vk){vk=k;B.style.removeProperty('--ty')}}).observe(B,{attributes:true,attributeFilter:['class']})}catch(e){}
- /* 기기 그림의 버튼·레버를 직접 누름: 버튼 = SKIP/PUSH, 레버 = 아래로 당기면 한 번 회전(연출 중에는 PUSH) */
+ /* 기기 그림의 버튼·레버를 직접 누름: 버튼 = 연출 중 5초 앞으로(PUSH 구간은 PUSH)·대기 중 한 번 회전, 레버 = 아래로 당기면 SKIP 버튼과 같음 */
  try{const MC_=document.getElementById('machine'),mk=(id,q,t)=>{const d=document.createElement('div');d.id=id;d.title=t;Object.assign(d.style,{position:'absolute',left:q[0]*100+'%',top:q[1]*100+'%',width:q[2]*100+'%',height:q[3]*100+'%',zIndex:30,cursor:'pointer',touchAction:'none',webkitTapHighlightColor:'transparent'});MC_.appendChild(d);return d};
-  const hb=mk('hitBtn',LED_BOX.button.c,'버튼: 건너뛰기 / PUSH'),hl=mk('hitLev',[.40,.725,.21,.195],'레버: 아래로 당기면 회전');
+  const hb=mk('hitBtn',LED_BOX.button.c,'버튼: 5초 앞으로 / PUSH'),hl=mk('hitLev',[.40,.725,.21,.195],'레버: 아래로 당기면 SKIP');
   // 눌리는 버튼 · 당겨지는 레버: 기기 사진에서 오려 낸 그림을 조작하는 동안만 겹쳐서 움직임 (평소에는 숨김)
   const im=(id,src,q)=>{const f=document.createElement('img');f.id=id;f.alt='';f.src=src;Object.assign(f.style,{left:q[0]*100+'%',top:q[1]*100+'%',width:q[2]*100+'%',height:q[3]*100+'%'});document.getElementById('frameImg').after(f);return f};
   const lv=im('levImg','images/lever.webp?v=2',[.3982,.6544,.2397,.2657]),bh=im('btnHole','images/btn_hole.webp?v=3',[0.4253,0.6516,0.1894,0.0823]),bt=im('btnImg','images/lever_btn.webp?v=2',[0.4253,0.6516,0.1894,0.0823]),br=im('btnRim','images/btn_rim.webp',[0.4253,0.6516,0.1894,0.0823]);bh.after(bt);bt.after(br);let bT=0;   // 구멍(어두운 바닥) → 내려간 버튼 → 버튼 둘레(내려간 버튼의 아래쪽을 가림)
   let bDown=0;const setBtn=on=>{for(const x of [bh,bt,br])x.classList.toggle('on',on)};
   // 누르고 있는 동안은 내려가 있고, 떼면 올라옴 (아주 짧게 눌러도 0.12초는 내려가 보이게)
-  hb.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();clearTimeout(bT);bDown=performance.now();setBtn(true);try{hb.setPointerCapture(e.pointerId)}catch(_){}try{LED.kick(.5)}catch(_){}if(typeof pressSkip==='function')pressSkip();else spin()});
+  hb.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();clearTimeout(bT);bDown=performance.now();setBtn(true);try{hb.setPointerCapture(e.pointerId)}catch(_){}try{LED.kick(.5)}catch(_){}pressBtn()});
   const bUp=()=>{if(!bDown)return;const w=Math.max(0,120-(performance.now()-bDown));bDown=0;clearTimeout(bT);bT=setTimeout(()=>setBtn(false),w)};hb.addEventListener('pointerup',bUp);hb.addEventListener('pointercancel',bUp);
   // 레버: 아래쪽(Y 의 밑동)이 축, 앞으로 최대 10도. 끝까지(70% 이상) 당기면 한 번 회전
   const MAXDEG=10;let y0=null,done=false;const tilt=p=>{lv.style.transform='perspective('+Math.round(lv.offsetHeight*2.2)+'px) rotateX('+(-MAXDEG*p).toFixed(2)+'deg)'};   // 밑동(아래 끝)은 그대로, 위로 갈수록 앞으로 나와 커짐
   hl.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();y0=e.clientY;done=false;lv.classList.remove('back');lv.classList.add('on');tilt(0);try{hl.setPointerCapture(e.pointerId)}catch(_){}});
-  hl.addEventListener('pointermove',e=>{if(y0==null)return;const p=Math.max(0,Math.min(1,(e.clientY-y0)/Math.max(30,hl.offsetHeight*.35)));tilt(p);if(!done&&p>=.7){done=true;try{LED.kick(.4)}catch(_){}if(typeof selHook!=='undefined'&&selHook&&window.LEVSEL){selHook('T')}else if(typeof curPlay!=='undefined'&&curPlay&&curPlay.ns){}else{window.PUSHSRC='lever';setTimeout(()=>{window.PUSHSRC=''},500);spin()}}});   // 판정 2번(브레이크) 모드 영상 중에는 레버로 넘기지 않음
+  hl.addEventListener('pointermove',e=>{if(y0==null)return;const p=Math.max(0,Math.min(1,(e.clientY-y0)/Math.max(30,hl.offsetHeight*.35)));tilt(p);if(!done&&p>=.7){done=true;try{LED.kick(.4)}catch(_){}if(typeof selHook!=='undefined'&&selHook&&window.LEVSEL){selHook('T')}else if(typeof curPlay!=='undefined'&&curPlay&&curPlay.ns){}else{window.PUSHSRC='lever';setTimeout(()=>{window.PUSHSRC=''},500);pressSkip()}}});   // 판정 2번(브레이크) 모드 영상 중에는 레버로 넘기지 않음
   const end=()=>{if(y0==null)return;y0=null;lv.classList.add('back');tilt(0);setTimeout(()=>{if(y0==null)lv.classList.remove('on','back')},200)};hl.addEventListener('pointerup',end);hl.addEventListener('pointercancel',end)}catch(e){}
  try{const B_=LED_BOX.flower.c,f=document.createElement('img');f.id='qkFl';f.alt='';f.src='images/led_flower.webp';Object.assign(f.style,{left:B_[0]*100+'%',top:B_[1]*100+'%',width:B_[2]*100+'%',height:B_[3]*100+'%'});document.getElementById('frameImg').after(f)}catch(e){}
  /* 다크 모드의 번짐 색: 오른쪽 기둥 LED 의 지금 색·밝기를 따라감 */
