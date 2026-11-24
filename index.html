@@ -102,8 +102,7 @@ body.inclip #reels,body.inclip #holds{visibility:hidden}
 #frameImg.dim{filter:brightness(.64)}
 .led{position:absolute;z-index:10;pointer-events:none;opacity:0;will-change:opacity;transition:opacity .07s linear}
 .led.b{mix-blend-mode:screen}
-.led.t{mix-blend-mode:color}
-.led.p{mix-blend-mode:multiply;z-index:14}
+.led.p{z-index:14}
 #holds{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);display:flex;gap:1.6cqw;z-index:4;align-items:center}
 .hold{width:4.2cqw;height:4.2cqw;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#bbb 40%,#555);box-shadow:0 0 .8cqw rgba(0,0,0,.6)}
 .hold.cur{width:5.6cqw;height:5.6cqw;margin-right:1.4cqw}
@@ -383,7 +382,9 @@ const JUDGE=[['鯱',.26,.15],['ヤモリ',.40,.30],['絢都',.75,.30],['クロ�
 // ═══════════ 소재 파일 슬롯 (없으면 코드 연출) ═══════════
 // 영상: videos/<키>_body.mp4 (리치 본체), videos/<키>_win.mp4 / _lose.mp4 (결말), 그 밖에 아래 이름
 const CLIP={hand:'videos/hand_drop.mp4',zorome:'videos/zorome.mp4',bonus:'videos/bonus.mp4',bonus7500:'videos/bonus7500.mp4',judge_win:'videos/judge_win.mp4',judge_lose:'videos/judge_lose.mp4',rush_in:'videos/rush_in.mp4',rush_end:'videos/rush_end.mp4',loop:'videos/kumax_loop.mp4',charge:'videos/charge.mp4',charge_up:'videos/charge_up.mp4'};
-const IMG={num:n=>'images/num_'+n+'.png',hold:c=>'images/hold_'+(c||'normal')+'.png',frame:'images/machine_frame.webp?v=7'};
+// 휴대폰(손가락으로 누르는 작은 화면): 가벼운 그림·설정을 씀
+const MOB=(()=>{try{return matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<=900}catch(e){return false}})();if(MOB)document.documentElement.classList.add('mob');
+const IMG={num:n=>'images/num_'+n+'.png',hold:c=>'images/hold_'+(c||'normal')+'.png',frame:MOB?'images/machine_frame_m_d.webp':'images/machine_frame.webp?v=7'};   // 휴대폰: 2/3 크기에 밝기를 미리 입힌 사진(필터 없이 씀)
 const SND={bgm:'audio/bgm_normal.mp3',bgmRush:'audio/bgm_rush.mp3',stop:'audio/se_stop.mp3',reach:'audio/se_reach.mp3',hold:'audio/se_hold.mp3',hand:'audio/se_hand.mp3',win:'audio/se_win.mp3',lever:'audio/se_lever.mp3'};
 
 // 영상에 숫자가 찍혀 있는 클립: 게임 숫자를 영상에 맞춤 [텐파이, 꽝일 때 가운데]
@@ -553,7 +554,7 @@ function ledPaint(){const cv=$('tLed');if(!cv)return;const n=TK.sel,d=LEDDATA[n]
   ledImg=im;ledImgK=n}
  g.drawImage(ledImg,0,0);const el=$('tLedT');
  if(curPlay&&cname(curPlay.src)===n){const t=curPlay.v.currentTime+ledOff(n),x=t*d.fps/N*W;g.fillStyle='#fff';g.fillRect(Math.round(x),0,1,H);if(el)el.textContent='표 시각 '+t.toFixed(2)+'초'}else if(el)el.textContent=''}
-setInterval(ledPaint,80);
+
 document.addEventListener('click',e=>{if(e.target.id!=='tLed')return;const n=TK.sel,d=LEDDATA[n];if(!d||!curPlay||cname(curPlay.src)!==n)return;const r=e.target.getBoundingClientRect(),t=(e.clientX-r.left)/r.width*d.z.right.length/2/d.fps;try{curPlay.v.currentTime=Math.max(0,t-ledOff(n))}catch(_){}});
 function tuneDraw(){const T=$('tune');if(!T.classList.contains('on'))return;
  const have=n=>clipState['videos/'+n+'.mp4']!==undefined;const opt=(v,cur)=>'<option'+(v===cur?' selected':'')+'>'+v+'</option>';
@@ -865,7 +866,7 @@ function probeImg(src){if(src in imgOk)return;imgOk[src]=false;const i=new Image
 for(let n=1;n<=8;n++)probeImg(IMG.num(n));
 
 function setNum(i,n){const src=IMG.num(n);reelEls[i].innerHTML=imgOk[src]?'<div class="num"><img alt="'+n+'" src="'+src+'"></div>':'<div class="num c'+n+'">'+n+'</div>'}
-(function(){const f=new Image();f.onload=()=>{$('frameImg').src=f.src;$('frameImg').style.display='block'};f.src=IMG.frame})();
+(function(){const f=new Image();f.onload=()=>{if(!$('frameImg')._mob)$('frameImg').src=f.src;$('frameImg').style.display='block'};f.src=IMG.frame})();
 $('hand').onerror=()=>{$('hand').style.display='none'};
 function fx(html,cls){const d=document.createElement('div');d.className='banner '+(cls||'mid');d.innerHTML=html;$('fx').appendChild(d);return d}
 function clearFx(){$('fx').innerHTML=''}
@@ -879,27 +880,30 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
  const THEME={1:[249,.85],2:[292,.85],3:[62,.85],4:[215,.85],5:[270,.8]};let bgSeen=0,dipT=-9,swT=-9;   // 스테이지별 테마색 [색상,채도]: 1 도시(파랑) 2 극장(보라) 3 카페(노랑) 은 실기 관찰, 4·5 는 배경 색에 맞춘 추정
  const DEF={flower:'#ff3050'},up=()=>{if(++ok===need){$('frameImg').classList.add('dim');requestAnimationFrame(tick)}};
  const pre=u=>{need++;const m=new Image();m.onload=up;m.src=u};
- // 색 입히기: 그림의 투명도는 그대로 두고 색만 한 가지로 바꾸는 SVG 필터 (CSS 마스크는 file:// 에서 막혀서 쓰지 않음)
- const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg');svg.setAttribute('width',0);svg.setAttribute('height',0);svg.style.position='absolute';document.body.appendChild(svg);let fid=0;
- const flood=(e,col)=>{const f=document.createElementNS(NS,'filter'),id='ledf'+(fid++);f.id=id;f.setAttribute('color-interpolation-filters','sRGB');
-  const a=document.createElementNS(NS,'feFlood'),b=document.createElementNS(NS,'feComposite');a.setAttribute('flood-color',col);b.setAttribute('in2','SourceAlpha');b.setAttribute('operator','in');f.append(a,b);svg.appendChild(f);
-  e.style.filter='url(#'+id+')';e._c=col;e.col=c=>{if(c!==e._c){e._c=c;a.setAttribute('flood-color',c)}};return e};
+ // 색 입히기: 구역마다 작은 캔버스에 LED 그림을 그리고 색을 입힘. 색이 바뀔 때만 다시 그림 (예전의 SVG 필터·겹침 모드는 휴대폰에서 매 프레임 다시 계산돼 무거웠음)
+ //  flat = 그림 모양을 한 가지 색으로 채움(번짐·소등) / color = 그림의 밝기는 두고 색만 바꿈 / multiply = 그림에 색을 곱함(역물)
+ const TS=MOB?.6:1,paint=e=>{const im=e._im,g=e._x;if(!g||!im.naturalWidth)return;const W=e.width,H=e.height;g.globalAlpha=1;g.globalCompositeOperation='copy';g.drawImage(im,0,0,W,H);
+   if(e._m==='flat'){g.globalCompositeOperation='source-in';g.fillStyle=e._c;g.fillRect(0,0,W,H)}
+   else{g.globalCompositeOperation=e._m;g.fillStyle=e._c;g.fillRect(0,0,W,H);g.globalCompositeOperation='destination-in';g.drawImage(im,0,0,W,H)}
+   g.globalCompositeOperation='source-over'},
+  tcv=(e,src,col,mode)=>{const im=new Image();e._im=im;e._c=col;e._m=mode;im.onload=()=>{e.width=Math.max(4,Math.round(im.naturalWidth*TS));e.height=Math.max(4,Math.round(im.naturalHeight*TS));e._x=e.getContext('2d');paint(e)};im.src=src;
+   e.col=c=>{if(c!==e._c){e._c=c;paint(e)}};return e};
  for(const [n,B] of Object.entries(LED_BOX)){const z=Zs[n]={lc:-1,lb:-1,lt:-1,lk:-1,q:-1},cu='images/led_'+n+'.webp',bu='images/led_'+n+'_b.webp';pre(cu);pre(bu);
-  const mk=(tag,cls,q)=>{const e=document.createElement(tag);e.className='led'+cls;Object.assign(e.style,{left:q[0]*100+'%',top:q[1]*100+'%',width:q[2]*100+'%',height:q[3]*100+'%'});return e};
-  z.c=mk('img','',B.c);z.c.alt='';z.c.src=cu;z.t=mk('img',' t',B.c);z.t.alt='';z.t.src=cu;flood(z.t,'#fff');z.b=mk('img',' b',B.b);z.b.alt='';z.b.src=bu;flood(z.b,DEF[n]||'#d4e2ff');
-  z.k=mk('img','',B.c);z.k.alt='';z.k.src=cu;flood(z.k,'#000');   // 소등용: LED 자리를 검게 덮어 기기 그림에 남은 밝은 부분까지 끔
+  const mk=(tag,cls,q)=>{const e=document.createElement(tag);e.className='led'+cls;Object.assign(e.style,{left:q[0]*100+'%',top:q[1]*100+'%',width:q[2]*100+'%',height:q[3]*100+'%'});return e},cc='images/led_'+n+'c.webp';pre(cc);   // cc: 밝기·대비를 미리 입혀 둔 그림(필터 없이 씀)
+  z.c=mk('img','',B.c);z.c.alt='';z.c.src=cc;z.c._u=cc;z.t=tcv(mk('canvas',' t',B.c),cc,'#fff','color');z.b=tcv(mk('canvas',' b',B.b),bu,DEF[n]||'#d4e2ff','flat');
+  z.k=tcv(mk('canvas','',B.c),cu,'#000','flat');   // 소등용: LED 자리를 검게 덮어 기기 그림에 남은 밝은 부분까지 끔
   $('frameImg').after(z.k,z.c,z.t,z.b);
   // 회전하는 빛(무지개·오른쪽 노림 연출)용 겹: 기둥·중앙 상단 위를 밝은 띠가 지나감. 띠 모양은 CSS 그라데이션 마스크(파일을 읽지 않아 file:// 에서도 동작)
-  if(n==='left'||n==='top'||n==='right'){const h={c:mk('img','',B.c),t:mk('img',' t',B.c),b:mk('img',' b',B.b)};h.c.alt=h.t.alt=h.b.alt='';h.c.src=h.t.src=cu;h.b.src=bu;flood(h.t,'#fff');flood(h.b,'#fff');
+  if(n==='left'||n==='top'||n==='right'){const h={c:mk('img','',B.c),t:tcv(mk('canvas',' t',B.c),cc,'#fff','color'),b:tcv(mk('canvas',' b',B.b),bu,'#fff','flat')};h.c.alt='';h.c.src=cc;
    for(const e of [h.c,h.t,h.b])e.style.transition='none';z.b.after(h.c,h.t,h.b);z.h=h;z.ho=0;
    // 무지개용 색 띠 6칸: 같은 LED 그림을 칸마다 세로(상단은 가로)로 번지는 띠 모양으로만 보이게 해 겹침 → 이웃한 칸의 색이 자연스럽게 섞임
    const P={left:['y',.72,0,0,.4],top:['x',.265,.74,.4,.6],right:['y',0,.72,.6,1]}[n],e0=P[0]==='y'?B.c[1]:B.c[0],es=P[0]==='y'?B.c[3]:B.c[2];z.g=[];
-   for(let k=0;k<6;k++){const e=mk('img',' t',B.c);e.alt='';e.src=cu;flood(e,'#fff');e.style.transition='none';const c=(k+.5)/6*100,w=100/6,
+   for(let k=0;k<6;k++){const e=tcv(mk('canvas',' t',B.c),cc,'#fff','color');e.style.transition='none';const c=(k+.5)/6*100,w=100/6,
      m='linear-gradient('+(P[0]==='y'?'to bottom':'to right')+','+(k===0?'#000 '+c.toFixed(1)+'%':'transparent '+(c-w).toFixed(1)+'%,#000 '+c.toFixed(1)+'%')+','+(k===5?'#000 100%':'transparent '+(c+w).toFixed(1)+'%')+')';
     e.style.webkitMaskImage=m;e.style.maskImage=m;const pos=e0+es*(k+.5)/6;e._s=P[3]+(P[4]-P[3])*Math.max(0,Math.min(1,(pos-P[1])/(P[2]-P[1])));z.h.b.after(e);z.g.push(e)}}}
  const PART={head:[0,1,2],hand:[3]},PT={};   // 상단 역물: 몸통·머리는 head, 손은 hand 를 따름
- function ptint(n){if(PT[n])return PT[n];const a=[];for(const i of PART[n]){const P=PARTS[i],el=partEls[i],e=document.createElement('img');e.alt='';e.src=P.src;e.className='led p';
-   Object.assign(e.style,{left:P.bbox[0]*100+'%',top:P.bbox[1]*100+'%',width:(P.bbox[2]-P.bbox[0])*100+'%',height:'auto'});flood(e,'#fff');$('machine').appendChild(e);a.push(e)}
+ function ptint(n){if(PT[n])return PT[n];const a=[];for(const i of PART[n]){const P=PARTS[i],el=partEls[i],e=document.createElement('canvas');e.className='led p';
+   Object.assign(e.style,{left:P.bbox[0]*100+'%',top:P.bbox[1]*100+'%',width:(P.bbox[2]-P.bbox[0])*100+'%',height:'auto'});tcv(e,P.src,'#fff','multiply');$('machine').appendChild(e);a.push(e)}
   return (PT[n]=a)}
  function parts(n,L,hue,sat){if(typeof partEls==='undefined'||typeof gFxInit!=='function')return;gFxInit();const d=Math.max(0,Math.min(.55,(1-L)*.6)),tn=ptint(n),to=sat>0?Math.min(.8,sat*Math.min(1,L)):0;
   PART[n].forEach((i,k)=>{const e=dimEls[i],mv=!!partEls[i].style.transform;if(e){const v=mv?0:d;if(Math.abs(v-(e._l==null?-1:e._l))>.004){e._l=v;e.style.transition='none';e.style.opacity=v.toFixed(3)}}
@@ -948,7 +952,9 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
   if(!a){if(vbOn){vbOn=0;MC.style.translate=''}return}
   vbOn=1;vbPh^=1;const w=MC.offsetWidth,r=a/9*w*.006,dx=(vbPh?1:-1)*r*(.6+.4*Math.random()),dy=(Math.random()-.5)*r*1.2;MC.style.translate=dx.toFixed(1)+'px '+dy.toFixed(1)+'px';
   if(navigator.vibrate&&a>=5&&pt-vbBuzz>.25){vbBuzz=pt;try{navigator.vibrate(a>=8?120:60)}catch(e){}}}
- function tick(now){requestAnimationFrame(tick);const t=now/1000,dt=Math.min(.1,t-pt);pt=t;let G,D=null,fi=0;
+ let tkL=0;
+ function tick(now){requestAnimationFrame(tick);if(now-tkL<30)return;tkL=now;   // LED 표가 초당 30칸이라 갱신도 30번이면 충분
+  const t=now/1000,dt=Math.min(.1,t-pt);pt=t;let G,D=null,fi=0;
   let Dc=null;if(curPlay&&window.LEDDATA){const d=LEDDATA[cname(curPlay.src)];if(d){fi=Math.floor(ledT(cname(curPlay.src),curPlay.v)*d.fps);if(fi>=0&&fi*2+1<d.z.left.length){D=d.z;Dc=d}}}
   if(drop>0)G=.7+.3*drop*(Math.sin(t*40)>0?1:.35);
   else if(curPlay)G=.65;
@@ -981,7 +987,7 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
    const q=sat>0?hue*8+Math.round(sat*7):-1;
    if(q!==z.q){z.q=q;if(q<0)z.b.col(DEF[n]||'#d4e2ff');else{z.t.col('hsl('+hue+',100%,55%)');z.b.col('hsl('+hue+','+Math.round(sat*100)+'%,'+Math.round(88-sat*40)+'%)')}}
    if(Math.abs(oc-z.lc)>.004){z.lc=oc;z.c.style.opacity=oc.toFixed(3)}if(Math.abs(ob-z.lb)>.004){z.lb=ob;z.b.style.opacity=ob.toFixed(3)}if(Math.abs(ot-z.lt)>.004){z.lt=ot;z.t.style.opacity=ot.toFixed(3)}}}
- return {names,z:Zs,vt:n=>vibTbl(n),sw(){swT=pt},kick(v){kick=Math.max(kick,v)},drop(v){drop=v},ov(v){ov=v;if(v==null&&typeof dimEls!=='undefined')dimEls.forEach(e=>e._l=null)},set(n,v){if(n==='all')names.forEach(k=>fix[k]=v);else fix[n]=v}}})();
+ return {names,z:Zs,mode(d){for(const n in Zs){const z=Zs[n],u='images/led_'+n+(d?'c':'l')+'.webp';if(z.c._u!==u){z.c._u=u;z.c.src=u;if(z.h)z.h.c.src=u}}},vt:n=>vibTbl(n),sw(){swT=pt},kick(v){kick=Math.max(kick,v)},drop(v){drop=v},ov(v){ov=v;if(v==null&&typeof dimEls!=='undefined')dimEls.forEach(e=>e._l=null)},set(n,v){if(n==='all')names.forEach(k=>fix[k]=v);else fix[n]=v}}})();
 async function flash(n=1,ms=120){const f=$('flash');for(let i=0;i<n;i++){LED.kick(.9);f.style.transition='none';f.style.opacity=.9;await sleep(30);f.style.transition='opacity '+(ms/speed)+'ms';f.style.opacity=0;await sleep(ms)}}
 function shake(ms=400){$('stage').animate([{transform:'translate(0,0)'},{transform:'translate(-1.2%,1%)'},{transform:'translate(1.2%,-1%)'},{transform:'translate(-.8%,.6%)'},{transform:'translate(0,0)'}],{duration:ms/speed,iterations:1})}
 
@@ -1044,7 +1050,7 @@ window.__simulate=function(n){ // 확률 검증용 (화면 없이 추첨만)
 
 // ═══════════ 릴 회전 ═══════════
 let spinTimers=[];
-function startReels(){idleHide();document.body.classList.remove('inclip');bgResume();reelEls.forEach((el,i)=>{el.classList.add('spin');spinTimers[i]=setInterval(()=>setNum(i,rd()),60)})}
+function startReels(){idleHide();document.body.classList.remove('inclip');bgResume();if(getComputedStyle($('reels')).display!=='none')reelEls.forEach((el,i)=>{el.classList.add('spin');spinTimers[i]=setInterval(()=>setNum(i,rd()),60)})}
 function stopReel(i,n){clearInterval(spinTimers[i]);const el=reelEls[i];el.classList.remove('spin');setNum(i,n);el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');se('stop')}
 async function cinematic(title,tel,sec,win){ // 코드 연출: 타이틀 → 게이지 → 결말
  clearFx();$('reels').classList.add('small');
@@ -1127,7 +1133,7 @@ function gGeom(){const M=$('machine').getBoundingClientRect(),rect=el=>{const r=
  return {M,pr,dr,tg,tf,home:k=>`translate(0px,0px) rotate(${DROPS[k].rot||0}deg) scale(1)`,away:k=>tf(dr[k],tg[k],DROPS[k].rest||0)}}
 function gDown(kind,only,o){o=o||{};return gBusy=gBusy.then(async()=>{
  if(gState||partsOk<NP||dropsOk<ND)return;
- const G=gGeom(),T=170/speed,use=k=>!only||k===only,F=kind==='gold'?GOLD:SH,bl=n=>F+' blur('+n+'px)',ex=!!o.extra,anims=[];
+ const G=gGeom(),T=170/speed,use=k=>!only||k===only,F=kind==='gold'?GOLD:SH,bl=n=>MOB?F:F+' blur('+n+'px)',ex=!!o.extra,anims=[];   // 휴대폰: 움직이는 동안 흐림 정도를 바꾸면 매 프레임 그림을 다시 만들어 끊김 → 흐림 없이 이동·투명도만
  if(!o.quiet){$('main').animate([{opacity:1},{opacity:0,offset:.3},{opacity:0,offset:.8},{opacity:1}],{duration:420/speed});await sleep(130)}
  PARTS.forEach((P,i)=>{if(!use(P.to))return;anims.push(partEls[i].animate(ex?[{transform:'none',opacity:1,filter:bl(0)},{opacity:.9,filter:bl(6),offset:.35},{transform:G.tf(G.pr[i],G.dr[P.to],0),opacity:0,filter:bl(10)}]:[{transform:'none',opacity:1,filter:bl(0)},{opacity:1,filter:bl(5),offset:.25},{opacity:0,filter:bl(8),offset:.55},{transform:G.tf(G.pr[i],G.dr[P.to],0),opacity:0,filter:bl(8)}],{duration:ex?140/speed:T,delay:ex?0:P.delay/speed,easing:'cubic-bezier(.5,0,.9,1)',fill:'forwards'}))});
  if(only==='hand')restBodyEl.style.opacity=1;
@@ -1143,8 +1149,8 @@ function gUp(){return gBusy=gBusy.then(async()=>{
  if(ex){ // 영상 속 역물이 올라가는 동안 대기 역물이 나타나며 제자리로
   // 실기 영상 측정값: 손은 약 1.2초 동안 일정한 속도로 올라가고, 머리·몸은 0.6초 뒤부터 약 0.75초.
   // 대기 역물이 영상 속 역물과 같은 길을 따라 올라오면서, 영상 속 역물이 액정 위로 빠져나가는 구간에 맞춰 서서히 나타남
-  const RX={hand:{d:0,t:1200},body:{d:600,t:750},head:{d:600,t:750}};
-  PARTS.forEach((P,i)=>{if(!use(P.to))return;const R=RX[P.to];back.push(partEls[i].animate([{transform:G.tf(G.pr[i],G.dr[P.to],0),opacity:0,filter:SH+' blur(4px)'},{opacity:0,filter:SH+' blur(4px)',offset:.4},{opacity:1,filter:SH+' blur(0px)',offset:.9},{transform:'none',opacity:1,filter:SH+' blur(0px)'}],{duration:R.t/speed,delay:R.d/speed,easing:'linear',fill:'both'}))});
+  const RX={hand:{d:0,t:1200},body:{d:600,t:750},head:{d:600,t:750}},B4=MOB?SH:SH+' blur(4px)',B0=MOB?SH:SH+' blur(0px)';
+  PARTS.forEach((P,i)=>{if(!use(P.to))return;const R=RX[P.to];back.push(partEls[i].animate([{transform:G.tf(G.pr[i],G.dr[P.to],0),opacity:0,filter:B4},{opacity:0,filter:B4,offset:.4},{opacity:1,filter:B0,offset:.9},{transform:'none',opacity:1,filter:B0}],{duration:R.t/speed,delay:R.d/speed,easing:'linear',fill:'both'}))});
   await Promise.all(back.map(a=>a.finished));
  }else{
   for(const k in DROPS){if(!use(k))continue;const R=only?{d:0,t:650}:RISE[k];back.push(DROPS[k].el.animate([{transform:G.home(k),opacity:1},{transform:G.away(k),opacity:1}],{duration:R.t/speed,delay:R.d/speed,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'}))}
@@ -1652,12 +1658,11 @@ renderHolds('');applyMute();render();
 #qk button{width:28px;height:28px;padding:0;border-radius:50%;border:1px solid #666;background:rgba(18,18,24,.62);color:#fff;font-size:14px;line-height:1;cursor:pointer}
 #qk button.off{opacity:.38;filter:grayscale(1)}
 body.noled .led{display:none!important}
-.led:not(.b):not(.t){filter:brightness(1.3) contrast(1.3) saturate(1.25)}
+html.mob #frameImg.dim{filter:none!important}html.mob #view{box-shadow:none!important;transition:none!important}   /* 휴대폰: 기기 사진은 밝기를 미리 입힌 그림, 바깥 번짐 없음 */
 body.novib #machine{translate:none!important}
 /* 라이트 = 밝은 실내 매장(선명) / 다크 = 어두운 방(기기 빛이 주변으로 번짐) */
 html.lightm,html.lightm body{background:linear-gradient(180deg,#e9e6df 0%,#dedad1 60%,#cfcabf 100%) fixed!important}
 html.lightm #frameImg.dim{filter:brightness(.8)}
-html.lightm .led:not(.b):not(.t){filter:brightness(1.1) contrast(1.1)}
 html.lightm #view{box-shadow:0 14px 34px rgba(0,0,0,.38),0 0 0 1px rgba(0,0,0,.25)}
 html.lightm #panel,html.lightm #panel2{background:var(--panel);box-shadow:0 6px 20px rgba(0,0,0,.3)}
 html:not(.lightm) #frameImg.dim{filter:brightness(.42)}
@@ -1674,7 +1679,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
 <script>
 (()=>{let q={};try{q=JSON.parse(localStorage.getItem('qkOpt')||'{}')}catch(e){}
  const H=document.documentElement,B=document.body,T=document.getElementById('qkT'),L=document.getElementById('qkL'),V=document.getElementById('qkV');
- const ap=()=>{H.classList.toggle('lightm',!!q.light);window.QKDARK=!q.light;B.classList.toggle('noled',!!q.noled);B.classList.toggle('novib',!!q.novib);T.textContent=q.light?'☀️':'🌙';L.classList.toggle('off',!!q.noled);V.classList.toggle('off',!!q.novib);try{localStorage.setItem('qkOpt',JSON.stringify(q))}catch(e){}};
+ const ap=()=>{H.classList.toggle('lightm',!!q.light);window.QKDARK=!q.light;try{LED.mode(!q.light)}catch(e){}try{if(typeof MOB!=='undefined'&&MOB){const f=document.getElementById('frameImg'),u='images/machine_frame_m_'+(q.light?'l':'d')+'.webp';f._mob=1;if(f.getAttribute('src')!==u)f.src=u}}catch(e){}B.classList.toggle('noled',!!q.noled);B.classList.toggle('novib',!!q.novib);T.textContent=q.light?'☀️':'🌙';L.classList.toggle('off',!!q.noled);V.classList.toggle('off',!!q.novib);try{localStorage.setItem('qkOpt',JSON.stringify(q))}catch(e){}};
  T.onclick=()=>{q.light=!q.light;ap()};L.onclick=()=>{q.noled=!q.noled;ap()};V.onclick=()=>{q.novib=!q.novib;ap()};
  try{const v=navigator.vibrate&&navigator.vibrate.bind(navigator);if(v)navigator.vibrate=function(){return B.classList.contains('novib')?false:v.apply(null,arguments)}}catch(e){}
  ap();
@@ -1700,7 +1705,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
   const end=()=>{if(y0==null)return;y0=null;lv.classList.add('back');tilt(0);setTimeout(()=>{if(y0==null)lv.classList.remove('on','back')},200)};hl.addEventListener('pointerup',end);hl.addEventListener('pointercancel',end)}catch(e){}
  try{const B_=LED_BOX.flower.c,f=document.createElement('img');f.id='qkFl';f.alt='';f.src='images/led_flower.webp';Object.assign(f.style,{left:B_[0]*100+'%',top:B_[1]*100+'%',width:B_[2]*100+'%',height:B_[3]*100+'%'});document.getElementById('frameImg').after(f)}catch(e){}
  /* 다크 모드의 번짐 색: 오른쪽 기둥 LED 의 지금 색·밝기를 따라감 */
- setInterval(()=>{if(q.light)return;try{const z=LED.z.right;if(!z)return;const off=B.classList.contains('noled'),a=off?.06:Math.max(.06,Math.min(.6,(z.lc||0)*.55+(z.lt||0)*.25)),h=z.q>=0?Math.floor(z.q/8):225,s_=z.q>=0?Math.round(40+(z.q%8)/7*55):35;const st=H.style;st.setProperty('--glh',h);st.setProperty('--gls',s_+'%');st.setProperty('--gla',a.toFixed(2))}catch(e){}},120)})();
+ setInterval(()=>{if(q.light||H.classList.contains('mob'))return;try{const z=LED.z.right;if(!z)return;const off=B.classList.contains('noled'),a=off?.06:Math.max(.06,Math.min(.6,(z.lc||0)*.55+(z.lt||0)*.25)),h=z.q>=0?Math.floor(z.q/8):225,s_=z.q>=0?Math.round(40+(z.q%8)/7*55):35;const st=H.style;st.setProperty('--glh',h);st.setProperty('--gls',s_+'%');st.setProperty('--gla',a.toFixed(2))}catch(e){}},120)})();
 </script>
 
 <div id="wcol">
@@ -1731,11 +1736,12 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
  const ready=(async()=>{await navigator.serviceWorker.register('sw.js');await navigator.serviceWorker.ready;
   if(!navigator.serviceWorker.controller)await new Promise(r=>{navigator.serviceWorker.addEventListener('controllerchange',r,{once:true});setTimeout(r,3000)})})();
  const all=()=>Object.keys(window.CLIPS||{}).map(n=>'videos/'+n+'.mp4').concat(['videos/idle_loop.mp4']),absU=f=>new URL(f,location.href).href.split('?')[0];
- // v.1 때 받아 둔 영상 정리(한 번만): 이름만 바뀐 영상은 새 이름으로 옮기고, 내용이 바뀐 영상과 이제 안 쓰는 영상은 지움 → 그 뒤 '없는 것만' 받음
- try{const vk='g999cv:'+location.pathname;if(localStorage.getItem(vk)!=='2'&&Object.keys(window.CLIPS||{}).length>10){const c=await caches.open(CN),base=new URL('videos/',location.href).href.split('?')[0],REN={"battle_nishio_lose_4": "battle_nishio_lose", "battle_scrapper_lose_4": "battle_scrapper_lose", "battle_tsukiyama_weak_lose_2": "battle_tsukiyama_body", "pre_hand": "yokoku_hand"},CHG=/\/(judge_yamori_body|judge_shiro_body|judge_shachi_body|judge_ready|judge_break_win|judge_tail_lose)\.mp4$/;
-  for(const n in REN){const an=absU('videos/'+n+'.mp4');if(!(await c.match(an))){const o=await c.match(absU('videos/'+REN[n]+'.mp4'));if(o)await c.put(an,o)}}
-  const keep=new Set(all().map(absU));for(const k of await c.keys()){const u=k.url.split('?')[0];if(u.startsWith(base)&&(!keep.has(u)||CHG.test(u)))await c.delete(k)}
-  localStorage.setItem(vk,'2')}}catch(e){}
+ // 받아 둔 영상 정리(한 번만). v.1 때와 내용이 똑같은 영상만 남기고(이름만 바뀐 것은 새 이름으로 옮김) 나머지는 지움 → 그 뒤 '없는 것만' 받음
+ // 정리 번호 3: 새 영상들을 기준 프레임 1초 간격으로 다시 만들었으므로, 예전에 받은 새 영상도 다시 받게 함
+ try{const vk='g999cv:'+location.pathname,cvn=localStorage.getItem(vk);if(cvn!=='3'&&Object.keys(window.CLIPS||{}).length>10){const c=await caches.open(CN),base=new URL('videos/',location.href).href.split('?')[0],REN={"battle_nishio_lose_4": "battle_nishio_lose", "battle_scrapper_lose_4": "battle_scrapper_lose", "pre_hand": "yokoku_hand"},KEEP=new Set(["battle_nishio_lose_4", "battle_scrapper_lose_4", "bonus", "bonus7500", "charge", "climax_yamori_win", "direct7500", "judge_break_body", "judge_tail_win", "normal_1", "normal_2", "normal_3", "normal_4", "normal_5", "pre_hand", "revival_fukurou", "rush_in", "rush_result", "st_ep_2", "st_ep_3", "st_ep_4", "st_full", "st_hyper6000", "st_intro", "st_win_omedetou", "st_win_rize", "st_win_tsukiyama", "uw_lose", "uw_pay", "uw_try", "uw_win_12000", "uw_win_15000", "uw_win_18000", "uw_win_21000", "uw_win_6000", "uw_win_9000"].map(n=>absU('videos/'+n+'.mp4')));KEEP.add(absU('videos/idle_loop.mp4'));
+  if(cvn!=='2')for(const n in REN){const an=absU('videos/'+n+'.mp4');if(!(await c.match(an))){const o=await c.match(absU('videos/'+REN[n]+'.mp4'));if(o)await c.put(an,o)}}
+  for(const k of await c.keys()){const u=k.url.split('?')[0];if(u.startsWith(base)&&!KEEP.has(u))await c.delete(k)}
+  localStorage.setItem(vk,'3')}}catch(e){}
  if(!mobile){try{await ready;const c=await caches.open(CN);let miss=0;for(const f of all())if(!(await c.match(absU(f))))miss++;
    if(miss){pcBtn=document.createElement('button');pcBtn.className='wide';pcBtn.id='wDl';pcBtn.textContent='⬇ 영상 미리 받기';pcBtn.title='영상을 전부 받아 두면 끊김 없이 재생돼요';q('wA').querySelector('.bd').appendChild(pcBtn);
     pcBtn.onclick=()=>{pcBtn.blur();if(typeof busy!=='undefined'&&busy)return;q('dlSkip').textContent='취소';box.classList.add('on');run()}}}catch(e){}return}
