@@ -2123,9 +2123,16 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  const _pb=pressBtn;pressBtn=function(){if(COMP){if(performance.now()-compAt>1500)compEnd();return}if(BLOCK||DAYB)return;return _pb.apply(this,arguments)};
  { const w=q('wReset'),o=w.onclick;w.onclick=function(){if(R.on){w.blur();toast('실전모드 중');return}return o.apply(this,arguments)} }
  /* ── 그래프에 DAY 구분선 ── */
- const _gd=gDraw;gDraw=function(){_gd.apply(this,arguments);if(!R.on||!R.days||!R.days.length)return;const c=q('gCv');if(!c)return;const x=c.getContext('2d'),W=c.width,H=c.height,g=S.g||[[0,0]],pl=104,pr=14,xm=Math.max(100,g[g.length-1][0]);
-  x.save();x.setLineDash([6,6]);x.strokeStyle='#ff5364';x.fillStyle='#ff9aa6';x.lineWidth=1.5;x.font='18px sans-serif';x.textAlign='left';x.textBaseline='top';
-  R.days.forEach((d,i)=>{const X=pl+(W-pl-pr)*d/xm;x.beginPath();x.moveTo(X,14);x.lineTo(X,H-34);x.stroke();x.fillText('D'+(i+2),X+3,2)});x.restore()};
+ const _gd=gDraw;gDraw=function(){_gd.apply(this,arguments);const c=q('gCv');if(!c)return;const x=c.getContext('2d'),W=c.width,H=c.height,g=(S.g&&S.g.length?S.g:[[0,0]]),pl=6,pr=6,pt=24,pb=8,x1=Math.max(1,g[g.length-1][0]);
+  let lo=0,hi=0;for(const p of g){if(p[1]<lo)lo=p[1];if(p[1]>hi)hi=p[1]}const mx=hi,mn=lo;if(hi-lo<1000){hi+=500;lo-=500}
+  const X=v=>pl+(W-pl-pr)*v/x1,Y=v=>pt+(H-pt-pb)*(hi-v)/(hi-lo),y0=Y(0),path=()=>{x.beginPath();g.forEach((p,i)=>i?x.lineTo(X(p[0]),Y(p[1])):x.moveTo(X(p[0]),Y(p[1])))};
+  const area=(top,bot,far,rgb)=>{if(Math.abs(far-y0)<2)return;x.save();x.beginPath();x.rect(pl,top,W-pl-pr,bot-top);x.clip();const gr=x.createLinearGradient(0,y0,0,far);gr.addColorStop(0,'rgba('+rgb+',.04)');gr.addColorStop(1,'rgba('+rgb+',.8)');x.fillStyle=gr;path();x.lineTo(X(g[g.length-1][0]),y0);x.lineTo(X(g[0][0]),y0);x.closePath();x.fill();x.restore()};
+  area(pt,y0,Y(mx),'70,210,130');area(y0,H-pb,Y(mn),'255,70,90');
+  const stroke=(top,bot,col)=>{x.save();x.beginPath();x.rect(0,top,W,bot-top);x.clip();x.lineWidth=2.5;x.lineJoin='round';x.strokeStyle=col;path();x.stroke();x.restore()};
+  stroke(pt-2,y0,'#7fe0a8');stroke(y0,H,'#ff8a9a');
+  if(!R.on||!R.days||!R.days.length)return;
+  x.save();x.setLineDash([5,5]);x.strokeStyle='#ff5364';x.fillStyle='#ff9aa6';x.lineWidth=1.2;x.font='600 12px sans-serif';x.textAlign='left';x.textBaseline='top';
+  R.days.forEach((d,i)=>{const px=X(d);x.beginPath();x.moveTo(px,pt);x.lineTo(px,H-pb);x.stroke();x.fillText('D'+(i+2),px+3,pt+1)});x.restore()};
  /* ── 컴플리트: 하루 순증이 99,999 를 넘으면 그날 종료 ── */
  const cs=new Audio(SND);cs.loop=true;cs.preload='auto';try{sndEl.comp=cs;cs.muted=muted}catch(e){}
  const _rd=render;render=function(){const r=_rd.apply(this,arguments);if(R.on&&!COMP&&!BLOCK&&net()-R.dayNet0>COMPN)compOn();return r};
@@ -2164,6 +2171,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
   x.fillStyle='#777';x.textAlign='right';x.textBaseline='bottom';x.fillText(xm.toLocaleString()+'회전',W-pr,H-8)}
  q('rClose').onclick=()=>{q('rRes').hidden=true;BLOCK=false};q('rAgain').onclick=()=>{q('rRes').hidden=true;BLOCK=false;openSet()};
  /* ── 시작 ── */
+ try{q('gCv').height=230;gDraw()}catch(e){}
  lockRate();paintBtn();setInterval(paintBtn,500);
  if(R.on){if(R.note)dayShow(R.note,true);setTimeout(()=>{try{render()}catch(e){}if(R.note){R.note='';saveR()}check()},600)}
 })();</script>
