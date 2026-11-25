@@ -512,6 +512,10 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
+ ['v406','AUTO 배속: 손떨 · 찬스 암시 커스텀을 켜 두어도 배속이 유지됨 (손이 떨어지는 회전만 1배속) — 배포판에서 AUTO x50 으로 확인',{e:'커스텀 ─ 전부 끄기'}],
+ ['v405','버튼 횟수: 횟수가 남은 채 배틀 버튼(단발·연타) 구간에 들어가면 더 줄지 않음 — 츠키야마 절규로 두고 yamori 리치 꽝에서 버튼 연타',{e:'ST 조각 ─ 꽝: yamori 리치 (앞부분 → eye → 전투, 연타 무효)'}],
+ ['v405','TOTAL: 첫 ST 카운트에 들어선 뒤부터 표시 (3000 · 7500 계수, ST 도입에서는 안 보임)',{e:'RUSH 돌입 → ST 5회'}],
+ ['v404','차지(300): TOTAL 표시 없음',{e:'통상 ─ 구울 차지'}],
  ['v403','LED: 켜진 그림을 원본으로 교체 — 하얗게 뜨지 않고 알갱이·무늬가 보임, 번짐 줄여 선명하게 (무지개 회전)',{e:'커스텀 ─ 임팩트 플래시: 7500+RUSH 당첨 회전에서 화면 번쩍'}],
  ['v403','LED: 통상 화면의 흰색 · 테마색 기둥',{e:'커스텀 ─ 전부 끄기'}],
  ['v402','LED: 뿌연 번짐을 절반 아래로 줄여 선명하게 — 무지개 회전',{e:'커스텀 ─ 임팩트 플래시: 7500+RUSH 당첨 회전에서 화면 번쩍'}],
@@ -1462,13 +1466,13 @@ async function spinNormal(){LED.sw();
  // 긴 도입(병실 → 리제)은 항상 클라이맥스 야모리로 이어짐
  const long=win&&!late&&!rev&&!NOCLIP()&&!(NF&&(fTier||fReach))&&(fIntro?(fIntro==='long'||fIntro==='long2'):Math.random()<PRE_LONG.p)&&await probe(PRE_LONG.src)&&await segsOK(BTL.yamori.strong.win);
  if(long)reachEv=N_REACH.find(x=>x[0]==='climax_yamori');
- if(holdColor||lever||hand||reachEv||(NF&&tier)||late||rev||long||custom!=='def')curEv=true;
+ if(lever||hand||reachEv||(NF&&tier)||late||rev||long)curEv=true;   /* 손떨·찬스 암시 커스텀은 실제로 손이 떨어지거나 암시가 나오는 회전만 연출로 침(켜 두기만 해도 매 회전 AUTO 가 1배속으로 떨어지던 것 수정). 보류 색은 화면에 없으므로 연출로 치지 않음 */
  if(window.AUTOX&&curEv)slowOn();
  if(window.CUSHOOK){try{if(await window.CUSHOOK({res,win,rushPre,lever:lever?lever[0]:'',sp:!!(reachEv||(NF&&tier)||long||late||rev)}))curEv=true}catch(e){}}   // 커스텀(입상 구울화·레버 진동·임팩트 플래시): 회전 시작 때의 추가 예고. 추첨 결과는 바꾸지 않음   // v.2 AUTO: 꽝이라도 연출이 뜨면 1배속으로 (끝나면 다시 배속)
  const normalReach=false;   // 코드로 그린 노멀 리치는 쓰지 않음 (영상 연출만)
  /* 보류 색 변화: 실기 자료가 없어 화면·소리·멈춤 모두 넣지 않음 */
  // 선역물 커스텀: 변동 개시 때 낙하 (당첨 확률 연동)
- let rOn=false;if(custom!=='def'){const rel=custom==='ex'?1:(+custom/100);let drop=win?(custom==='ex'?rushPre:Math.random()<.5):Math.random()<loseRate(pHit,.5,rel);if(chn!=='off'&&window.cusHint&&speed<20){const hf=window.HINTFORCE;window.HINTFORCE=null;const pk=(a,b)=>{const r=Math.random();return r<a?'blink':r<a+b?'metal':'eye'};
+ let rOn=false;if(custom!=='def'){const rel=custom==='ex'?1:(+custom/100);let drop=win?(custom==='ex'?rushPre:Math.random()<.5):Math.random()<loseRate(pHit,.5,rel);if(drop){curEv=true;if(window.AUTOX)slowOn()}if(chn!=='off'&&window.cusHint&&speed<20){const hf=window.HINTFORCE;window.HINTFORCE=null;const pk=(a,b)=>{const r=Math.random();return r<a?'blink':r<a+b?'metal':'eye'};
    const k=hf==='eye0'?'eye':hf||(drop?pk(.606,.212):(Math.random()<2.076*pHit*(chn==='ex'?SPEC.rushIn:2)?pk(.876,.102):''));if(hf==='eye')drop=true;if(hf==='eye0')drop=false;   /* 금목 뒤 손 낙하는 약 80%(실기). 검수용: eye = 낙하, eye0 = 낙하 없음 */
    const now=performance.now(),free=now>(window.cusHintU||0);if(k&&free){window.cusHintU=now+(k==='metal'?5000:k==='eye'?2300:1500);if(k==='eye'){curEv=true;await window.cusHint(k)}else if(drop){curEv=true;startReels();rOn=true;await sleep(700);await window.cusHint(k)}else{startReels();rOn=true;setTimeout(()=>window.cusHint(k),700)}}}   /* 손이 안 떨어지는 손 깜박임·금속음은 회전을 멈추지 않고 그대로 진행하며 나옴. 앞의 효과음이 끝나기 전에 또 걸리면 무시 */   /* 암시 뒤 손이 떨어질 비율: 손 깜박임 약 25% · 금속음 약 50% · 금목 약 80%(전체 약 33%) */
   if(drop)await handDrop(win,custom==='ex'?'gold':'')}
@@ -1764,7 +1768,9 @@ async function stPrep(){
  setInterval(()=>{const now=performance.now();if(S.hits>T.lh&&!T.on){T.on=true;T.base=T.lo}else if(T.on&&S.mode==='normal'&&S.cur>0)T.on=false;if(S.hits<T.lh)T.on=false;if(S.out!==T.lo)T.lc=now;T.lh=S.hits;T.lo=S.out;
   const cur=Math.max(0,Math.round(S.out-T.base)),tot=cur+Math.round(PAY.owed||0),cp=curPlay;let n='',t=0,mode='';
   if(cp&&cp.src&&cp.v){try{n=cname(cp.src);t=cp.v.currentTime-cp.g.base}catch(e){}}
-  if(T.on&&!document.getElementById('compImg')){if(T.fold)mode='fold';
+  if(n==='charge')T.chg=true;else if(n||!T.on)T.chg=false;   /* 차지(300)에서는 TOTAL 을 보이지 않음. 승격해서 다른 영상으로 넘어가면 다시 보임 */
+  if(!T.on)T.st=false;else if(/^st\d|^st_(eye|bt|count)/.test(n)||((n==='rush_in_st'||n==='st_continue')&&cp.v.currentTime>=12.1))T.st=true;   /* TOTAL 은 첫 ST 카운트에 들어선 뒤부터. 그 전의 계수는 영상 속 숫자가 실기와 같아 덮을 필요가 없음 */
+  if(T.on&&T.st&&!T.chg&&!document.getElementById('compImg')){if(T.fold)mode='fold';
    else if(/^st_ep_/.test(n)){const D=cp.v.duration||0,ta=cp.v.currentTime;mode=D&&ta>=D-9.5?(ta<=D-2?'epbig':''):(t>=5&&(!D||ta<D-12.4)?'frac':'')}   /* 에피소드: 작은 현재/총 → 끝의 정산 화면에서는 큰 총계 */
    else if(n==='uw_pay')mode='big';
    else if(n==='uw_try'||n==='uw_lose'||/^uw_win/.test(n)||n==='st_intro'||n==='rush_result')mode='';
@@ -1809,11 +1815,13 @@ TKB.start=win=>{const pk=o=>{let r=Math.random(),k;for(k in o){r-=o[k];if(r<0)br
  else if(pat==='strong'){holds=[{at:rc(Math.ceil(n*.2),Math.max(Math.ceil(n*.2),n-2)),dur:2500,fire:win}]}
  else if(pat==='double'){const c1=rc(Math.ceil(n*.4),Math.max(Math.ceil(n*.4),n-2)),c2=rc(1,Math.max(1,c1-3));holds=[{at:c1,dur:1750},{at:c2,dur:2500,fire:win}]}
  else if(win)fire=rc(0,n-1);
- Object.assign(TKB,{on:true,sp:true,win,n,fire,holds,hold:0,t0:performance.now(),vis:false,fired:false,app:false});TKB.prep()};
+ Object.assign(TKB,{on:true,sp:true,win,n,fire,holds,hold:0,t0:performance.now(),vis:false,fired:false,app:false,dead:false});TKB.prep()};
 TKB.end=()=>{TKB.on=false;TKB.sp=false;TKB.hold=0};
 TKB.sw=()=>{let n='';try{n=curPlay?cname(curPlay.src):''}catch(e){}if(/^st_bt_/.test(n)||NOBTN[n]||LEVONLY[n])return false;if(TKB.sp||performance.now()<(TKB.lock||0))return true;return window.STMODE==='tsuki'&&/^st\d/.test(n)&&!/_win$/.test(n)};   // 츠키야마 버튼이 걸린 회전(과 츠키야마 모드의 ST 꽝 조각)에서는 버튼이 5초 넘기기로 쓰이지 않음
 TKB.go=()=>{if(TKB.fired)return;TKB.fired=true;TKB.on=false;TKB.lock=performance.now()+2500;stopReq=true};   // 고지: 지금 도는 조각을 끊고 다음(고지 영상)으로
-TKB.press=()=>{if(!TKB.on||!TKB.vis)return TKB.sw();const pn=performance.now();if(pn-(TKB.lp||0)<45)return true;TKB.lp=pn;if(TKB.hold){TKB.tick();return true}if(TKB.n<=0)return true;TKB.n--;TKB.tick();TKB.pop=pn;
+TKB.batt=()=>{let n='',t=0;try{n=cname(curPlay.src);t=curPlay.v.currentTime-curPlay.g.base}catch(e){return false}const p=PUSH[n],ws=(NOBTN[n]||[]).concat(p?(Array.isArray(p[0])?p:[p]):[]);return ws.some(w=>t>=w[0]-.05)};   /* 리치 배틀의 버튼(단발·연타) 구간에 들어섰는지 */
+TKB.press=()=>{if(TKB.on&&!TKB.dead&&TKB.batt())TKB.dead=true;if(TKB.dead)return TKB.sw();   /* 버튼 횟수가 남은 채 배틀의 버튼 구간에 들어가면, 그 회전에서는 횟수를 더 쓸 수 없음(버튼은 배틀 쪽에 쓰임) */
+ if(!TKB.on||!TKB.vis)return TKB.sw();const pn=performance.now();if(pn-(TKB.lp||0)<45)return true;TKB.lp=pn;if(TKB.hold){TKB.tick();return true}if(TKB.n<=0)return true;TKB.n--;TKB.tick();TKB.pop=pn;
  const hd=TKB.holds.find(x=>!x.done&&x.at===TKB.n);
  if(hd){hd.done=true;TKB.hold=performance.now()+hd.dur;TKB.hfire=!!hd.fire;try{TKB.SE.hold.currentTime=0;TKB.SE.hold.play().catch(()=>{})}catch(e){}return true}
  if(TKB.win&&TKB.n===TKB.fire){TKB.go();return true}
