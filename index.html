@@ -512,7 +512,18 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
- ['v396','LED: 색이 있을 때 흰빛을 줄이고 색을 진하게 (흰 바탕 최대 −65%, 색 번짐 최대 +90%) — 무지개 회전으로 확인',{e:'커스텀 ─ 임팩트 플래시: 7500+RUSH 당첨 회전에서 화면 번쩍'}],
+ ['v403','LED: 켜진 그림을 원본으로 교체 — 하얗게 뜨지 않고 알갱이·무늬가 보임, 번짐 줄여 선명하게 (무지개 회전)',{e:'커스텀 ─ 임팩트 플래시: 7500+RUSH 당첨 회전에서 화면 번쩍'}],
+ ['v403','LED: 통상 화면의 흰색 · 테마색 기둥',{e:'커스텀 ─ 전부 끄기'}],
+ ['v402','LED: 뿌연 번짐을 절반 아래로 줄여 선명하게 — 무지개 회전',{e:'커스텀 ─ 임팩트 플래시: 7500+RUSH 당첨 회전에서 화면 번쩍'}],
+ ['v401','LED(실기 참고): 기둥의 흰 심지를 조금 가늘게 + 주변으로 번지는 색을 진하게 — 무지개 회전',{e:'커스텀 ─ 임팩트 플래시: 7500+RUSH 당첨 회전에서 화면 번쩍'}],
+ ['v401','LED(실기 참고): RUSH 영상의 색 LED',{e:'RUSH 돌입 → ST 5회'}],
+ ['v400','올빼미 부활: 꽝 영상 직후 멈춤 없이 바로 이어짐',{e:'새 흐름 ─ 꽝 → 올빼미 부활 → 3000 → 즉시 7500'}],
+ ['v400','LED: 흰빛을 한 단계 되돌림 (색은 진하되 가운데 흰 심지는 남김)',{e:'커스텀 ─ 임팩트 플래시: 7500+RUSH 당첨 회전에서 화면 번쩍'}],
+ ['v398','SKIP: 버튼 구간 0.4초 전에 멈춤 → 한 번 더 누르면 버튼을 누른 것처럼 결과로 (올빼미 부활에서 SKIP 을 눌러 확인)',{e:'새 흐름 ─ 꽝 → 올빼미 부활 → 3000 → 즉시 7500'}],
+ ['v398','SKIP: 역물이 떨어지는 순간 0.6초 전에 멈춤 (긴 당첨 배틀에서 SKIP 을 눌러 확인)',{e:'커스텀 ─ 손떨 99%: 당첨 회전 (절반 확률로 시작 때 손 낙하)'}],
+ ['v398','SKIP: ST 연타 구간 0.4초 전에 멈춤 (ST 조각에서 SKIP)',{e:'RUSH 돌입 → ST 5회'}],
+ ['v398','Judgement 모드 선택: 선택 화면이 뜨자마자(0.4초 뒤) 오른쪽(브레이크)으로 바로 바뀜',{e:'Judgement ─ 모드 선택 화면부터 (성공)'}],
+ ['v396','LED: 색이 있을 때 흰빛을 줄이고 색을 진하게 (흰 바탕 최대 −92%, 색 번짐은 더 진한 색으로) — 무지개 회전으로 확인',{e:'커스텀 ─ 임팩트 플래시: 7500+RUSH 당첨 회전에서 화면 번쩍'}],
  ['v396','LED: RUSH 영상의 색 LED 도 같은 규칙으로 진해짐',{e:'RUSH 돌입 → ST 5회'}],
  ['v396','레버블 업: 연출 영상 도중에 떨림 (영상 시작 0.5~6초 뒤)',{e:'커스텀 ─ 레버블 업: 연출 영상 도중에 떨림'}],
  ['v396','레버블 업: 회전 시작 때 떨림 (기존)',{e:'커스텀 ─ 레버블 업: 당첨 회전에서 기기가 떨림'}],
@@ -538,7 +549,7 @@ const REVIEW=[
  ['커스텀','(수정4) 찬스 암시: 금목 — 페이드아웃 없이 바로 손 낙하',{e:'커스텀 ─ 찬스 암시: 금목(화면 균열)'}],
  ['커스텀','손떨 99%: 당첨 회전 시작 때 손 낙하 (절반 확률)',{e:'커스텀 ─ 손떨 99%: 당첨 회전 (절반 확률로 시작 때 손 낙하)'}],
 
- ['최종 점검','올빼미 부활: 꽝 숫자 화면에서 2초 멈춘 뒤 서서히 부활 영상으로 넘어감',{e:'새 흐름 ─ 꽝 → 올빼미 부활 → 3000 → 즉시 7500'}],
+ ['최종 점검','(수정) 올빼미 부활: 꽝 영상 바로 뒤에 멈춤 없이 이어짐 (2초 멈춤 삭제)',{e:'새 흐름 ─ 꽝 → 올빼미 부활 → 3000 → 즉시 7500'}],
  ['최종 점검','HYPER 6000: ST 조각 당첨 뒤에도 나옴 (넘어갈 때 로딩 틈이 있는지)',{e:'ST 조각 ─ 당첨 → HYPER 6000'}],
  ['최종 점검','HYPER 6000: 기존 흐름 (도입 → HYPER 6000)',{e:'ST 보너스 ─ 3000 → HYPER 6000'}],
  ['최종 점검','레버블(커스텀 OFF 에서도 같은 모습): 약 — 흰색',{e:'커스텀 ─ 레버블 업: 당첨 회전에서 기기가 떨림'}],
@@ -767,7 +778,7 @@ const ENTRY=[
  ['새 흐름 ─ 꽝 → 리제 부활 → 3000 → 즉시 7500',nSpin({res:'zorome',revival:'rize',late:false})],['새 흐름 ─ 꽝 → 올빼미 부활 → 3000 → 즉시 7500',nSpin({res:'zorome',revival:'fukurou',late:false})],['통상 ─ 꽝(니시오) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_nishio'})],['통상 ─ 꽝(츠키야마) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_tsukiyama'})],['통상 ─ 꽝(스크래퍼) → 올빼미 부활 당첨',nSpin({res:'zorome',revival:true,late:false,intro:'hand',reach:'battle_scrapper'})],['통상 ─ 구울 차지',nSpin({res:'charge'})],
  ['첫 당첨 ─ 3000 보너스부터 (이후 랜덤)',async()=>{S.mode='normal';FORCE={direct:false};await finishNormal('zorome',Math.random()<SPEC.rushIn,true)}],
  ['첫 당첨 ─ 3000 → 즉시 7500',async()=>{S.mode='normal';FORCE={direct:true};await finishNormal('zorome',true,true)}],
- ['Judgement ─ 배틀 vs 샤치: 성공',jStart('shachi',true)],['Judgement ─ 배틀 vs 샤치: 실패',jStart('shachi',false)],['Judgement ─ 배틀 vs 야모리: 성공',jStart('yamori',true)],['Judgement ─ 배틀 vs 야모리: 실패',jStart('yamori',false)],
+ ['Judgement ─ 모드 선택 화면부터 (성공)',async()=>{S.mode='normal';FORCE={noBonus:true,direct:false,jselect:true};await finishNormal('zorome',true,true)}],['Judgement ─ 배틀 vs 샤치: 성공',jStart('shachi',true)],['Judgement ─ 배틀 vs 샤치: 실패',jStart('shachi',false)],['Judgement ─ 배틀 vs 야모리: 성공',jStart('yamori',true)],['Judgement ─ 배틀 vs 야모리: 실패',jStart('yamori',false)],
  ['Judgement ─ 배틀 vs 아야토: 성공',jStart('ayato',true)],['Judgement ─ 배틀 vs 아야토: 실패',jStart('ayato',false)],['Judgement ─ 배틀 vs 시로&쿠로: 성공',jStart('shiro',true)],['Judgement ─ 브레이크: 성공',jStart('break',true)],['Judgement ─ 브레이크: 남은 4초에 성공',async()=>{window.BRKFORCE=33.0;await (jStart('break',true))()}],['Judgement ─ 브레이크: 남은 2초에 성공',async()=>{window.BRKFORCE=35.2;await (jStart('break',true))()}],['Judgement ─ 브레이크: 실패',jStart('break',false)],
  ['Judgement ─ 실패 → 계수 중 역전 (야모리)',jStart('yamori',true,true)],
  ['7500 보너스 → ST',async()=>{S.mode='normal';const p=await play7500(S.out,7500);await enterRush(p)}],['RUSH 돌입 → ST 5회',async()=>{S.mode='normal';await enterRush()}],
@@ -950,10 +961,13 @@ async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!
    const to=Math.min(t+5,t1-g.base-1);if(to>t+.05){try{v.currentTime=g.base+to}catch(e){}return}}}   // 버튼: 5초 앞으로 (끝나기 1초 전까지만). 바로 뒤의 SKIP 을 막지 않게 입력 잠금은 걸지 않음
   if(skipReq&&performance.now()<inputLock)skipReq=false;
   if(skipReq){const now=performance.now(),e1=t1-g.base-1,nx=sr.find(x=>x[0]>t),go=(to,lock)=>{skipReq=false;inputLock=now+lock;try{v.currentTime=g.base+to}catch(e){}};
-   if(sk){go(sk[1],1200);return}                                  // 정해 둔 구간(정산·ST 한 회전) 안: 그 구간 끝으로. 이어지는 1.2초는 추가 입력을 버림(다음 회전까지 딸려 넘어가지 않게)
+   /* 멈출 지점: 버튼·레버 조작 구간(PUSH)과 연타 구간의 0.4초 전, 역물이 떨어지는 순간(결과가 드러나는 지점)의 0.6초 전. SKIP 은 그보다 앞에 있으면 거기서 멈추고, 한 번 더 누르면 지나감 */
+   const st=pws.filter(w=>!w.done).map(w=>w[0]-.4).concat((NOBTN[g.n]||[]).map(w=>w[0]-.4),(TUNE.cues[src]||CUES[src]||[]).map(c=>c[0]-.6)).filter(x=>x>t+.8&&x<e1).sort((a,b)=>a-b)[0],cap=x=>st!=null&&st<x?st:x;
+   if(inPush&&!levW){pw.done=true;pushReq=false;$('pushHint').style.display='none';go(pEnd,800);return}   // 버튼 구간 안에서 SKIP: 버튼을 누른 것과 같음(결과로)
+   if(sk){go(cap(sk[1]),1200);return}                             // 정해 둔 구간(정산·ST 한 회전) 안: 그 구간 끝으로. 이어지는 1.2초는 추가 입력을 버림(다음 회전까지 딸려 넘어가지 않게)
    else if(nx&&nx[0]-t<2.5){if(now-skipAt>3000)skipReq=false}     // 다음 구간이 곧 시작: 기다렸다가 그 구간에 적용 (영상 끝으로 건너뛰지 않음)
-   else if(nx){go(nx[0]+.05,200);return}                          // 다음 구간이 멀리 있음: 그 구간의 시작으로
-   else if(t<e1-.05){go(e1,200);return}                           // 구간이 더 없음: 끝나기 1초 전으로
+   else if(nx){go(cap(nx[0]+.05),200);return}                     // 다음 구간이 멀리 있음: 그 구간의 시작으로
+   else if(t<e1-.05){go(cap(e1),200);return}                      // 구간이 더 없음: 끝나기 1초 전으로
    else{skipReq=false;skipCarry=now}}
   for(const m of marks)if(!m[2]&&t>=m[0]){m[2]=true;try{m[1]()}catch(e){console.error(e)}}
   if(opt.onTime)try{opt.onTime(t,g.dur)}catch(e){}
@@ -992,7 +1006,7 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
   tcv=(e,src,col,mode)=>{const im=new Image();e._im=im;e._c=col;e._m=mode;im.onload=()=>{e.width=Math.max(4,Math.round(im.naturalWidth*TS));e.height=Math.max(4,Math.round(im.naturalHeight*TS));e._x=e.getContext('2d');paint(e)};im.src=src;
    e.col=c=>{if(c!==e._c){e._c=c;paint(e)}};return e};
  for(const [n,B] of Object.entries(LED_BOX)){const z=Zs[n]={lc:-1,lb:-1,lt:-1,lk:-1,q:-1},cu='images/led_'+n+'.webp?v=5',bu='images/led_'+n+'_b.webp?v=5';pre(cu);pre(bu);
-  const mk=(tag,cls,q)=>{const e=document.createElement(tag);e.className='led'+cls;Object.assign(e.style,{left:q[0]*100+'%',top:q[1]*100+'%',width:q[2]*100+'%',height:q[3]*100+'%'});return e},cc='images/led_'+n+'c.webp?v=5';pre(cc);   // cc: 밝기·대비를 미리 입혀 둔 그림(필터 없이 씀)
+  const mk=(tag,cls,q)=>{const e=document.createElement(tag);e.className='led'+cls;Object.assign(e.style,{left:q[0]*100+'%',top:q[1]*100+'%',width:q[2]*100+'%',height:q[3]*100+'%'});return e},cc=cu;   /* 켜진 그림은 원본을 씀: 밝기를 미리 올려 둔 c 그림은 하얗게 떠서 LED 알갱이·무늬가 사라졌음 */   // cc: 밝기·대비를 미리 입혀 둔 그림(필터 없이 씀)
   z.c=mk('img','',B.c);z.c.alt='';z.c.src=cc;z.c._u=cc;z.t=tcv(mk('canvas',' t',B.c),cc,'#fff','color');z.b=tcv(mk('canvas',' b',B.b),bu,DEF[n]||'#d4e2ff','flat');
   z.k=tcv(mk('canvas','',B.c),cu,'#000','flat');   // 소등용: LED 자리를 검게 덮어 기기 그림에 남은 밝은 부분까지 끔
   $('frameImg').after(z.k,z.c,z.t,z.b);
@@ -1088,11 +1102,11 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
    {const Z=window.LEDZO,f=Z&&((n==='button'||n==='lever')?(Z.lev||Z.imp):Z[n]);if(f){const v=f();if(v){L=v[0];hue=v[1];sat=v[2]}}}   /* 커스텀(레버블·임팩트 플래시): 버튼·레버 LED 만 따로 켬 */
    L=Math.min(1.5,L+kick*(window.HYPER?1.6:1));
    const z=Zs[n];if(!z){if(ov==null||fix[n]!=null)parts(n,L,hue,sat);continue}
-   const oc=Math.min(1,L)*(1-.65*sat),ob=Math.min(1,L*(window.QKDARK?.95:.35)*(window.HYPER?1.6:1)*(1+.9*sat)),ot=Math.min(1,sat*1.15)*Math.min(1,L),   /* 색이 있을 때: 흰 바탕(켜진 사진)을 35% 까지 낮추고, 색 번짐과 색 덧칠을 올려 색이 또렷하게 */ok_=L<.3?(.3-L)/.3*.45:0;if(Math.abs(ok_-z.lk)>.004){z.lk=ok_;z.k.style.opacity=ok_.toFixed(3)}
+   const oc=Math.min(1,L)*(1-.92*sat),ob=Math.min(1,L*(window.QKDARK?.4:.16)*(window.HYPER?1.6:1)*(1+.5*sat)),ot=Math.min(1,sat*1.15)*Math.min(1,L),   /* 색이 있을 때: 흰 바탕(켜진 사진)을 8% 까지 낮추고, 색 번짐과 색 덧칠을 올려 색이 또렷하게 */ok_=L<.3?(.3-L)/.3*.45:0;if(Math.abs(ok_-z.lk)>.004){z.lk=ok_;z.k.style.opacity=ok_.toFixed(3)}
    const q=sat>0?hue*8+Math.round(sat*7):-1;
-   if(q!==z.q){z.q=q;if(q<0)z.b.col(DEF[n]||'#d4e2ff');else{z.t.col('hsl('+hue+',100%,55%)');z.b.col('hsl('+hue+','+Math.round(sat*100)+'%,'+Math.round(88-sat*38)+'%)')}}
+   if(q!==z.q){z.q=q;if(q<0)z.b.col(DEF[n]||'#d4e2ff');else{z.t.col('hsl('+hue+',100%,55%)');z.b.col('hsl('+hue+','+Math.round(sat*100)+'%,'+Math.round(88-sat*50)+'%)')}}
    if(Math.abs(oc-z.lc)>.004){z.lc=oc;z.c.style.opacity=oc.toFixed(3)}if(Math.abs(ob-z.lb)>.004){z.lb=ob;z.b.style.opacity=ob.toFixed(3)}if(Math.abs(ot-z.lt)>.004){z.lt=ot;z.t.style.opacity=ot.toFixed(3)}}}
- return {names,z:Zs,mode(d){for(const n in Zs){const z=Zs[n],u='images/led_'+n+(d?'c':'l')+'.webp?v=5';if(z.c._u!==u){z.c._u=u;z.c.src=u;if(z.h)z.h.c.src=u}}},vt:n=>vibTbl(n),sw(){swT=pt},kick(v){kick=Math.max(kick,v)},drop(v){drop=v},ov(v){ov=v;if(v==null&&typeof dimEls!=='undefined')dimEls.forEach(e=>e._l=null)},set(n,v){if(n==='all')names.forEach(k=>fix[k]=v);else fix[n]=v}}})();
+ return {names,z:Zs,mode(d){for(const n in Zs){const z=Zs[n],u='images/led_'+n+(d?'':'l')+'.webp?v=5';if(z.c._u!==u){z.c._u=u;z.c.src=u;if(z.h)z.h.c.src=u}}},vt:n=>vibTbl(n),sw(){swT=pt},kick(v){kick=Math.max(kick,v)},drop(v){drop=v},ov(v){ov=v;if(v==null&&typeof dimEls!=='undefined')dimEls.forEach(e=>e._l=null)},set(n,v){if(n==='all')names.forEach(k=>fix[k]=v);else fix[n]=v}}})();
 async function flash(n=1,ms=120){const f=$('flash');for(let i=0;i<n;i++){LED.kick(.9);f.style.transition='none';f.style.opacity=.9;await sleep(30);f.style.transition='opacity '+(ms/speed)+'ms';f.style.opacity=0;await sleep(ms)}}
 function shake(ms=400){$('stage').animate([{transform:'translate(0,0)'},{transform:'translate(-1.2%,1%)'},{transform:'translate(1.2%,-1%)'},{transform:'translate(-.8%,.6%)'},{transform:'translate(0,0)'}],{duration:ms/speed,iterations:1})}
 
@@ -1538,7 +1552,7 @@ async function finishNormal(res,rushPre,quiet,rev){   // rev: 올빼미 부활�
  let jsel=(fJ&&JB.find(x=>x.k===fJ))||await pickJudge(rushPre);
  if(!nb&&!(await playClip(CLIP.bonus,{to:BT.judge,next:fJ&&jsel?jsel.body:null,skip:[[BT.pay,Math.min(BT.jintro,BT.judge)]],onTime:t=>{const o=base+Math.round(3000*lin(t,BT.pay,Math.min(BT.jintro,BT.judge)-3));if(o!==S.out){S.out=o;render()}}}))){fx('HYPER喰種BONUS','mid t-red');const c=fx('0','big t-gold');for(let v=0;v<=3000;v+=150){c.textContent=v.toLocaleString();await sleep(45)}await sleep(500);clearFx()}
  S.out=base+3000;render();
- let jfrom;if(!fJ&&!nb&&!NOCLIP()){const c=await chooseMode(rushPre);if(c){jsel=c.j;jfrom=c.from}}
+ let jfrom;const fSel=take('jselect');if(!fJ&&(!nb||fSel)&&!NOCLIP()){const c=await chooseMode(rushPre);if(c){jsel=c.j;jfrom=c.from}}
  // 촬영용(999 v.1 에서만 켬): 선택 화면에서 브레이크(2모드)를 고르면 반드시 성공 (브레이크 본편 → 브레이크 성공 영상 → 7500 보너스. 실패 화면·역전 없음)
  const film=FILM_RIZE&&jfrom!==undefined&&jsel&&jsel.k==='break';if(film)FORCE=Object.assign(FORCE||{},{jlate:false});
  const ok=await judgement(film?true:rushPre,jsel,jfrom);
@@ -1553,11 +1567,8 @@ if(TUNE.consts.LATE&&TUNE.consts.LATE.j0===5&&TUNE.consts.LATE.j1===13)delete TU
 const LATE=Object.assign({j0:.7,j1:14.07},TUNE.consts.LATE);   // judge_tail_lose 안에서 역전 낙하가 가능한 구간(초): 계수가 보이는 첫 장면 ~ 흰색·파란색 안내 카드가 뜨는 프레임(14.083초) 바로 앞
 const REVIVAL=0.06; // 당첨 중 부활 연출 비율(추정)
 const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182},TUNE.consts.B75),DIRECT_7500=0.125,DIRECT_REV=1;   // 부활 연출 뒤에는 항상 3000 → 즉시 7500 (그래서 부활은 7500+RUSH 당첨에서만 나옴)
-const RVS=['videos/revival_fukurou.mp4','videos/revival_rize_3.mp4'];// 부활: 꽝 숫자 화면에서 2초 멈췄다가, 그 화면이 서서히 사라지며(겹쳐 넘김) 부활 영상으로
-async function revPlay(RV){let cv=null;if(speed<20&&/fukurou/.test(RV)){try{const lv=VIDS[vidI];cv=document.createElement('canvas');cv.width=lv.videoWidth||1390;cv.height=lv.videoHeight||1080;cv.getContext('2d').drawImage(lv,0,0,cv.width,cv.height);
-   cv.className=lv.className;cv.style.cssText=lv.style.cssText;cv.style.display='block';cv.style.opacity=1;cv.style.pointerEvents='none';cv.style.transition='opacity .8s linear';cv.style.zIndex=(+getComputedStyle(lv).zIndex||0)+1;lv.parentNode.appendChild(cv)}catch(e){cv=null}
-  clearTimeout(hideT);await sleep(2000)}
- const pr=playClip(RV,{next:CLIP.bonus});if(cv){setTimeout(()=>{cv.style.opacity=0},60);setTimeout(()=>{try{cv.remove()}catch(e){}},1000)}return await pr}
+const RVS=['videos/revival_fukurou.mp4','videos/revival_rize_3.mp4'];// 부활
+async function revPlay(RV){return await playClip(RV,{next:CLIP.bonus})}   /* 부활 영상은 꽝 영상 바로 뒤에 끊김 없이 이어짐 (앞의 2초 멈춤은 삭제) */
 async function pickRV(f){const av=[];for(const r of RVS)if(await probe(r))av.push(r);if(f==='rize'||f==='fukurou'){const m=av.find(r=>r.includes(f));if(m)return m}return av.length?av[Math.floor(Math.random()*av.length)]:''}   //   // DIRECT_REV: 올빼미 부활 뒤에는 즉시 7500 이 크게 늘어남 (RUSH 당첨 중 60%)
 //   // RUSH 당첨 중 12.5% (줄인 12.5%p 는 judge 실패 후 역전 LATE_J 로 옮김)
 // 7500 보너스 영상: 정산 구간 동안 획득 수를 올리고, ST 시작 시각에 RUSH 표시로 전환
@@ -1590,16 +1601,16 @@ async function chooseMode(success){
  const cur=VIDS.findIndex(v=>v.style.display==='block'),Lel=VIDS[cur===0?1:0],Rel=VIDS[cur===0?0:1];
  const load=async(v,src,t)=>{v.src=src;v.muted=true;v.playbackRate=1;await new Promise(r=>{v.onloadedmetadata=r;v.onerror=r;setTimeout(r,2500)});const g=clipGeom(src,v);
   await new Promise(r=>{v.onseeked=r;setTimeout(r,1500);try{v.currentTime=g.base+t}catch(e){r()}});v.pause();return g};
- const gL=await load(Lel,SRC,SEL.t0),gR=await load(Rel,jk.body,SEL.t0+(SEL.break[1]-SEL.yamori[1]));
+ const gL=await load(Lel,SRC,SEL.t0),gR=await load(Rel,jk.body,SEL.vis+.05+(SEL.break[1]-SEL.yamori[1]));   /* 브레이크 쪽은 선택 장면의 첫 화면에 멈춰 두었다가, 배틀 쪽이 그 시각에 닿으면 같이 흐름 → 선택 화면이 뜨자마자 오른쪽으로 바꿀 수 있음 */
  document.body.classList.add('inclip');bgPause();idleHide();
  Lel.style.zIndex=7;Lel.style.display='block';Rel.style.zIndex=5;Rel.style.display='block';Lel.muted=muted;
- try{await Lel.play()}catch(e){}Rel.play().catch(()=>{});
- let pick='L',shown='';const show=()=>{const eff=pick==='R'&&(Lel.currentTime-gL.base)<SEL.vis?'L':pick;if(eff!==shown){shown=eff;Lel.style.zIndex=eff==='L'?7:5;Rel.style.zIndex=eff==='R'?7:5}$('selHint').textContent='모드 선택: 화면 왼쪽(배틀) · 오른쪽(브레이크) 클릭 또는 ←/→   지금: '+(pick==='L'?'배틀':'브레이크')};
+ try{await Lel.play()}catch(e){}
+ let pick='L',shown='';const show=()=>{const eff=pick;if(eff!==shown){shown=eff;Lel.style.zIndex=eff==='L'?7:5;Rel.style.zIndex=eff==='R'?7:5}$('selHint').textContent='모드 선택: 화면 왼쪽(배틀) · 오른쪽(브레이크) 클릭 또는 ←/→   지금: '+(pick==='L'?'배틀':'브레이크')};
  show();$('selHint').style.display='block';
  const tEnd=gL.base+SEL.yamori[1]-SEL.lead;
  const res=await new Promise(done=>{const t0=performance.now();let over=false;
   const fin=()=>{if(over)return;over=true;selHook=null;clearInterval(iv);clearTimeout(to);$('main').removeEventListener('pointerdown',onP);done(pick)};
-  const iv=setInterval(()=>{show();if(Lel.currentTime>=tEnd||Lel.ended)fin();else if(Math.abs((Rel.currentTime-gR.base)-(Lel.currentTime-gL.base)-(SEL.break[1]-SEL.yamori[1]))>.12){try{Rel.currentTime=gR.base+(Lel.currentTime-gL.base)+(SEL.break[1]-SEL.yamori[1])}catch(e){}}},40);
+  const iv=setInterval(()=>{show();if(Lel.currentTime>=tEnd||Lel.ended)fin();else if((Lel.currentTime-gL.base)<SEL.vis+.05){}else if(Rel.paused){Rel.play().catch(()=>{})}else if(Math.abs((Rel.currentTime-gR.base)-(Lel.currentTime-gL.base)-(SEL.break[1]-SEL.yamori[1]))>.12){try{Rel.currentTime=gR.base+(Lel.currentTime-gL.base)+(SEL.break[1]-SEL.yamori[1])}catch(e){}}},40);
   const to=setTimeout(fin,(SEL.yamori[1]-SEL.lead-SEL.t0)*1000+1500);                                         // 영상이 멈춰도 넘어가도록 안전장치
   // 클릭·방향키는 선택만 바꿈(몇 번이든 가능). Space/SKIP 은 바로 결정. 화면이 뜬 직후 0.4초는 입력을 받지 않음(직전 연타 방지)
   selHook=k=>{if(performance.now()-t0<400)return;if(k==='ok')return fin();if(k==='T')k=pick==='L'?'R':'L';if(k!==pick){pick=k;show()}};   // T = 레버: 반대쪽 모드로 전환
