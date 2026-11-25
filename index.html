@@ -2044,7 +2044,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 .rbox .row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #3a1c22}
 .rbox .row span{color:#ffd08a;font-weight:700}.rbox .row small{color:#a8868b;font-weight:400}
 .rbox input{width:86px;height:30px;background:#0a0506;color:#fff;border:1px solid #4d2830;border-radius:3px;font:700 14px inherit;text-align:center}
-.rbox label.k{display:flex;align-items:center;gap:6px}.rbox label.k i{font-style:normal;font-weight:800;color:#fff;width:10px}
+.rbox .stp{display:flex;align-items:center;gap:8px;flex:none}.rbox .stp button{flex:none;width:34px;height:34px;padding:0;border-radius:50%;background:transparent;border:1px solid #4d2830;color:#e9edf5;font:700 18px/1 system-ui,sans-serif}.rbox .stp button:hover{border-color:#ff5364;background:#2c161b}.rbox .stp button:active{background:#4a1a22}.rbox .pill{display:flex;align-items:center;justify-content:center;gap:2px;width:78px;height:34px;border-radius:17px;background:#2e2226}.rbox .pill input{width:auto;min-width:0;flex:0 1 auto;height:30px;padding:0;background:transparent;border:0;outline:0;color:#fff;font:700 15px inherit;text-align:center;-moz-appearance:textfield;field-sizing:content;max-width:56px}.rbox .pill input::-webkit-inner-spin-button,.rbox .pill input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.rbox .pill i{font-style:normal;font-weight:700;color:#cfc5c8;font-size:13px}
 .rbox .big{margin:10px 0 4px;padding:10px;text-align:center;background:#0a0506;border:1px solid #3a1c22}.rbox .big b{font-size:24px;color:#fff}.rbox .big small{display:block;color:#a8868b}
 .rbox .btns{display:flex;gap:8px;margin-top:12px}
 .rbox button{flex:1;height:38px;clip-path:none;border-radius:3px;background:#201115;border:1px solid #4d2830;color:#e9edf5;font:700 13px inherit;font-family:inherit;cursor:pointer}
@@ -2060,9 +2060,9 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 </style>
 <div id="rSet" class="rbox" hidden><div class="hb"><h3>실전모드</h3>
 <div id="rSetIn">
-<div class="row"><span>소지자금 <small>(천 엔)</small></span><label class="k"><input id="rFund" type="number" min="1" max="100000" value="100" autocomplete="off"><i>k</i></label></div>
-<div class="row"><span>목표 <small>(천 엔)</small></span><label class="k"><input id="rGoal" type="number" min="2" max="1000000" value="200" autocomplete="off"><i>k</i></label></div>
-<div class="row"><span>회전율 <small>(1,000엔당 회전)</small></span><label class="k"><input id="rRate" type="number" min="5" max="60" value="32" autocomplete="off"><i></i></label></div>
+<div class="row"><span>소지자금 <small>(천 엔)</small></span><div class="stp" data-step="10"><button type="button" class="m" title="줄이기">−</button><label class="pill"><input id="rFund" type="number" min="1" max="100000" value="100" autocomplete="off"><i>k</i></label><button type="button" class="p" title="늘리기">+</button></div></div>
+<div class="row"><span>목표 <small>(천 엔)</small></span><div class="stp" data-step="10"><button type="button" class="m" title="줄이기">−</button><label class="pill"><input id="rGoal" type="number" min="2" max="1000000" value="200" autocomplete="off"><i>k</i></label><button type="button" class="p" title="늘리기">+</button></div></div>
+<div class="row"><span>회전율 <small>(1,000엔당 회전)</small></span><div class="stp" data-step="1"><button type="button" class="m" title="줄이기">−</button><label class="pill"><input id="rRate" type="number" min="5" max="60" value="32" autocomplete="off"></label><button type="button" class="p" title="늘리기">+</button></div></div>
 <div class="big"><small>목표 달성 확률</small><b id="rWp">-</b></div>
 <p class="note">4엔 파친코 기준(1,000엔 = 250구슬). 시작하면 지금의 기록은 초기화돼요.</p>
 <div class="btns"><button id="rCancel">취소</button><button id="rStart" class="go">시작</button></div>
@@ -2100,7 +2100,11 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
   dayShow.t=setTimeout(()=>{e.classList.remove('on');dayShow.u=setTimeout(()=>{DAYB=false;if(R.on&&auto&&!busy&&!BLOCK)spin()},700)},instant?2600:3200)}
  /* ── 설정 창 ── */
  let wpT=0;const calcWp=()=>{clearTimeout(wpT);wpT=setTimeout(()=>{const f=+q('rFund').value*1000,g=+q('rGoal').value*1000,r=+q('rRate').value;if(!(f>0&&g>f&&r>=5&&r<=60)){q('rWp').textContent='-';return}q('rWp').textContent=(winProb(f,g,r,6000)*100).toFixed(1)+'%'},150)};
- ['rFund','rGoal','rRate'].forEach(i=>q(i).addEventListener('input',calcWp));
+ ['rFund','rGoal','rRate'].forEach(i=>q(i).addEventListener('input',()=>{fit(q(i));calcWp()}));
+ const fit=i=>{i.style.width=Math.max(1,String(i.value).length)*9.5+4+'px'};
+ document.querySelectorAll('#rSet .stp').forEach(s=>{const i=s.querySelector('input'),st=+s.dataset.step,mn=+i.min,mx=+i.max,bump=d=>{let v=Math.round((+i.value||0)/st)*st+d*st;v=Math.min(mx,Math.max(mn,v));i.value=v;fit(i);calcWp()};
+  let t=0,u=0;const stop=()=>{clearTimeout(t);clearInterval(u)},hold=d=>e=>{e.preventDefault();bump(d);stop();t=setTimeout(()=>{u=setInterval(()=>bump(d),70)},420)};
+  for(const [c,d] of [['.m',-1],['.p',1]]){const b=s.querySelector(c);b.addEventListener('pointerdown',hold(d));for(const ev of ['pointerup','pointerleave','pointercancel'])b.addEventListener(ev,stop)}fit(i)});
  const openSet=()=>{const on=!!R.on;q('rSetIn').hidden=on;q('rSetOn').hidden=!on;quitArm=false;q('rQuit').textContent='포기하기';
   if(on){q('rDayT').textContent='DAY '+R.day+' · 오늘 '+(S.spins-R.dayS).toLocaleString()+' / '+DAYN.toLocaleString()+'회전';q('rNow').textContent=yen(funds());q('rGoalT').textContent='목표 '+yen(R.goal)+' · 시작 '+yen(R.fund0);q('rOnNote').textContent='시작할 때 계산한 목표 달성 확률: '+(R.wp*100).toFixed(1)+'%'}else calcWp();
   q('rSet').hidden=false};
