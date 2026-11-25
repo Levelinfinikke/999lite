@@ -452,7 +452,7 @@ function ac(){if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();
 const sndOk={},sndEl={};
 for(const [k,src] of Object.entries(SND)){const a=new Audio();a.preload='auto';a.oncanplaythrough=()=>sndOk[k]=true;a.onerror=()=>sndOk[k]=false;a.src=src;sndEl[k]=a;if(k.startsWith('bgm'))a.loop=true}
 function beep(f,d,type,v){if(muted||speed>=20)return;try{const c=ac(),o=c.createOscillator(),g=c.createGain();o.type=type||'square';o.frequency.value=f;g.gain.setValueAtTime(v||.3,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d);o.connect(g);g.connect(MG);o.start();o.stop(c.currentTime+d)}catch(e){}}
-const FALL={stop:()=>beep(520,.06),reach:()=>{beep(330,.25,'sawtooth');setTimeout(()=>beep(440,.4,'sawtooth'),120)},hold:()=>beep(880,.15,'triangle'),hand:()=>{beep(70,.6,'sawtooth',.6);beep(140,.3,'square',.4)},win:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.25,'triangle'),i*90))},lever:()=>beep(200,.3,'sawtooth')};
+const FALL={};   /* 만든 소리(비프)는 쓰지 않음: 실기 영상의 소리만 */
 function se(k){if(muted||speed>=20)return;if(sndOk[k]){const a=sndEl[k];try{a.currentTime=0;a.play().catch(()=>{})}catch(e){}}else if(FALL[k])FALL[k]()}
 let bgmNow=null;
 function bgm(k){if(bgmNow===k)return;for(const b of ['bgm','bgmRush'])try{sndEl[b].pause()}catch(e){};bgmNow=k;if(k&&sndOk[k]&&!muted){sndEl[k].volume=.5;sndEl[k].play().catch(()=>{})}}
@@ -512,6 +512,8 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
+ ['v390','임팩트 플래시: 발동 뒤 당첨까지 기기 LED(양쪽 기둥·상단)가 무지개로 회전',{e:'커스텀 ─ 임팩트 플래시: 7500+RUSH 당첨 회전에서 화면 번쩍'}],
+ ['v390','만든 소리(비프) 전부 제거: 보류 색 변화 때의 삑 소리와 0.65초 멈춤 · ST 모드 변경 때의 삑 소리 · 통상 당첨 직전의 흰 번쩍임 — 통상 당첨 회전으로 확인',{e:'커스텀 ─ 손떨 99%: 당첨 회전 (절반 확률로 시작 때 손 낙하)'}],
  ['v390','선독 예고: 조정 창 · 커스텀 창에서 숨김 (항상 기본값)',{e:'커스텀 ─ 전부 끄기'}],
  ['v390','금목: 손이 안 떨어지는 경우(약 20%) — 균열 뒤 그대로 회전',{e:'커스텀 ─ 찬스 암시: 금목 뒤 손이 안 떨어짐'}],
  ['v390','금목: 손이 떨어지는 경우(약 80%)',{e:'커스텀 ─ 찬스 암시: 금목(화면 균열)'}],
@@ -1443,8 +1445,7 @@ async function spinNormal(){LED.sw();
  if(window.AUTOX&&curEv)slowOn();
  if(window.CUSHOOK){try{if(await window.CUSHOOK({res,win,rushPre,lever:lever?lever[0]:'',sp:!!(reachEv||(NF&&tier)||long||late||rev)}))curEv=true}catch(e){}}   // 커스텀(입상 구울화·레버 진동·임팩트 플래시): 회전 시작 때의 추가 예고. 추첨 결과는 바꾸지 않음   // v.2 AUTO: 꽝이라도 연출이 뜨면 1배속으로 (끝나면 다시 배속)
  const normalReach=false;   // 코드로 그린 노멀 리치는 쓰지 않음 (영상 연출만)
- renderHolds(holdColor&&holdColor!=='blink'?'':holdColor);
- if(holdColor&&holdColor!=='blink'){await sleep(250);se('hold');renderHolds(holdColor);await sleep(400)}
+ /* 보류 색 변화: 실기 자료가 없어 화면·소리·멈춤 모두 넣지 않음 */
  // 선역물 커스텀: 변동 개시 때 낙하 (당첨 확률 연동)
  let rOn=false;if(custom!=='def'){const rel=custom==='ex'?1:(+custom/100);let drop=win?(custom==='ex'?rushPre:Math.random()<.5):Math.random()<loseRate(pHit,.5,rel);if(chn!=='off'&&window.cusHint&&speed<20){const hf=window.HINTFORCE;window.HINTFORCE=null;const pk=(a,b)=>{const r=Math.random();return r<a?'blink':r<a+b?'metal':'eye'};
    const k=hf==='eye0'?'eye':hf||(drop?pk(.606,.212):(Math.random()<2.076*pHit*(chn==='ex'?SPEC.rushIn:2)?pk(.876,.102):''));if(hf==='eye')drop=true;if(hf==='eye0')drop=false;   /* 금목 뒤 손 낙하는 약 80%(실기). 검수용: eye = 낙하, eye0 = 낙하 없음 */
@@ -1516,7 +1517,7 @@ async function finishNormal(res,rushPre,quiet,rev){   // rev: 올빼미 부활�
    await flash(3);fx('昇格!!<br>7500+RUSH','big t-rainbow');se('win');await sleep(1800);clearFx();S.out+=7200;addHist(at+'회전','차지→7500 RUSH',true);return enterRush()}
   addHist(at+'회전','喰種チャージ 300',false);return;
  }
- if(!quiet){se('win');await flash(3);
+ if(!quiet){
   if(!(await playClip(CLIP.zorome))){fx('大当り','big t-gold');await sleep(1500);clearFx()}}
  // 영상 속 시각(초). bonus: 22 즉시 7500 분기 / 41 정산 시작 / 93 judgement 시작.  bonus7500: 52 정산 시작 / 182 ST 시작
  const base=S.out,lin=(t,a,b)=>Math.max(0,Math.min(1,(t-a)/(b-a)));
@@ -1734,7 +1735,7 @@ async function stPrep(){
   if(o.win&&o.rushPre&&CU.lev!=='on'&&(F||Math.random()<(CU.imp==='on'?.8:.1))){   /* 임팩트 플래시: RUSH 당첨의 OFF 10% · ON 80%. 나오면 RUSH 당첨 농후 */ev=true;if(!fastv){const h0=S.hits,t0=performance.now(),T=F?1500+Math.random()*2500:2000+Math.random()*38000;   /* 당첨이 정해진 회전의 아무 구간에서나(시작 2~40초 사이의 무작위 시각). judge_shiro_body 는 영상에 이미 같은 소리가 있어 그 구간은 건너뜀 */
     const wt=setInterval(()=>{if(!busy||S.mode!=='normal'||S.hits!==h0)return clearInterval(wt);if(performance.now()-t0<T)return;let n='';try{n=curPlay?cname(curPlay.src):''}catch(e){}if(n==='judge_shiro_body')return;clearInterval(wt);
      try{IMPA.muted=muted;IMPA.currentTime=0;IMPA.play().catch(()=>{})}catch(e){}try{flash(1)}catch(e){}
-     const s0=performance.now(),Z=window.LEDZO=window.LEDZO||{};Z.imp=()=>[1.3,(Math.floor((performance.now()-s0)/100)*137)%360,1];const iv=setInterval(()=>{if(!busy||S.hits!==h0||S.mode!=='normal'){clearInterval(iv);Z.imp=null}},150)},200)}}
+     const s0=performance.now(),Z=window.LEDZO=window.LEDZO||{};Z.imp=()=>[1.3,(Math.floor((performance.now()-s0)/100)*137)%360,1];window.CUSROT=performance.now()+6e5;const iv=setInterval(()=>{if(!busy||S.hits!==h0||S.mode!=='normal'){clearInterval(iv);Z.imp=null;window.CUSROT=0}},150)   /* 발동 뒤 당첨까지: 기둥·상단 LED 가 무지개로 회전 + 버튼·레버 무지개 */},200)}}
   return ev}}
 // ── 출옥 표시(TOTAL): 첫 당첨부터 통상으로 돌아와 다시 회전할 때까지의 획득 구슬. 화면마다 영상 속 숫자 자리에 맞춰 덮음 (ST = 오른쪽 아래 누계, 에피소드 = 현재/총, 추가 정산 = 오른쪽 아래 총). 숫자가 화면에 없는 장면에서는 숨김 ──
 {const bx=document.createElement('div'),A=document.createElement('div'),B=document.createElement('div');bx.id='pyBox';A.id='pyA';B.id='pyB';A.innerHTML='<b></b><i>pt</i>';B.innerHTML='<b></b>';bx.appendChild(A);bx.appendChild(B);$('machine').appendChild(bx);
