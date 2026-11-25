@@ -1,10 +1,10 @@
-// 999lite: 미리 받아 둔 영상을 저장소(Cache Storage)에서 꺼내 줌. 영상 탐색에 필요한 부분 요청(Range)도 처리
+// 999lite (v.3): 미리 받아 둔 영상을 저장소(Cache Storage)에서 꺼내 줌. 영상 탐색에 필요한 부분 요청(Range)도 처리
 const CN='g999lite-v1',MEM=new Map();
 self.addEventListener('install',e=>self.skipWaiting());
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',e=>{
  const u=new URL(e.request.url);
- if(u.origin!==location.origin||!/\/videos\/[^/]+\.mp4$/.test(u.pathname))return;
+ if(!/\/videos\/[^/]+\.mp4$/.test(u.pathname))return;   // 영상 저장소가 다른 주소(R2)여도 처리
  e.respondWith((async()=>{
   const key=u.origin+u.pathname;let bp=MEM.get(key);
   if(!bp){const c=await caches.open(CN),hit=await c.match(key);if(!hit)return fetch(e.request);
