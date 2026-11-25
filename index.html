@@ -2032,14 +2032,19 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
 if(/^https?:$/.test(location.protocol)){const g=document.createElement('script');g.async=true;g.src='https://gc.zgo.at/count.js';g.setAttribute('data-goatcounter','https://999lite.goatcounter.com/count');document.body.appendChild(g)}
 </script>
 <style id="realcss">
-#wcol #wReal{letter-spacing:.06em;font-size:12px}
-#wcol #wReal.act{background:linear-gradient(180deg,#3a0d14,#1c070b);border-color:#ff5364;color:#ffd7dc;font-variant-numeric:tabular-nums;letter-spacing:0}
+#wcol #wReal{position:relative;overflow:hidden;letter-spacing:.14em;font-size:12px;color:#f4f4f6;background:linear-gradient(180deg,#3a3a40 0%,#18181c 46%,#050506 54%,#121215 100%);border-color:#6a6a74;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(0,0,0,.6)}
+#wcol #wReal:hover{border-color:#b9b9c4;background:linear-gradient(180deg,#44444b 0%,#1d1d22 46%,#08080a 54%,#16161a 100%)}
+#wcol #wReal::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:38%;background:linear-gradient(100deg,transparent 0%,rgba(255,255,255,.05) 30%,rgba(255,255,255,.5) 50%,rgba(255,255,255,.05) 70%,transparent 100%);transform:translateX(-140%) skewX(-18deg);animation:realShine 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes realShine{0%,55%{transform:translateX(-140%) skewX(-18deg)}90%,100%{transform:translateX(330%) skewX(-18deg)}}
+#wcol #wReal.act{border-color:#ff5364;color:#ffe3e6;font-variant-numeric:tabular-nums;letter-spacing:0}
+@media (prefers-reduced-motion:reduce){#wcol #wReal::after{animation:none}}
 .rbox{position:fixed;inset:0;z-index:320;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}.rbox[hidden]{display:none}
 .rbox .hb{position:relative;width:min(94vw,460px);max-height:92vh;overflow-y:auto;background:linear-gradient(180deg,#1c090d,#090406);border:1px solid #7a1422;box-shadow:0 0 0 1px #000,0 10px 40px rgba(0,0,0,.7);padding:14px 16px 16px;color:#e9edf5;font:13px/1.5 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif}
 .rbox h3{margin:0 0 10px;font-size:15px;letter-spacing:.12em;color:#f0a3ad}
 .rbox .row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #3a1c22}
 .rbox .row span{color:#ffd08a;font-weight:700}.rbox .row small{color:#a8868b;font-weight:400}
 .rbox input{width:86px;height:30px;background:#0a0506;color:#fff;border:1px solid #4d2830;border-radius:3px;font:700 14px inherit;text-align:center}
+.rbox label.k{display:flex;align-items:center;gap:6px}.rbox label.k i{font-style:normal;font-weight:800;color:#fff;width:10px}
 .rbox .big{margin:10px 0 4px;padding:10px;text-align:center;background:#0a0506;border:1px solid #3a1c22}.rbox .big b{font-size:24px;color:#fff}.rbox .big small{display:block;color:#a8868b}
 .rbox .btns{display:flex;gap:8px;margin-top:12px}
 .rbox button{flex:1;height:38px;clip-path:none;border-radius:3px;background:#201115;border:1px solid #4d2830;color:#e9edf5;font:700 13px inherit;font-family:inherit;cursor:pointer}
@@ -2055,9 +2060,9 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 </style>
 <div id="rSet" class="rbox" hidden><div class="hb"><h3>실전모드</h3>
 <div id="rSetIn">
-<div class="row"><span>소지자금 <small>(천 엔)</small></span><input id="rFund" type="number" min="1" max="100000" value="100" autocomplete="off"></div>
-<div class="row"><span>목표 <small>(천 엔)</small></span><input id="rGoal" type="number" min="2" max="1000000" value="200" autocomplete="off"></div>
-<div class="row"><span>회전율 <small>(1,000엔당 회전)</small></span><input id="rRate" type="number" min="5" max="60" value="32" autocomplete="off"></div>
+<div class="row"><span>소지자금 <small>(천 엔)</small></span><label class="k"><input id="rFund" type="number" min="1" max="100000" value="100" autocomplete="off"><i>k</i></label></div>
+<div class="row"><span>목표 <small>(천 엔)</small></span><label class="k"><input id="rGoal" type="number" min="2" max="1000000" value="200" autocomplete="off"><i>k</i></label></div>
+<div class="row"><span>회전율 <small>(1,000엔당 회전)</small></span><label class="k"><input id="rRate" type="number" min="5" max="60" value="32" autocomplete="off"><i></i></label></div>
 <div class="big"><small>목표 달성 확률</small><b id="rWp">-</b></div>
 <p class="note">4엔 파친코 기준(1,000엔 = 250구슬). 시작하면 지금의 기록은 초기화돼요.</p>
 <div class="btns"><button id="rCancel">취소</button><button id="rStart" class="go">시작</button></div>
@@ -2068,7 +2073,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 <div class="btns"><button id="rQuit">포기하기</button><button id="rBack" class="go">계속하기</button></div>
 </div>
 </div></div>
-<div id="rRes" class="rbox" hidden><div class="hb"><h3 id="rTitle"></h3><canvas id="rCv" width="1040" height="460"></canvas><ul id="rList"></ul>
+<div id="rRes" class="rbox" hidden><div class="hb"><h3 id="rTitle"></h3><canvas id="rCv" width="1040" height="680"></canvas><ul id="rList"></ul>
 <div class="btns"><button id="rClose">닫기</button><button id="rAgain" class="go">다시 도전</button></div></div></div>
 <div id="rToast"></div><div id="rDay"><b></b><div></div></div>
 <script>(()=>{
@@ -2149,7 +2154,11 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
   const line=(v,col,lab)=>{x.strokeStyle=col;x.lineWidth=1.5;x.setLineDash([8,6]);x.beginPath();x.moveTo(pl,Y(v));x.lineTo(W-pr,Y(v));x.stroke();x.setLineDash([]);x.fillStyle=col;x.textAlign='right';x.fillText(lab,pl-8,Y(v))};
   line(0,'#ff5364','0');line(R.fund0,'#8a93a3','시작 '+kk(R.fund0));line(R.goal,'#ffd76a','목표 '+kk(R.goal));
   x.textAlign='left';x.textBaseline='top';x.strokeStyle='#5a2a33';x.fillStyle='#c98a94';x.lineWidth=1;[0].concat(R.days||[]).forEach((d,i)=>{if(i){x.beginPath();x.moveTo(X(d),pt);x.lineTo(X(d),H-pb);x.stroke()}x.fillText('DAY '+(i+1),X(d)+4,6)});
-  x.lineWidth=3;x.lineJoin='round';x.strokeStyle='#ff8a9a';x.beginPath();x.moveTo(X(g[0][0]),Y(F(g[0][1])));for(let i=1;i<g.length;i++){x.lineTo(X(g[i][0]),Y(F(g[i-1][1])));x.lineTo(X(g[i][0]),Y(F(g[i][1])))}x.stroke();
+  const y0=Y(R.fund0),path=()=>{x.beginPath();x.moveTo(X(g[0][0]),Y(F(g[0][1])));for(let i=1;i<g.length;i++){x.lineTo(X(g[i][0]),Y(F(g[i-1][1])));x.lineTo(X(g[i][0]),Y(F(g[i][1])))}};
+  const area=(top,bot,far,rgb)=>{if(Math.abs(far-y0)<2)return;x.save();x.beginPath();x.rect(pl,top,W-pl-pr,bot-top);x.clip();const gr=x.createLinearGradient(0,y0,0,far);gr.addColorStop(0,'rgba('+rgb+',.04)');gr.addColorStop(1,'rgba('+rgb+',.8)');x.fillStyle=gr;path();x.lineTo(X(g[g.length-1][0]),y0);x.lineTo(X(g[0][0]),y0);x.closePath();x.fill();x.restore()};
+  area(pt,y0,Y(F(mx[1])),'70,210,130');area(y0,H-pb,Y(F(mn[1])),'255,70,90');
+  const stroke=(top,bot,col)=>{x.save();x.beginPath();x.rect(pl-2,top,W-pl-pr+4,bot-top);x.clip();x.lineWidth=3;x.lineJoin='round';x.strokeStyle=col;path();x.stroke();x.restore()};
+  stroke(0,y0,'#7fe0a8');stroke(y0,H,'#ff8a9a');
   const dot=(p,col,lab,up)=>{x.fillStyle=col;x.beginPath();x.arc(X(p[0]),Y(F(p[1])),7,0,7);x.fill();x.textAlign=X(p[0])>W*.75?'right':'left';x.textBaseline=up?'bottom':'top';x.fillText(lab,X(p[0])+(X(p[0])>W*.75?-10:10),Y(F(p[1]))+(up?-6:6))};
   dot(mx,'#ffd76a','최고 '+kk(F(mx[1])),true);dot(mn,'#6ab7ff','최저 '+kk(F(mn[1])),false);
   x.fillStyle='#777';x.textAlign='right';x.textBaseline='bottom';x.fillText(xm.toLocaleString()+'회전',W-pr,H-8)}
