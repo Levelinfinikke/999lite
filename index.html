@@ -524,6 +524,7 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
+ ['v431','영상 이음매(휴대폰): 다음 영상을 먼저 눌러 두는 시간을 0.06초로 묶음 — 첫 프레임 · 첫 소리가 잘리지 않는지',{e:'RUSH 돌입 → ST 5회'}],
  ['v429','7500 보너스 끝의 모드 선택: 시각을 기준 시각으로 잼 (lite 판에서 2.55초 늦던 문제) — 큰 초상화가 카운트 화면으로 바뀔 때 작은 배지로 넘어가는지',{e:'7500 보너스 → ST'}],
  ['v428','영상 이음매(휴대폰): 예전 방식으로 되돌림 (미리 깨우기 · 준비 미루기 · 올려 둔 영상 이어 쓰기 제거). SKIP 은 끝 2초 전 유지',{e:'RUSH 돌입 → ST 5회'}],
  ['v427','7500 보너스 끝의 모드 선택 장면(큰 초상화 → 카운트 5 화면): 레버로 모드가 바뀌고 초상화 · 작은 배지가 고른 모드로 덮임 — SKIP 두 번으로 끝부분까지 넘긴 뒤 레버',{e:'7500 보너스 → ST'}],
@@ -1026,7 +1027,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!
    else{skipReq=false;skipCarry=now}}
   for(const m of marks)if(!m[2]&&t>=m[0]){m[2]=true;try{m[1]()}catch(e){console.error(e)}}
   if(opt.onTime)try{opt.onTime(t,g.dur)}catch(e){}
-  const tEnd=Math.min(t1,v.duration||1e9);if(!preDone&&(tEnd-v.currentTime)/(v.playbackRate||1)<=LAT)pre();
+  const tEnd=Math.min(t1,v.duration||1e9);if(!preDone&&(tEnd-v.currentTime)/(v.playbackRate||1)<=(MOBV?Math.min(LAT,.06):LAT))pre();   /* 휴대폰: 다음 영상을 먼저 눌러 두는 시간을 0.06초로 묶음. 길게 잡으면(최대 0.3초) 다음 영상이 그만큼 먼저 흘러가 첫 프레임·첫 소리가 잘렸음. 짧게 잡으면 잘리지 않는 대신, 느린 기기에서는 넘어간 직후 첫 장면에서 아주 잠깐 머뭇할 수 있음 */
   if(v.currentTime>=t1-.008&&t1<(v.duration||1e9)-.02){handoff();v.pause();r()}},4)});
  clearInterval(iv);$('skipHint').style.display='none';$('pushHint').style.display='none';stopCues();if(curPlay&&curPlay.v===v)curPlay=null;
  hideT=setTimeout(()=>{v.style.display='none'},opt.next?2000:350);return true}
@@ -2200,10 +2201,10 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
  const ready=(async()=>{await navigator.serviceWorker.register('sw.js');await navigator.serviceWorker.ready;
   if(!navigator.serviceWorker.controller)await new Promise(r=>{navigator.serviceWorker.addEventListener('controllerchange',r,{once:true});setTimeout(r,3000)})})();
  const all=()=>Object.keys(window.CLIPS||{}).map(n=>'videos/'+n+'.mp4').concat(['videos/idle_loop.mp4']).map(f=>(window.VBASE||'')+(window.VBASE?(window.VDIR||'videos/')+f.slice(7):f)),absU=f=>new URL(f,location.href).href.split('?')[0];
- // 받아 둔 영상 정리(한 번만, 정리 번호 5 = v.3·영상 저장소 분리): 지금 목록(주소 포함)에 없는 것은 전부 지움 → 예전 판 영상은 지워지고 새로 받음
- try{const vk='g999cv:'+location.pathname,cvn=localStorage.getItem(vk);if(cvn!=='5'&&Object.keys(window.CLIPS||{}).length>10){const c=await caches.open(CN),KEEP=new Set(all().map(absU));
+ // 받아 둔 영상 정리(한 번만, 정리 번호 6 = 안 쓰는 ST 조각 4개 삭제): 지금 목록(주소 포함)에 없는 것은 전부 지움 → 예전 판 영상은 지워지고 새로 받음
+ try{const vk='g999cv:'+location.pathname,cvn=localStorage.getItem(vk);if(cvn!=='6'&&Object.keys(window.CLIPS||{}).length>10){const c=await caches.open(CN),KEEP=new Set(all().map(absU));
   for(const k of await c.keys()){if(!KEEP.has(k.url.split('?')[0]))await c.delete(k)}
-  localStorage.setItem(vk,'5')}}catch(e){}
+  localStorage.setItem(vk,'6')}}catch(e){}
  if(!mobile){try{await ready;const c=await caches.open(CN);let miss=0;for(const f of all())if(!(await c.match(absU(f)))){try{const r=await fetch(f,{method:'HEAD',cache:'no-store'});if(r.ok)miss++}catch(e){}}
    if(miss){pcBtn=document.createElement('button');pcBtn.className='wide';pcBtn.id='wDl';pcBtn.textContent='⬇ 영상 미리 받기';pcBtn.title='영상을 전부 받아 두면 끊김 없이 재생돼요';q('wA').querySelector('.bd').appendChild(pcBtn);
     pcBtn.onclick=()=>{pcBtn.blur();if(typeof busy!=='undefined'&&busy)return;q('dlSkip').textContent='취소';box.classList.add('on');run()};if(!seen&&await notice()){q('dlSkip').textContent='취소';run()}}}catch(e){}return}
