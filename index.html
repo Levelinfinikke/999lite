@@ -524,6 +524,7 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
+ ['v452','이어 붙이기 재생: 첫 연출 시작이 느리던 문제 — 페이지를 열면 재생기 · 영상 묶음 · 모든 영상의 조각 목록을 미리 준비하고, 처음 받는 양을 2조각(0.66초)으로 줄여 바로 시작. SKIP 으로 통상을 넘길 때 「영상 불러오는 중…」이 짧아졌는지',{}],
  ['v451','추가 3000 의 레버블 업 · 임팩트 플래시: 당첨 영상이 시작되는 순간 3초 전 ~ 직전 사이에 고르게 발동 (꽝의 흰색은 판정 영상 끝 3초 전 ~ 끝). 실패 화면 도중 역전은 그 당첨 영상 시작 기준',{}],
  ['v450','JUDGEMENT(모드 1)의 레버블 업 · 임팩트 플래시: 버튼 조작(judge_ready 의 버튼) 7초 전 ~ 버튼 직전 사이에 고르게 발동 (모드 선택 화면의 룰렛 버튼은 기준이 아님). 버튼이 없는 브레이크 모드는 예전처럼 역물 낙하 5초 전까지',{e:'Judgement ─ 브레이크: 남은 2초에 성공'}],
  ['v448','커스텀 레버블 업 · 임팩트 플래시: 7500 JUDGEMENT(모드 1 · 2)에서도 발동 — 성공(7500 + RUSH)의 선고지. 발생률 · 색의 뜻은 통상과 같음. 계수 중 역전도 포함',{e:'Judgement ─ 브레이크: 남은 2초에 성공'}],
@@ -1013,14 +1014,14 @@ const MXP=(()=>{
  const coldJoin=()=>Math.ceil(Math.max(tailT,v.currentTime||0,bufEnd()))+2;
  const dropQ=()=>{if(!q)return;const a=q.join;q=null;if(a>v.currentTime+.05)rm(a,1e9)};
  // 아직 버퍼에 없는 조각들을 [a,b] 구간에서 찾음 (붙인 지 3초가 안 된 조각은 다시 받지 않음)
- const need=(P,a,b)=>{const S=P.ix.seg,now=performance.now();let i0=-1,i1=-1;
+ const need=(P,a,b,lim)=>{lim=lim||6;const S=P.ix.seg,now=performance.now();let i0=-1,i1=-1;
   for(let i=0;i<S.length;i++){const ts=P.off+S[i].t,lo=Math.max(ts,P.join),hi=Math.min(ts+S[i].d,fEnd(P));
    const want=hi-lo>.02&&hi>a&&lo<b&&!isBuf((lo+hi)/2)&&!(P.app.has(i)&&now-P.app.get(i)<3000);
-   if(want){if(i0<0)i0=i;i1=i;if(i1-i0>=5)break}else if(i0>=0)break}
+   if(want){if(i0<0)i0=i;i1=i;if(i1-i0>=lim-1)break}else if(i0>=0)break}
   return i0<0?null:{P,i0,i1}};
  const pick=()=>{const t=v.currentTime;let j;
-  if(cur){const a=Math.max(t,cur.join);if((j=need(cur,a,Math.min(fEnd(cur),a+AHEAD))))return j;if((j=need(cur,fEnd(cur)-2.6,fEnd(cur))))return j}
-  if(q){const lead=cur?Math.max(3,AHEAD-Math.max(0,fEnd(cur)-t)):3;if((j=need(q,q.join,Math.min(fEnd(q),q.join+lead))))return j}
+  if(cur){const a=Math.max(t,cur.join);if((j=need(cur,a,Math.min(fEnd(cur),a+AHEAD),isBuf(a+.02)?6:2)))return j;if((j=need(cur,fEnd(cur)-2.6,fEnd(cur))))return j}
+  if(q){const lead=cur?Math.max(3,AHEAD-Math.max(0,fEnd(cur)-t)):3;if((j=need(q,q.join,Math.min(fEnd(q),q.join+lead),isBuf(q.join+.02)?6:2)))return j}
   return null};
  const pump=async()=>{if(busy||!M.on||!sb)return;busy=true;let did=false;
   try{const j=pick();
@@ -1058,6 +1059,8 @@ const MXP=(()=>{
  M.ended=()=>{const P=cur;guardT=setTimeout(()=>{if(cur===P&&v.currentTime>P.end){v.pause();v.style.display='none'}},900)};
  M.leave=()=>{clearTimeout(guardT);cur=null;try{v.pause()}catch(e){}v.style.display='none'};
  M.state=()=>({cur:cur&&{n:cur.n,join:cur.join,end:cur.end},q:q&&{n:q.n,join:q.join},t:v.currentTime,buf:(()=>{let s='';try{const b=sb.buffered;for(let i=0;i<b.length;i++)s+=b.start(i).toFixed(2)+'~'+b.end(i).toFixed(2)+' '}catch(e){}return s})(),miss:M.miss.length});
+ // 미리 준비(페이지를 연 뒤 한 번): 재생기 열기 · 영상 묶음 정하기(목록표 받기) · 모든 영상의 조각 목록(m3u8) 받아 두기 → 첫 연출에서 기다리는 시간을 줄임
+ setTimeout(async()=>{try{const ks=Object.keys(window.CLIPS||{});if(!ks.length||!M.on)return;await idx(ks[0]);await open();let i=1;const run=async()=>{while(i<ks.length&&M.on){await idx(ks[i++])}};await Promise.all([run(),run(),run()])}catch(e){}},1200);
  window.MXP=M;return M})();
 async function prepClip(nx){nx=nextOf(nx);if(!nx||!nx.src||NOCLIP()||!(await probe(nx.src)))return;
  if(MXP.on&&await MXP.ok(nx.src)){if(prepared&&!prepared.started){prepared=null;prepSeq++}await MXP.queue(nx);return}   // 이어 붙이기 재생: 지금 조각 끝에 예약
