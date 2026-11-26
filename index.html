@@ -522,6 +522,9 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
+ ['v414','영상 이음매: 다음 영상의 첫 프레임 · 첫 소리가 잘리지 않음 (연속으로 이어지는 영상들의 넘어가는 순간)',{e:'RUSH 돌입 → ST 5회'}],
+ ['v414','레버: 짧게 클릭(두드리기)만 해도 한 번 당김 — ST 도입에서 초상화가 바뀌는지',{e:'RUSH 돌입 → ST 5회'}],
+ ['v414','ST 브금: 리치 배틀에서 꺼지고 ST 가 끝나면 멈춤 (아이폰에서 안 꺼지던 문제), RUSH 진입 때 미리 받아 둠',{e:'ST 조각 ─ 꽝: yamori 리치 (앞부분 → eye → 전투, 연타 무효)'}],
  ['v413','화면을 떠나면(다른 탭 · 창 최소화 · 휴대폰에서 앱 나가기) 모든 소리 · 영상이 멈추고, 돌아오면 이어짐 — 영상 재생 중에 다른 탭으로 갔다 와서 확인',{e:'RUSH 돌입 → ST 5회'}],
  ['v412','↑ 키: 누르고 있는 동안 버튼이 눌린 채로 있고, 떼면 올라옴 (츠키야마 버튼 연타도 꾹 누르면 이어짐)',{e:'ST 모드 ─ 츠키야마 절규: 당첨(버튼 고지)'}],
  ['v411','임팩트 플래시 ON: 발생률 80% → 50% (통상 · ST · 추가 3000 모두) — 이 항목은 강제 발동',{e:'커스텀 ─ 임팩트 플래시: 7500+RUSH 당첨 회전에서 화면 번쩍'}],
@@ -953,25 +956,26 @@ async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!
  const want=x=>x&&x.src===src&&x.v===v;
  if(want(prepared)){g=clipGeom(src,v);t0=Math.max(0,g.base+(opt.from!=null?opt.from:g.tin));if(Math.abs(prepared.t0-t0)>.02)prepared=null}
  let started=false;
- if(want(prepared)){started=!!prepared.started;clearTimeout(prepared.guard);prepared=null;prepSeq++}   // 미리 준비된 영상: 불러오기·탐색 없이 바로 재생
- else{if(prepared&&prepared.started){clearTimeout(prepared.guard);prepared.v.pause();prepared.v.style.display='none'}prepSeq++;prepared=null;v.src=src;
+ if(want(prepared)){started=!!prepared.started;clearTimeout(prepared.guard);prepared=null;prepSeq++;(window.__hot=window.__hot||[]).push([cname(src),+(v.currentTime-t0).toFixed(3)]);if(window.__hot.length>200)window.__hot.shift()}   // 미리 준비된 영상: 불러오기·탐색 없이 바로 재생
+ else{(window.__cold=window.__cold||[]).push([cname(src),curPlay?cname(curPlay.src):(window.__lastClip||'-')]);if(window.__cold.length>200)window.__cold.shift();if(prepared&&prepared.started){clearTimeout(prepared.guard);prepared.v.pause();prepared.v.style.display='none'}prepSeq++;prepared=null;v.src=src;
   await new Promise(r=>{if(v.readyState>=1)r();else{v.onloadedmetadata=r;v.onerror=r;setTimeout(r,2500)}});
   g=clipGeom(src,v);t0=Math.max(0,g.base+(opt.from!=null?opt.from:g.tin));
   if(t0>.01)await new Promise(r=>{v.onseeked=r;setTimeout(r,1500);try{v.currentTime=t0}catch(e){r()}})}
  const t1=g.base+(opt.to!=null?opt.to:g.dur+g.tout);
  v.muted=muted;v.playbackRate=1 /* 연출 영상은 배속하지 않음 (배속은 통상 회전에만 적용) */;
- if(!started){try{await v.play()}catch(e){v.style.display='none';return false}}
+ if(!started){try{await v.play()}catch(e){v.style.display='none';return false}}else if(v.paused){v.play().catch(()=>{})}
  v.style.zIndex=6;v.style.display='block';old.style.zIndex=5;old.pause();old.style.display='none';   // 새 영상이 준비된 뒤에 교체 → 이음매에 빈 화면 없음
  const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);{const now_=performance.now(),age=now_-skipAt;if(!(skipReq&&(age<400||(skipIdle&&age<2000))))skipReq=false;skipIdle=false;if(skipCarry&&now_-skipCarry<1500){skipReq=true;skipAt=now_}skipCarry=0}stopReq=false;let iv=0;
- curPlay={v,g,src,t1,ns:!!opt.noskip};if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
+ window.__lastClip=g.n;curPlay={v,g,src,t1,ns:!!opt.noskip};if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
  if(opt.next)prepClip(opt.next);
  // 다음 영상은 재생을 누른 뒤 실제로 움직이기까지 시간이 걸림(LAT). 그만큼 먼저 눌러 두고, 앞 영상이 끝나는 순간 화면만 바꿈
  let preDone=false;
  const pre=()=>{preDone=true;const p=prepared,nx=nextOf(opt.next);if(!p||p.started||!nx||p.src!==nx.src||stopAll)return;p.started=true;p.v.muted=IOS?true:muted;p.v.playbackRate=1;
   const tc=performance.now();p.v.play().catch(()=>{});
-  const m=setInterval(()=>{if(p.v.currentTime>p.t0+.001){clearInterval(m);LAT=Math.min(.3,Math.max(.02,LAT*.6+(performance.now()-tc)/1000*.4))}},4);setTimeout(()=>clearInterval(m),1000);
+  const m=setInterval(()=>{if(p.v.currentTime>p.t0+.001){clearInterval(m);LAT=Math.min(.3,Math.max(.02,LAT*.6+(performance.now()-tc)/1000*.4));
+    if(!p.shown){p.held=true;try{p.v.pause();if(p.v.currentTime-p.t0>.004)p.v.currentTime=p.t0}catch(e){}}}},4);setTimeout(()=>clearInterval(m),1000);   /* 다음 영상이 앞 영상이 끝나기 전에 먼저 움직이기 시작했으면 첫 장면으로 되돌려 멈춰 둠 → 넘어갈 때 첫 프레임·첫 소리부터 나옴(예전에는 먼저 흘러간 만큼 앞머리가 잘렸음) */
   p.guard=setTimeout(()=>{if(prepared===p){p.v.pause();p.v.style.display='none';prepared=null}},900)};
- const handoff=()=>{if(!preDone)pre();const p=prepared;if(p&&p.started){if(IOS){try{v.pause()}catch(e){}p.v.muted=muted}p.v.style.zIndex=7;p.v.style.display='block'}};
+ const handoff=()=>{if(!preDone)pre();const p=prepared;if(p&&p.started){p.shown=true;if(IOS){try{v.pause()}catch(e){}}if(p.held||p.v.paused){p.held=false;if(IOS){p.v.muted=true;const q=p.v.play();if(q&&q.then)q.then(()=>{p.v.muted=muted}).catch(()=>{});setTimeout(()=>{p.v.muted=muted},120)}else{p.v.muted=muted;p.v.play().catch(()=>{})}}else p.v.muted=muted;p.v.style.zIndex=7;p.v.style.display='block'}};
  let stuckAt=0,lastTry=0;
  await new Promise(r=>{v.onended=()=>{handoff();r()};v.onerror=r;iv=setInterval(()=>{const t=v.currentTime-g.base;
   if(v.paused&&!v.ended&&!v.seeking&&!window.__hold){const now=performance.now();if(!stuckAt)stuckAt=now;if(now-lastTry>400){lastTry=now;v.play().catch(()=>{})}if(now-stuckAt>3000){dbg('stuck → next '+g.n+' @'+t.toFixed(1));handoff();return r()}}else stuckAt=0;
@@ -1682,7 +1686,7 @@ async function stAuto(){while(S.mode==='rush'&&!NOCLIP()&&((await probe('videos/
   await (pc&&!fu?stPieces():stVideo())}}
 async function enterRush(skipIntro){await enterRush0(skipIntro);await stAuto()}
 async function enterRush0(skipIntro){
- S.mode='rush';S.st=SPEC.st;S.chain=1;S.rushGain=0;S.rushes++;bgm('bgmRush');render();
+ S.mode='rush';S.st=SPEC.st;S.chain=1;S.rushGain=0;S.rushes++;bgm('bgmRush');render();try{stBgmWarm()}catch(e){}
  if(skipIntro)return;
  window.stSkip5=true;if(!(await playClip(CLIP.rush_in,{next:await stAhead(RIST)}))){window.stSkip5=false;fx('HYPER喰種RUSH','big t-red');fx('ST 5回 · 1/7.7','sm t-white');await sleep(2000);clearFx()}
 }
@@ -1705,8 +1709,9 @@ Object.assign(PUSH,{st_bt_yamori_strong_fail:[9.91,12.86],st_bt_shachi_weak_fail
 const NOBTN={st_bt_yamori_weak_fail:[[22.92,31.0]],st_bt_ayato_weak_fail:[[33.56,41.74]],st2_deadrize_win:[[29.19,34.98]],st4_omedetou_tear_win:[[43.6,50.77]],st1_tokyo_omedetou_win:[[43.61,51.11]]};   // 연타(bb) 구간: 버튼·화면 클릭이 듣지 않음(5초 건너뛰기도 안 됨). 레버 SKIP 은 그대로
 if(window.CLIPS&&window.CLIPS.st_eye_weak){for(const c in STP.F)STP.F[c]=STP.F[c].filter(n=>n in window.CLIPS);for(const c in STP.L)STP.L[c]=STP.L[c].filter(x=>x[0] in window.CLIPS)}   // 배포판: 영상 목록(clips.js)에 없는 ST 조각은 추첨에서 뺌 (lite 는 용량 때문에 조각 일부를 덜어 냄)
 function stBgm(on,pos){try{const a=sndEl.stbgm||(sndEl.stbgm=new Audio('st_audio/st_bgm.m4a'));a.preload='auto';a.muted=muted;if(pos!=null)a._pos=pos;
- if(on){clearInterval(a._f);a._f=0;a.volume=STP.vol;if(a._pos!=null){try{a.currentTime=a._pos}catch(e){}a._pos=null}if(a.duration&&a.currentTime>a.duration-30){try{a.currentTime=STP.B0}catch(e){}}if(a.paused)a.play().catch(()=>{})}
- else if(!a.paused&&!a._f){a._f=setInterval(()=>{const v=a.volume-STP.vol*.34;if(v<=.02){clearInterval(a._f);a._f=0;a.pause();a.volume=STP.vol}else a.volume=v},40)}}catch(e){}}   // 브금은 조각에서 빼고 따로 틂. 끌 때는 0.12초에 걸쳐 줄임
+ if(on){clearInterval(a._f);a._f=0;a.volume=STP.vol;if(a._pos!=null){try{a.currentTime=a._pos}catch(e){}a._pos=null}if(a.duration&&a.currentTime>a.duration-30){try{a.currentTime=STP.B0}catch(e){}}a._want=1;a.muted=muted;if(a.paused)a.play().catch(()=>{})}
+ else if(!a.paused&&!a._f){a._want=0;let fv=STP.vol;a._f=setInterval(()=>{fv-=STP.vol*.34;if(fv<=.02){clearInterval(a._f);a._f=0;a.pause();try{a.volume=STP.vol}catch(e){}}else{try{a.volume=fv}catch(e){}}},40)}}catch(e){}}   /* 줄이는 양은 따로 셈: 아이폰은 소리 크기를 바꿀 수 없어(읽으면 늘 1) 예전 방식으로는 줄이기가 끝나지 않아 브금이 영영 안 꺼졌음 */
+function stBgmWarm(){try{const a=sndEl.stbgm||(sndEl.stbgm=new Audio('st_audio/st_bgm.m4a'));if(a._warm)return;a._warm=1;a.preload='auto';if(!a.paused)return;a.muted=true;const p=a.play();if(p&&p.then)p.then(()=>{if(!a._want){a.pause();try{a.currentTime=STP.B0}catch(e){}}a.muted=muted}).catch(()=>{a.muted=muted;try{a.load()}catch(e){}})}catch(e){}}   /* RUSH 에 들어갈 때 브금을 미리 받아 둠(휴대폰은 틀기 전에는 받지 않아 첫 카운트에서 늦게 나왔음) */   // 브금은 조각에서 빼고 따로 틂. 끌 때는 0.12초에 걸쳐 줄임
 async function stSeq(parts){for(let i=0;i<parts.length&&!stopAll;i++){const p=parts[i],nx=parts[i+1],src=p.src||stV(p.n),ws=p.m&&STP.T[p.n],t0=performance.now();
   stBgm(!!(ws&&ws[0][0]<=0));
   const iv=setInterval(()=>{const c=curPlay;if(!ws||!c||c.src!==src)return;const t=c.v.currentTime-c.g.base;stBgm(ws.some(w=>t>=w[0]&&t<w[1]))},40);
@@ -2116,14 +2121,15 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
   // 레버: 아래쪽(Y 의 밑동)이 축, 앞으로 최대 10도. 끝까지(70% 이상) 당기면 한 번 회전
   const MAXDEG=10;let y0=null,done=false;const ledEls=()=>{try{const a=LED.z.button,b=LED.z.lever;return [a.k,a.c,a.t,a.b,b.k,b.c,b.t,b.b]}catch(_){return []}},ledHold=(on,back)=>{const Ox=lv.offsetLeft+lv.offsetWidth/2,Oy=lv.offsetTop+lv.offsetHeight;ledEls().forEach((e,i)=>{if(on){e.style.transformOrigin=(Ox-e.offsetLeft).toFixed(1)+'px '+(Oy-e.offsetTop).toFixed(1)+'px';e.style.zIndex=17;e.style.transition=back?'opacity .07s linear,transform .18s ease-out':''}else{e.style.transform='';e.style.transition='';e.style.zIndex=i<4?12:''}})};   // 레버 그림과 같은 축·같은 기울기로 LED 층을 함께 움직이고 레버 그림 위에 그림 → 당기는 동안에도 LED 가 꺼지지 않음
   const tilt=p=>{const tf='perspective('+Math.round(lv.offsetHeight*2.2)+'px) rotateX('+(-MAXDEG*p).toFixed(2)+'deg)';lv.style.transform=tf;ledEls().forEach(e=>e.style.transform=tf)};   // 밑동(아래 끝)은 그대로, 위로 갈수록 앞으로 나와 커짐
-  hl.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();y0=e.clientY;done=false;lv.classList.remove('back');lv.classList.add('on');ledHold(true);tilt(0);try{hl.setPointerCapture(e.pointerId)}catch(_){}});
+  hl.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();y0=e.clientY;done=false;hl._t0=performance.now();lv.classList.remove('back');lv.classList.add('on');ledHold(true);tilt(0);try{hl.setPointerCapture(e.pointerId)}catch(_){}});
   hl.addEventListener('pointermove',e=>{if(y0==null)return;const p=Math.max(0,Math.min(1,(e.clientY-y0)/Math.max(30,hl.offsetHeight*.35)));tilt(p);if(!done&&p>=.7){done=true;levAct()}});   // 판정 2번(브레이크) 모드 영상 중에는 레버로 넘기지 않음
   function levAct(){try{LED.kick(.4)}catch(_){}if(typeof selHook!=='undefined'&&selHook&&window.LEVSEL){selHook('T')}else if(typeof curPlay!=='undefined'&&curPlay&&curPlay.ns){}else if(window.STLEV&&window.STLEV()){}else{window.PUSHSRC='lever';setTimeout(()=>{window.PUSHSRC=''},500);if(busy)pushReq=true}}   // 판정 2번(브레이크) 모드 영상 중에는 레버로 넘기지 않음
   window.hwLevDown=()=>{if(y0!=null||window.hwLevHeld)return;window.hwLevHeld=true;lv.classList.remove('back');lv.classList.add('on');ledHold(true);tilt(1);levAct()};   /* ↓ 키를 누르고 있는 동안 레버가 당겨진 채로 있음 */
   window.hwLevUp=()=>{if(!window.hwLevHeld)return;window.hwLevHeld=false;if(y0!=null)return;lv.classList.add('back');ledHold(true,true);tilt(0);setTimeout(()=>{if(y0==null&&!window.hwLevHeld){lv.classList.remove('on','back');ledHold(false)}},200)};
   addEventListener('keyup',e=>{if(e.code==='ArrowDown')window.hwLevUp()});addEventListener('blur',()=>window.hwLevUp());
   window.hwLev=()=>{if(y0!=null)return;lv.classList.remove('back');lv.classList.add('on');ledHold(true);tilt(1);levAct();setTimeout(()=>{if(y0!=null)return;lv.classList.add('back');ledHold(true,true);tilt(0);setTimeout(()=>{if(y0==null){lv.classList.remove('on','back');ledHold(false)}},200)},160)};   // ↓ 키: 끝까지 당겼다 놓는 모습
-  const end=()=>{if(y0==null)return;y0=null;lv.classList.add('back');ledHold(true,true);tilt(0);setTimeout(()=>{if(y0==null){lv.classList.remove('on','back');ledHold(false)}},200)};hl.addEventListener('pointerup',end);hl.addEventListener('pointercancel',end)}catch(e){}
+  const end=e=>{if(y0==null)return;const tap=e&&e.type==='pointerup'&&!done&&performance.now()-(hl._t0||0)<400;y0=null;if(tap){done=true;tilt(1);levAct();setTimeout(()=>{if(y0==null){lv.classList.add('back');ledHold(true,true);tilt(0);setTimeout(()=>{if(y0==null){lv.classList.remove('on','back');ledHold(false)}},200)}},130);return}   /* 짧게 두드려도 한 번 당긴 것으로 침(휴대폰에서 작은 레버를 끌기 어려움) */
+   lv.classList.add('back');ledHold(true,true);tilt(0);setTimeout(()=>{if(y0==null){lv.classList.remove('on','back');ledHold(false)}},200)};hl.addEventListener('pointerup',end);hl.addEventListener('pointercancel',end)}catch(e){}
  try{const B_=LED_BOX.flower.c,f=document.createElement('img');f.id='qkFl';f.alt='';f.src='images/led_flower.webp?v=5';Object.assign(f.style,{left:B_[0]*100+'%',top:B_[1]*100+'%',width:B_[2]*100+'%',height:B_[3]*100+'%'});document.getElementById('frameImg').after(f);const bh_=document.getElementById('btnHole');if(bh_)document.getElementById('frameImg').after(bh_)}catch(e){}   // 구멍 그림은 꽃 그림보다 아래: 버튼이 내려가 드러난 틈도 꽃 구역과 같은 밝기
  /* 다크 모드의 번짐 색: 오른쪽 기둥 LED 의 지금 색·밝기를 따라감 */
  setInterval(()=>{if(q.light||H.classList.contains('mob'))return;try{const z=LED.z.right;if(!z)return;const off=B.classList.contains('noled'),a=off?.06:Math.max(.06,Math.min(.6,(z.lc||0)*.55+(z.lt||0)*.25)),h=z.q>=0?Math.floor(z.q/8):225,s_=z.q>=0?Math.round(40+(z.q%8)/7*55):35;const st=H.style;st.setProperty('--glh',h);st.setProperty('--gls',s_+'%');st.setProperty('--gla',a.toFixed(2))}catch(e){}},120)})();
