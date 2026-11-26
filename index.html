@@ -586,6 +586,8 @@ const REVIEW=[
  ['v498','(배포판) 실전모드 챌린지: 일반/챌린지 전환 · 닉네임(한글·영어·일본어 8자) · 100k·회전율30 고정 · 랭킹 창(수지 LIVE / 일격 / 생존) · 파산 시 영구 랭킹 등록 · 포기는 기록 안 됨',{url:'../999lite v.3/index.html'}],
  ['v499','(배포판) PC: 설정 창의 실전모드 버튼 제거 → 아이콘 줄 맨 앞 ¥ 버튼 · HYPER 설명 "진동 · LED 강화" · 손떨 커스텀 버튼을 제목과 같은 줄 오른쪽에',{url:'../999lite v.3/index.html'}],
  ['v500','(배포판) 챌린지 보완: 파산 기록은 서버에 닿을 때까지 보관 후 재전송 · 포기하면 실시간 랭킹에서 바로 빠짐 · 파산 결과 화면에 일격/생존 순위 표시 · 랭킹 창 20초마다 자동 갱신 · 일격/생존 탭에 내 최고 기록과 순위',{url:'../999lite v.3/index.html'}],
+ ['v517','(배포판 · PC) 영상을 다 받은 기기는 \'영상 미리 받기\' 버튼을 띄우지 않음: 받기를 끝낸 목록(영상 수 + 갱신 번호)을 기억해 두고 같으면 확인 없이 숨김. 영상이 새로 바뀌면 다시 보임',{url:'../999lite v.3/index.html'}],
+ ['v516','빌딩 분기(pre_building → 클라이맥스 야모리)를 드물게: 약 12,000회전에 1번 (전엔 일반 야모리와 같은 비중 + 긴 도입 당첨의 절반이 잘못 섞여 있었음). 신뢰도는 둘 다 실기 73% 그대로',{url:'../999lite v.3/index.html'}],
  ['v515','배틀 출현 빈도(희귀도) 조정 — 신뢰도는 실기 그대로: 西尾·月山·スクラッパー 각 약 900회전에 1번(셋 합쳐 약 300회전에 1번) · 클라이맥스 ヤモリ 약 2,000회전 · 어머니 약 10,000 · 카쿠자 약 13,000 · 아몬 약 27,000 · 전회전 약 66,000회전에 1번',{url:'../999lite v.3/index.html'}],
  ['v514','통상 배틀 리치를 실기(p-town) 신뢰도에 맞춤: 西尾 18% · 月山 13% · スクラッパー 12% · クライマックス ヤモリ 73% · 亜門 90%+ · 家族(어머니) 51% · 半赫者(카쿠자) 81% — 배틀별로 꽝 출현율을 역산. 부활(배틀 안 역전 영상 포함) 대당의 6% · 뒤늦은 역물 낙하 대당의 5% 따로 추첨(전엔 뒤늦은 낙하가 전부 부활로 바뀌어 0%, 부활 약 17%) · 손 낙하 신뢰도 72% 유지 · RUSH 瞬間決着ヤモリ 20% · 亜門決戦 70%. 당첨이 어느 배틀로 오는지 비중은 실기 미공개라 추정값',{url:'../999lite v.3/index.html'}],
  ['v513','(배포판 + 서버) 랭킹 서버 경량화: 1~30위만(인덱스로 30행만 읽음) · 목록은 서버가 1분간 재사용 · 기록이 늘었을 때만 쓰기 · 내 순위는 30위 안이면 순위, 밖이면 「30위 밖」(결과 카드도 같음) · 기록은 1분 간격 그대로',{url:'../999lite v.3/index.html'}],
@@ -1776,7 +1778,7 @@ async function pickBattle(tier,vwin,fB,fPre,rvOK){const av=[];for(const k of Obj
  else if(BTL[b].human){const st=[];for(const p of PRES)if(SEG[p.n+'_eye']&&await segsOK([p.n]))st.push(p);const sp=(fPre&&SEG[fPre+'_eye'])?{n:fPre}:st[Math.floor(Math.random()*st.length)];lead=(sp?[sp.n+'_eye']:[]).concat(['pre_street_human_4'])}
  return {b,tier,pre:lead,list:T[vwin?'win':'lose'],num,rv:vwin&&!!T.rv,bld:!!BTL[b].bld}}
 /* 당첨 중 각 배틀이 차지하는 비율(대당 기준): 전회전 · 긴 도입(항상 클라이맥스 야모리) 몫을 빼고 BWIN 비중대로 */
-function bWinFrac(){const fZ=SPEC.rushIn*ZEN.p,fLR=LATE_ALL+REV_ALL,fL=(1-fZ-fLR)*PRE_LONG.p,fB=1-fZ-fL,S=Object.values(BWIN).reduce((a,b)=>a+b,0),o={};for(const k in BWIN)o[k]=fB*BWIN[k]/S;const y=BWIN.yamori+BWIN.yamori_bld;o.yamori+=fL*BWIN.yamori/y;o.yamori_bld+=fL*BWIN.yamori_bld/y;return o}
+function bWinFrac(){const fZ=SPEC.rushIn*ZEN.p,fLR=LATE_ALL+REV_ALL,fL=(1-fZ-fLR)*PRE_LONG.p,fB=1-fZ-fL,S=Object.values(BWIN).reduce((a,b)=>a+b,0),o={};for(const k in BWIN)o[k]=fB*BWIN[k]/S;o.yamori+=fL;return o}
 const bLoseRate=k=>{const f=bWinFrac()[k]||0,r=BREL[k];return r>=1?0:f*(1-r)/r};   /* 꽝 회전 하나당(÷대당 확률) 그 배틀이 나오는 비율 */
 const bHandLose=()=>{const fZ=SPEC.rushIn*ZEN.p,fL=(1-fZ-LATE_ALL-REV_ALL)*PRE_LONG.p,fB=1-fZ-fL,hw=fL+fB*B_HAND_WIN,ls=Object.keys(BREL).reduce((a,k)=>a+bLoseRate(k),0);return Math.max(0,Math.min(1,hw*(1-HAND_REL_ALL)/HAND_REL_ALL/ls))};
 const bHas=async(k,t,w)=>{const T=BTL[k]&&BTL[k][t],l=T&&T[w];return !!l&&await segsOK(l.concat(BTL[k].pre||[],BTL[k].human?['pre_street_human_4']:[],BTL[k].bld?['pre_street_weak']:[]))};
@@ -1929,7 +1931,7 @@ const LATE=Object.assign({j0:.7,j1:14.07},TUNE.consts.LATE);   // judge_tail_los
 const REVIVAL=0.06; // 당첨 중 부활 연출 비율(추정)
 // ── 실기 신뢰도(p-town)에 맞춘 통상 배틀 리치 ──  rel: 실기 신뢰도 / win: 당첨이 그 배틀로 오는 비중(실기 미공개 → 추정, 상대 비율)
 // 꽝일 때 각 배틀이 나오는 비율은 rel 이 맞도록 자동 계산. 부활(대당의 6%)·뒤늦은 역물 낙하(대당의 5%)는 서로 따로 뽑음(둘 다 실기 미공개 → 추정)
-const BREL={nishio:.18,tsukiyama:.13,scrapper:.12,yamori:.73,yamori_bld:.73,kakuza:.81,mother:.51,amon:.92},BWIN={nishio:.200,tsukiyama:.144,scrapper:.133,mother:.050,kakuza:.060,yamori:.048,yamori_bld:.048,amon:.040};   /* 체감: 통상 배틀(西尾·月山·スクラッパー)은 흔하게(셋 합쳐 약 300회전에 1번), 인간(어머니·아몬)·카쿠자는 드물게, 전회전은 아주 드물게 */
+const BREL={nishio:.18,tsukiyama:.13,scrapper:.12,yamori:.73,yamori_bld:.73,kakuza:.81,mother:.51,amon:.92},BWIN={nishio:.200,tsukiyama:.144,scrapper:.133,mother:.050,kakuza:.060,yamori:.035,yamori_bld:.061,amon:.040};   /* 체감: 통상 배틀(西尾·月山·スクラッパー)은 흔하게(셋 합쳐 약 300회전에 1번), 인간(어머니·아몬)·카쿠자·빌딩 분기는 드물게, 전회전은 아주 드물게. 긴 도입(병실)은 항상 일반 야모리 */
 const REV_ALL=.06,LATE_ALL=.05,KFAIL_LOSE=.03,B_HAND_WIN=.54,HAND_REL_ALL=.72;
 const ZEN={src:'videos/zenkaiten.mp4',p:.03};   // 전회전 출현: 7500+RUSH 당첨의 3% (사용자 지정)
 const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182,d:3.3},TUNE.consts.B75),DIRECT_7500=0.125,DIRECT_REV=1;   // 부활 연출 뒤에는 항상 3000 → 즉시 7500 (그래서 부활은 7500+RUSH 당첨에서만 나옴)
@@ -2543,7 +2545,8 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
  try{const UPD=[[465,['st2_deadrize_win','st3_deadrize_fail','pre_yamori_body']],[468,['direct7500','pre_building']],[476,['st_win_tsukiyama','st_zenkaiten','zenkaiten']]],uk='g999up:'+location.pathname,un=+(localStorage.getItem(uk)||0),nw=UPD.filter(x=>x[0]>un);
   if(nw.length){const c=await caches.open(CN),del=new Set([].concat(...nw.map(x=>x[1])));for(const k of await c.keys()){const m=/\/([^/]+)\.(mp4|m3u8)$/.exec(k.url.split('?')[0]);if(m&&del.has(m[1]))await c.delete(k)}
    localStorage.setItem(uk,String(Math.max(...UPD.map(x=>x[0]))))}}catch(e){}
- if(!mobile){try{await ready;const c=await caches.open(CN);let miss=0;for(const f of all())if(!(await c.match(absU(f)))){try{const r=await fetch(f,{method:'HEAD',cache:'no-store'});if(r.ok)miss++}catch(e){}}
+ const dlSig=()=>all().length+':'+((()=>{try{return localStorage.getItem('g999up:'+location.pathname)||''}catch(e){return ''}})()),dlK='g999dlDone:'+location.pathname,dlDone=()=>{try{return localStorage.getItem(dlK)===dlSig()}catch(e){return false}};
+ if(!mobile){try{await ready;const c=await caches.open(CN);let miss=0;if(dlDone())return;for(const f of all())if(!(await c.match(absU(f)))){try{const r=await fetch(f,{method:'HEAD',cache:'no-store'});if(r.ok)miss++}catch(e){}}
    if(miss){pcBtn=document.createElement('button');pcBtn.className='wide';pcBtn.id='wDl';pcBtn.textContent='⬇ 영상 미리 받기';pcBtn.title='영상을 전부 받아 두면 끊김 없이 재생돼요';q('wA').querySelector('.bd').appendChild(pcBtn);
     pcBtn.onclick=()=>{pcBtn.blur();if(typeof busy!=='undefined'&&busy)return;q('dlSkip').textContent='취소';box.classList.add('on');run()};if(!seen&&await notice()){q('dlSkip').textContent='취소';run()}}}catch(e){}return}
  if(!seen&&!(await notice()))return;
@@ -2557,7 +2560,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
   // 아직 안 받은 파일과 전체 크기 확인
   const need=[];let total=0,got=0,fail=0;
   await Promise.all(files.map(async f=>{if(await cache.match(abs(f)))return;try{const r=await fetch(f,{method:'HEAD',cache:'no-store'});if(!r.ok)return;const n=+r.headers.get('content-length')||0;total+=n;need.push([f,n])}catch(e){}}));
-  if(!need.length){if(pcBtn){pcBtn.remove();pcBtn=null}done();return}
+  if(!need.length){try{localStorage.setItem(dlK,dlSig())}catch(e){}if(pcBtn){pcBtn.remove();pcBtn=null}done();return}
   const paint=()=>{bar.style.width=(total?Math.min(100,got/total*100):0)+'%';txt.textContent=mb(got)+' / '+mb(total)+' MB'};paint();
   // 받는 대로 저장소에 바로 흘려 넣음(메모리에 쌓지 않음). 진행률은 같은 흐름을 한 갈래 더 읽어서 셈
   const acs=new Set();q('dlSkip').onclick=()=>{stop=true;acs.forEach(a=>a.abort());done()};
@@ -2568,7 +2571,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
    if(!stop)fail++};
   need.sort((a,b)=>a[1]-b[1]);let i=0;await Promise.all([0,1].map(async()=>{while(i<need.length&&!stop){await one(need[i++])}}));
   if(stop)return;
-  if(fail){q('dlMsg').innerHTML='받지 못한 파일이 '+fail+'개 있어요. 그 영상은 재생할 때 내려받아요.<br>저장 공간이나 연결 상태를 확인해 주세요.'}else{q('dlMsg').innerHTML='모두 받았어요.';if(pcBtn){pcBtn.remove();pcBtn=null}}
+  if(fail){q('dlMsg').innerHTML='받지 못한 파일이 '+fail+'개 있어요. 그 영상은 재생할 때 내려받아요.<br>저장 공간이나 연결 상태를 확인해 주세요.'}else{q('dlMsg').innerHTML='모두 받았어요.';try{localStorage.setItem(dlK,dlSig())}catch(e){}if(pcBtn){pcBtn.remove();pcBtn=null}}
   txt.textContent=mb(got)+' / '+mb(total)+' MB';q('dlGo').style.display='';q('dlSkip').style.display='none';
  }catch(e){q('dlMsg').innerHTML='미리 받기를 쓸 수 없어서 바로 시작해요.';setTimeout(done,1200)}
  }
