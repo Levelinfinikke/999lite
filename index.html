@@ -524,6 +524,9 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
+ ['v455','이어 붙이기 재생(휴대폰): 「영상 불러오는 중…」 때 SKIP 을 누르면 화면이 멈추던 문제 — 재생이 0.9초 넘게 멈추면 그 자리 데이터를 다시 받거나 살짝 다시 찾아가 깨움. 찾아가기가 2초 넘게 안 끝나도 다시 시도',{}],
+ ['v454','이어 붙이기 재생: 휴대폰에서 통상 → 첫 연출(손떨 등)까지 8초 가까이 「영상 불러오는 중…」이던 문제 — 사파리에서 버퍼 시작이 0.02초 늦어 준비 확인이 4초 대기 끝까지 기다리던 것을 고침. 주소 끝 ?debug 로 「MSE 시작 ○○ms」 확인 가능',{}],
+ ['v453','실전모드(배포판에서 확인): 자금 소진 · 포기 · 묻더 종료 결과 화면에는 「묻고 더블로 가!」 버튼이 보이지 않음 (목표 달성 때만)',{}],
  ['v452','이어 붙이기 재생: 첫 연출 시작이 느리던 문제 — 페이지를 열면 재생기 · 영상 묶음 · 모든 영상의 조각 목록을 미리 준비하고, 처음 받는 양을 2조각(0.66초)으로 줄여 바로 시작. SKIP 으로 통상을 넘길 때 「영상 불러오는 중…」이 짧아졌는지',{}],
  ['v451','추가 3000 의 레버블 업 · 임팩트 플래시: 당첨 영상이 시작되는 순간 3초 전 ~ 직전 사이에 고르게 발동 (꽝의 흰색은 판정 영상 끝 3초 전 ~ 끝). 실패 화면 도중 역전은 그 당첨 영상 시작 기준',{}],
  ['v450','JUDGEMENT(모드 1)의 레버블 업 · 임팩트 플래시: 버튼 조작(judge_ready 의 버튼) 7초 전 ~ 버튼 직전 사이에 고르게 발동 (모드 선택 화면의 룰렛 버튼은 기준이 아님). 버튼이 없는 브레이크 모드는 예전처럼 역물 낙하 5초 전까지',{e:'Judgement ─ 브레이크: 남은 2초에 성공'}],
@@ -1003,6 +1006,8 @@ const MXP=(()=>{
  const sbDo=f=>new Promise((res,rej)=>{const ok=()=>{off();res()},er=()=>{off();rej(new Error('append'))},off=()=>{sb.removeEventListener('updateend',ok);sb.removeEventListener('error',er)};
   sb.addEventListener('updateend',ok);sb.addEventListener('error',er);try{f()}catch(e){off();rej(e)}});
  const isBuf=x=>{try{const b=sb.buffered;for(let i=0;i<b.length;i++)if(x>=b.start(i)&&x<b.end(i))return true}catch(e){}return false};
+ // x 바로 뒤(0.15초 안)에서 시작하는 버퍼가 있으면 그 시작 시각. 사파리는 첫 영상 프레임이 0.02초쯤 늦게 시작해 x 자체는 버퍼 밖일 수 있음
+ const bufAt=x=>{try{const b=sb.buffered;for(let i=0;i<b.length;i++)if(b.start(i)<=x+.15&&b.end(i)>x+.05)return Math.max(x,b.start(i))}catch(e){}return null};
  const bufEnd=()=>{try{const b=sb.buffered;return b.length?b.end(b.length-1):0}catch(e){return 0}};
  const rm=(a,b)=>op(async()=>{const e=Math.min(b,ms&&isFinite(ms.duration)?ms.duration:b);if(e-a>.001)await sbDo(()=>sb.remove(a,e))});
  // 조각(piece): 파일 하나의 쓰는 구간. off = 버퍼 시각 - 파일 시각. join = 버퍼에서 시작하는 시각
@@ -1031,16 +1036,22 @@ const MXP=(()=>{
      if(ib){await sbDo(()=>sb.appendBuffer(ib));lastInit=P.n}
      try{await sbDo(()=>sb.appendBuffer(data))}catch(e){if(e.name!=='QuotaExceededError')throw e;await sbDo(()=>sb.remove(0,Math.max(.1,v.currentTime-2)));await sbDo(()=>sb.appendBuffer(data))}})}
    else{const t=v.currentTime;let b0=0;try{b0=sb.buffered.length?sb.buffered.start(0):0}catch(e){}if(b0<t-30)await rm(0,t-20);
-    if(!cur&&q&&!q.primed&&v.paused&&isBuf(q.off+q.fs+.02)){q.primed=true;try{v.currentTime=q.off+q.fs}catch(e){}}}}   // 다른 화면이 재생 중: 다음 조각의 첫 장면을 미리 찾아 둠
+    if(!cur&&q&&!q.primed&&v.paused&&bufAt(q.off+q.fs)!=null){q.primed=true;try{v.currentTime=Math.min(q.off+q.fs+.15,bufAt(q.off+q.fs))}catch(e){}}}}   // 다른 화면이 재생 중: 다음 조각의 첫 장면을 미리 찾아 둠
   catch(e){fail(e)}finally{busy=false}if(did)setTimeout(pump,0)};
- setInterval(pump,150);v.addEventListener('seeking',()=>setTimeout(pump,0));v.addEventListener('waiting',()=>setTimeout(pump,0));
- const waitBuf=(x,ms_)=>new Promise(r=>{const t0=performance.now(),k=setInterval(()=>{if(isBuf(x)||performance.now()-t0>ms_||!M.on){clearInterval(k);r(isBuf(x))}},20);pump()});
+ setInterval(pump,150);
+ // 멈춤 감시: 재생 중인데 0.9초 넘게 시각이 그대로면 → 그 자리 데이터가 없으면 다시 받고(붙인 기록 지움), 있으면 살짝 다시 찾아가 깨움. 찾아가는 중이 2초 넘게 안 끝나도 다시 찾아감
+ {let lt=-1,lm=0,sk=0,nudge=0;setInterval(()=>{if(!M.on||!cur||window.__hold){lm=0;return}const now=performance.now(),t=v.currentTime;
+  if(v.seeking){if(!sk)sk=now;else if(now-sk>2000){sk=now;const b=bufAt(t);if(b!=null){try{v.currentTime=b+.001}catch(e){}}else{cur.app.clear();pump()}dbg('MSE 찾기 다시 '+t.toFixed(2))}return}sk=0;
+  if(v.paused||t>=cur.end-.06){lm=0;return}
+  if(Math.abs(t-lt)>.001){lt=t;lm=now;nudge=0;return}if(!lm){lm=now;return}
+  if(now-lm>900){lm=now;const b=bufAt(t);if(b==null){cur.app.clear();if(q)q.app.clear();pump();dbg('MSE 데이터 다시 받기 '+t.toFixed(2))}else if(nudge++<4){try{v.currentTime=b+.001}catch(e){}dbg('MSE 깨우기 '+t.toFixed(2))}}},250)}v.addEventListener('seeking',()=>setTimeout(pump,0));v.addEventListener('waiting',()=>setTimeout(pump,0));
+ const waitBuf=(x,ms_)=>new Promise(r=>{const t0=performance.now(),k=setInterval(()=>{const h=bufAt(x)!=null;if(h||performance.now()-t0>ms_||!M.on){clearInterval(k);r(h)}},20);pump()});
  // 다음 영상 예약: 지금 조각 끝에 바로 이어 붙임 (지금 조각이 없으면 따로 떨어진 자리에 받아 첫 장면까지 찾아 둠)
  M.queue=async nx=>{if(!M.on)return false;const n=cname(nx.src),ix=await idx(n);if(!ix)return false;await open();
   const gF=geo(nx.src,ix),fs=Math.max(0,gF.base+(nx.from!=null?nx.from:gF.tin));
   if(q&&q.n===n&&Math.abs(q.fs-fs)<.02)return true;dropQ();
   q=mk(n,ix,fs,cur&&isFinite(cur.end)?cur.end:coldJoin());pump();return true};
- M.seam=()=>!!(cur&&q&&Math.abs(q.join-cur.end)<1e-6&&isBuf(q.join+.04));
+ M.seam=()=>!!(cur&&q&&Math.abs(q.join-cur.end)<1e-6&&bufAt(q.join)!=null);
  M.linked=()=>!!(cur&&q&&Math.abs(q.join-cur.end)<1e-6);   // 다음 조각이 바로 뒤에 예약돼 있음(아직 다 안 받았어도)
  M.ready=()=>!!(cur&&isBuf(Math.min(v.currentTime+.3,cur.end-.02)));
  M.start=async(src,opt)=>{if(!M.on)return null;const n=cname(src),ix=await idx(n);if(!ix)return null;try{await open()}catch(e){return null}
@@ -1051,10 +1062,10 @@ const MXP=(()=>{
   if(bufEnd()>P.end+.02&&P.end>v.currentTime)rm(P.end,1e9);
   cur=P;const t0=P.off+fs,ct=v.currentTime;
   const flow=!v.paused&&ct>=P.join-.35&&ct<P.join+.5;   // 앞 조각에서 흘러 들어오는 중: 아무것도 하지 않음
-  M.log.push([n,flow?'flow':'seek',+(ct-P.join).toFixed(3),v.paused?1:0]);if(M.log.length>60)M.log.shift();dbg('MSE '+n+' '+(flow?'flow':'seek')+' '+(ct-P.join).toFixed(2));
-  if(!flow){const ok=await waitBuf(t0+.02,4000);if(!ok&&!M.on)return null;
-   if(Math.abs(v.currentTime-t0)>.01||v.readyState<3)await new Promise(r=>{const k=setTimeout(r,1500);v.addEventListener('seeked',()=>{clearTimeout(k);r()},{once:true});try{v.currentTime=t0}catch(e){clearTimeout(k);r()}})}
-  pump();const base=P.off+gF.base;return {g:Object.assign({},gF,{base,min:P.join-base,fend:P.off+ix.end}),t0,t1:P.end}};
+  M.log.push([n,flow?'flow':'seek',+(ct-P.join).toFixed(3),v.paused?1:0]);const T0s=performance.now();if(M.log.length>60)M.log.shift();dbg('MSE '+n+' '+(flow?'flow':'seek')+' '+(ct-P.join).toFixed(2));
+  if(!flow){const ok=await waitBuf(t0,4000);if(!ok&&!M.on)return null;const s0=Math.min(t0+.15,bufAt(t0)||t0);   /* 버퍼가 실제로 시작하는 곳(t0 바로 뒤)으로 찾아감 */
+   if(Math.abs(v.currentTime-s0)>.01||v.readyState<3)await new Promise(r=>{const k=setTimeout(r,1500);v.addEventListener('seeked',()=>{clearTimeout(k);r()},{once:true});try{v.currentTime=s0}catch(e){clearTimeout(k);r()}})}
+  if(!flow)dbg('MSE 시작 '+n+' '+Math.round(performance.now()-T0s)+'ms');pump();const base=P.off+gF.base;return {g:Object.assign({},gF,{base,min:P.join-base,fend:P.off+ix.end}),t0,t1:P.end}};
  // 이어지는 영상이 900ms 안에 시작되지 않으면(다른 분기로 감) 멈추고 숨김
  M.ended=()=>{const P=cur;guardT=setTimeout(()=>{if(cur===P&&v.currentTime>P.end){v.pause();v.style.display='none'}},900)};
  M.leave=()=>{clearTimeout(guardT);cur=null;try{v.pause()}catch(e){}v.style.display='none'};
@@ -2515,7 +2526,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 .rbox button.go{flex:1;height:38px;padding:0;background:linear-gradient(180deg,#e01b2c,#8a0b15);border-color:#ff5364;color:#fff;font-size:13px;letter-spacing:.08em}
 .rbox .note{margin:8px 0 0;color:#a8868b;font-size:11.5px;line-height:1.5}
 #rRes .hb{width:min(96vw,560px)}#rRes h3{font-size:20px;text-align:center;letter-spacing:.2em}#rRes h3.win{color:#ffd76a}#rRes h3.lose{color:#ff5364}
-#rRes #rDouble{display:block;width:100%;margin-top:8px;height:46px;font-size:16px;letter-spacing:.06em;background:linear-gradient(180deg,#ffcf4a,#d9860f);border-color:#ffe6a0;color:#2a1500}#rRes #rDoubleN{margin:6px 0 0;text-align:center;font-size:12px;color:#c9b48a}
+#rRes #rDouble{display:block;width:100%;margin-top:8px;height:46px;font-size:16px;letter-spacing:.06em;background:linear-gradient(180deg,#ffcf4a,#d9860f);border-color:#ffe6a0;color:#2a1500}#rRes #rDoubleN{margin:6px 0 0;text-align:center;font-size:12px;color:#c9b48a}#rRes #rDouble[hidden],#rRes #rDoubleN[hidden]{display:none}
 #rRes canvas{display:block;width:100%;height:auto;background:#0a0506;border:1px solid #3a1c22}
 #rRes ul{margin:10px 0 0;padding:0;list-style:none}#rRes li{display:flex;justify-content:space-between;gap:10px;padding:5px 2px;border-top:1px solid #3a1c22}#rRes li span{color:#ffd08a;font-weight:700;white-space:nowrap}#rRes li b{font-weight:600;text-align:right}
 #rToast{position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:310;padding:10px 26px;background:rgba(20,6,9,.92);border:1px solid #ff5364;color:#fff;font:900 22px/1.2 "Noto Serif KR",Georgia,serif;letter-spacing:.2em;pointer-events:none;opacity:0;transition:opacity .4s}#rToast.on{opacity:1}
