@@ -586,6 +586,7 @@ const REVIEW=[
  ['v498','(배포판) 실전모드 챌린지: 일반/챌린지 전환 · 닉네임(한글·영어·일본어 8자) · 100k·회전율30 고정 · 랭킹 창(수지 LIVE / 일격 / 생존) · 파산 시 영구 랭킹 등록 · 포기는 기록 안 됨',{url:'../999lite v.3/index.html'}],
  ['v499','(배포판) PC: 설정 창의 실전모드 버튼 제거 → 아이콘 줄 맨 앞 ¥ 버튼 · HYPER 설명 "진동 · LED 강화" · 손떨 커스텀 버튼을 제목과 같은 줄 오른쪽에',{url:'../999lite v.3/index.html'}],
  ['v500','(배포판) 챌린지 보완: 파산 기록은 서버에 닿을 때까지 보관 후 재전송 · 포기하면 실시간 랭킹에서 바로 빠짐 · 파산 결과 화면에 일격/생존 순위 표시 · 랭킹 창 20초마다 자동 갱신 · 일격/생존 탭에 내 최고 기록과 순위',{url:'../999lite v.3/index.html'}],
+ ['v513','(배포판 + 서버) 랭킹 서버 경량화: 1~30위만(인덱스로 30행만 읽음) · 목록은 서버가 1분간 재사용 · 기록이 늘었을 때만 쓰기 · 내 순위는 30위 안이면 순위, 밖이면 「30위 밖」(결과 카드도 같음) · 기록은 1분 간격 그대로',{url:'../999lite v.3/index.html'}],
  ['v512','(배포판 · PC) 챌린지 중 챌린지 버튼: 왕관 · DAY · 현재 자금만 ("· 챌린지" 글자 뺌)',{url:'../999lite v.3/index.html'}],
  ['v511','(배포판) 랭킹 1시간 간격 제거: 챌린지 중 기록이 바뀌면 1분마다 올림(화면을 보고 있을 때) · 왕관을 눌러 랭킹을 열면 내 현재 기록을 먼저 올리고 최신 랭킹을 불러옴',{url:'../999lite v.3/index.html'}],
  ['v510','(배포판 · 휴대폰) 아래 막대에서 왕관 왼쪽의 랭킹(시상대) 버튼 제거 — 왕관(챌린지) 버튼이 랭킹을 엶',{url:'../999lite v.3/index.html'}],
@@ -2878,6 +2879,8 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  const lsJ=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||'null')??d}catch(e){return d}},lsS=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
  const rid=()=>{let s='';const a='abcdefghijklmnopqrstuvwxyz0123456789';const v=new Uint8Array(20);crypto.getRandomValues(v);for(const x of v)s+=a[x%36];return s};
  let DEV=lsJ('g999Dev','');if(!/^[a-z0-9]{12,32}$/.test(DEV)){DEV=rid();lsS('g999Dev',DEV)}
+ let MYH='';try{crypto.subtle.digest('SHA-256',new TextEncoder().encode(DEV)).then(b=>{MYH=[...new Uint8Array(b)].slice(0,5).map(x=>x.toString(16).padStart(2,'0')).join('')})}catch(e){}
+ const myRank=(d,k)=>{const i=(d[k]||[]).findIndex(r=>r.h===MYH);return i>=0?i+1:0};
  const myNick=()=>{try{return localStorage.getItem('g999Nick')||''}catch(e){return ''}},nickT=()=>+lsJ('g999NickT',0)||0;
  const postJ=(path,o)=>fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o),keepalive:true}).then(r=>r.json()).catch(()=>null);
  /* 기록 보내기: 보낼 값을 보관(랭킹별 최댓값)했다가 서버가 받으면 지움 */
@@ -2906,11 +2909,11 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
   q('rRankGo').textContent=R.on?'계속하기':'챌린지 도전';q('rRankQ').hidden=!R.on;
   if(!RD){L.innerHTML='<p>…</p>';return}if(RD.err){L.innerHTML='<p>연결 실패</p>';return}
   const a=RD[RT]||[];
-  a.slice(0,3).forEach((r,i)=>{const d=el('div','k'+(i+1));d.innerHTML=CR;if(r.m)d.classList.add('me');d.append(el('b','',r.n),el('em','',fmt(r.v)));P.appendChild(d)});
+  a.slice(0,3).forEach((r,i)=>{const d=el('div','k'+(i+1));d.innerHTML=CR;if(r.h===MYH)d.classList.add('me');d.append(el('b','',r.n),el('em','',fmt(r.v)));P.appendChild(d)});
   if(P.children.length>1)P.insertBefore(P.children[1],P.children[0]);
-  a.slice(3).forEach((r,k)=>{const li=el('li',r.m?'me':'');li.append(el('i','',k+4),el('b','',r.n),el('span','',fmt(r.v)));L.appendChild(li)});
+  a.slice(3).forEach((r,k)=>{const li=el('li',r.h===MYH?'me':'');li.append(el('i','',k+4),el('b','',r.n),el('span','',fmt(r.v)));L.appendChild(li)});
   if(!a.length)L.innerHTML='<p>-</p>';
-  const X=RD.me&&RD.me[RT];if(X)M.innerHTML='<b>'+(RD.me.nick||'').replace(/[<&]/g,'')+'</b> · '+fmt(X.v)+' · <b>'+X.r+'위</b> <u>/ '+X.t+'</u>'};
+  const X=RD.me&&RD.me[RT];if(X){const k=myRank(RD,RT);M.innerHTML='<b>'+(RD.me.nick||'').replace(/[<&]/g,'')+'</b> · '+fmt(X)+' · '+(k?'<b>'+k+'위</b>':'<u>30위 밖</u>')}};
  const loadRank=()=>{RD=null;paintRank();Promise.resolve(R.on&&R.ch?rec():0).then(()=>fetch(API+'/rank?id='+DEV,{cache:'no-store'})).then(r=>r.json()).then(d=>{RD=d;paintRank()}).catch(()=>{RD={err:1};paintRank()})};
  const openRank=()=>{q('rSet').hidden=true;q('rRank').hidden=false;rqArm=0;q('rRankQ').textContent='포기하기';q('rRankQ').classList.remove('arm');loadRank()};let rqArm=0;
  q('rRankQ').onclick=()=>{const b=q('rRankQ');b.blur();if(!R.on)return;if(!rqArm){rqArm=1;b.textContent='한 번 더 누르면 포기';b.classList.add('arm');return}if(busy||S.mode!=='normal'){b.textContent='연출 뒤에 가능';return}q('rRank').hidden=true;finish('quit')};window.openRank=openRank;addEventListener('keydown',e=>{if(e.key==='Escape'&&!q('rRank').hidden)q('rRank').hidden=true});
@@ -2919,7 +2922,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  q('rRankT').querySelectorAll('button').forEach(b=>b.onclick=()=>{b.blur();RT=b.dataset.v;paintRank()});
  q('rRankX').onclick=()=>{q('rRank').hidden=true};q('rRank').addEventListener('pointerdown',e=>{if(e.target===q('rRank'))q('rRank').hidden=true});
  /* 챌린지가 끝나면(파산 · 포기) 항상 등재 */
- const showRanks=()=>{fetch(API+'/rank?id='+DEV,{cache:'no-store'}).then(r=>r.json()).then(d=>{const m=d.me;if(!m)return;[['rsPr','prof'],['rsIr','ichi'],['rsSr','spins']].forEach(([e,k])=>{q(e).textContent=m[k]?m[k].r+'위':''})}).catch(()=>{})};
+ const showRanks=()=>{fetch(API+'/rank?id='+DEV,{cache:'no-store'}).then(r=>r.json()).then(d=>{const m=d.me;if(!m)return;[['rsPr','prof'],['rsIr','ichi'],['rsSr','spins']].forEach(([e,k])=>{const n=myRank(d,k);q(e).textContent=m[k]?(n?n+'위':'30위 밖'):''})}).catch(()=>{})};
  /* ── 설정 창 ── */
  let wpT=0;const calcWp=()=>{clearTimeout(wpT);wpT=setTimeout(()=>{const f=+q('rFund').value*1000,g=+q('rGoal').value*1000,r=+q('rRate').value;if(!(f>0&&g>f&&r>=5&&r<=60)){q('rWp').textContent='-';return}q('rWp').textContent=(winProb(f,g,r,6000)*100).toFixed(1)+'%'},150)};
  ['rFund','rGoal','rRate'].forEach(i=>q(i).addEventListener('input',()=>{fit(q(i));calcWp()}));
