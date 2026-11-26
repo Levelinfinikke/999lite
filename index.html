@@ -335,7 +335,7 @@ body{box-sizing:border-box;padding-top:env(safe-area-inset-top)!important}
 #mBar.vert #mIn button{width:42px!important;padding:0!important}
 #mIn button svg{height:14px;width:auto;display:block}
 #mIn button.on{color:#fff!important;background:rgba(57,194,255,.42)!important}
-#mYen.sel{color:#ffd27a!important;background:rgba(255,190,60,.2)!important}#mAuto.sel{color:#ff3044!important;background:rgba(255,48,68,.18)!important}
+#mYen{color:#ffd76a!important}#mYen.sel{color:#ffd27a!important;background:rgba(255,190,60,.2)!important}#mAuto.sel{color:#ff3044!important;background:rgba(255,48,68,.18)!important}
 #mAutoX{font:800 9px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;font-style:normal;letter-spacing:.02em;color:#ff5364}#mAutoX:empty{display:none}
 #mBar.vert #mAuto{flex-direction:column;gap:1px;height:auto!important;min-height:26px;padding:3px 0!important}
 #mIn #mFold{min-width:18px;padding:0 4px!important;background:rgba(255,255,255,.07)!important}
@@ -586,6 +586,15 @@ const REVIEW=[
  ['v498','(배포판) 실전모드 챌린지: 일반/챌린지 전환 · 닉네임(한글·영어·일본어 8자) · 100k·회전율30 고정 · 랭킹 창(수지 LIVE / 일격 / 생존) · 파산 시 영구 랭킹 등록 · 포기는 기록 안 됨',{url:'../999lite v.3/index.html'}],
  ['v499','(배포판) PC: 설정 창의 실전모드 버튼 제거 → 아이콘 줄 맨 앞 ¥ 버튼 · HYPER 설명 "진동 · LED 강화" · 손떨 커스텀 버튼을 제목과 같은 줄 오른쪽에',{url:'../999lite v.3/index.html'}],
  ['v500','(배포판) 챌린지 보완: 파산 기록은 서버에 닿을 때까지 보관 후 재전송 · 포기하면 실시간 랭킹에서 바로 빠짐 · 파산 결과 화면에 일격/생존 순위 표시 · 랭킹 창 20초마다 자동 갱신 · 일격/생존 탭에 내 최고 기록과 순위',{url:'../999lite v.3/index.html'}],
+ ['v509','(배포판) 챌린지가 끝나면(파산 · 포기) 묻지 않고 항상 랭킹 등재 → 결과 카드에 순위 · 닉네임 없이 시작하면 랜덤 닉네임(예: 배고픈구울)을 정해 줌 (이후 변경 가능)',{url:'../999lite v.3/index.html'}],
+ ['v507','(배포판) 챌린지 버튼(PC 왕관 버튼 · 휴대폰 막대 왕관) → 랭킹 창부터 열림. 진행 전엔 「챌린지 도전」(닉네임·시작 창, 취소하면 랭킹으로), 진행 중엔 「포기하기(두 번)」·「계속하기」. 따로 있던 랭킹 버튼 · 챌린지 창의 1위 배너 · 랭킹 버튼 제거',{url:'../999lite v.3/index.html'}],
+ ['v508','(배포판) 결과 화면 간소화: 최대 수익 · 최대 일격 · 최장 생존 카드(등재 후 순위) · 그래프 · 한 줄(DAY · 당첨) · 등재 확인 · [랭킹][다시 도전] · 오른쪽 위 ✕. 최종 자금 · 최대 수익/손실 시점 · 운 · 평균 결과 줄 제거',{url:'../999lite v.3/index.html'}],
+ ['v505','(배포판) 랭킹 개편: 최대 수익(고점) · 최대 일격 · 최장 생존 3개, 전부 진행 중 기록 포함 · 챌린지 중 1시간마다 자동 등재 · 기기당 랭킹별 최고 기록 1개 · 파산 시 「랭킹에 등재할까요?」(한 번 동의하면 다음부터 자동) · 등재 후 순위 표시',{url:'../999lite v.3/index.html'}],
+ ['v506','(배포판) 챌린지 창: 닉네임 입력/변경(이 기기에 기억, 처음 정한 뒤 한 번 바꾸면 24시간 쿨타임, 남은 시간 표시) · 상단에 랭킹별 1위 · 설명 문구 제거 · 실전모드 ¥ 아이콘 → 왕관, 랭킹 버튼은 시상대 아이콘',{url:'../999lite v.3/index.html'}],
+ ['v502','(배포판) 실전모드 → 챌린지로 이름 변경 · 목표/자금/회전율 설정 · 일반 모드 제거(챌린지만) · 진행 중이던 예전 실전모드는 조용히 종료 · 결과 그래프에서 목표선 제거',{url:'../999lite v.3/index.html'}],
+ ['v503','(배포판) 랭킹 창 새 디자인: 왕관 헤더 · 1~3위 금/은/동 왕관 시상대 · 내 최고 기록과 순위 · 30위 컷(또는 빈 자리 수) · 챌린지 도전/계속하기 버튼 · ✕ · Esc 로 닫기 · 첫 탭은 일격',{url:'../999lite v.3/index.html'}],
+ ['v504','(배포판) 랭킹 접근성: PC 챌린지 버튼 옆 왕관 버튼 · 휴대폰 아래 막대 ¥ 왼쪽 왕관 버튼 · 챌린지 창 맨 위 「현재 1위」 배너(누르면 랭킹) · 파산 결과에 랭킹 등재 왕관 표시 · 도움말 탭 이름/설명 챌린지로',{url:'../999lite v.3/index.html'}],
+ ['v501','(배포판) PC: 설정 위젯에 실전모드 버튼 복귀(¥ 아이콘 포함, 진행 중엔 DAY·잔액, 챌린지는 "챌린지" 표시) · 아이콘 줄의 ¥ 버튼은 제거 · 휴대폰은 그대로 하단 ¥',{url:'../999lite v.3/index.html'}],
  ['v496','(배포판 · 휴대폰) 꺼내기 버튼 없앰. 통계 · 그래프 창을 손가락으로 끌면 창이 닫히고 작은 위젯으로 딸려 나옴(크게 시작해서 작아짐), 놓은 자리에 남음. 막대의 그 버튼을 다시 누르면 작은 위젯은 들어가고 창이 열림',{url:'../999lite v.3/index.html'}],
  ['v494','(배포판 · 휴대폰) 막대의 ▶ AUTO 왼쪽에 엔화(¥) 버튼 = 실전모드 (진행 중이면 노란색). 설정 위젯에서 실전모드 버튼 뺌 · 실전모드 입력칸의 숫자 뒤 작은 상자 없앰 · 통계 꺼내기 · 그래프 꺼내기 버튼 크기 같게',{url:'../999lite v.3/index.html'}],
  ['v493','(배포판) 패치노트에 11월 27일 패치 추가(짧게) · 조작법에 휴대폰 아래 막대 설명 · ? · 실전모드 · 커스텀 창과 알림을 같은 반투명 둥근 디자인으로 · 기록 초기화는 두 번 눌러야 실행 · 실전모드 중 화면 왼쪽 아래에 DAY · 잔액(k)',{url:'../999lite v.3/index.html'}],
@@ -2482,7 +2491,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
 </div></div>
 </div></div>
 </div>
-<div id="mBar"><div id="mIn"><button id="mFold" title="접기 / 펼치기"><b></b></button><div id="mBtns"><button id="mPlay" title="설정"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><g transform="translate(12 12)"><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(0)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(45)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(90)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(135)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(180)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(225)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(270)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(315)"/></g><path fill-rule="evenodd" d="M12 4.6a7.4 7.4 0 1 0 0 14.8a7.4 7.4 0 1 0 0-14.8zM12 8.9a3.1 3.1 0 1 1 0 6.2a3.1 3.1 0 1 1 0-6.2z"/></svg></button><button id="mStat" title="당첨 횟수 · 히스토리"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="12.5" width="4.4" height="8" rx="1.2"/><rect x="9.8" y="7.5" width="4.4" height="13" rx="1.2"/><rect x="16.1" y="3.5" width="4.4" height="17" rx="1.2"/></svg></button><button id="mRec" title="수지 그래프"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 3.5v17h17"/><path d="M7 15.5l4-4.5 3.2 3 5.3-6.5"/></svg></button><button id="mYen" title="실전모드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 3.5l6.5 8.5 6.5-8.5M12 12v8.5M7 13.5h10M7 17h10"/></svg></button><button id="mAuto" title="자동: 누를 때마다 x1 → x5 → x10 → x50 → 끄기"><svg viewBox="1.6 0 14.25 24" fill="currentColor" aria-hidden="true"><path d="M2 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L3.7 3.67A1.1 1.1 0 0 0 2 4.6z"/></svg><i id="mAutoX"></i></button><button id="m5Skip" title="5초 건너뛰기"><svg viewBox="1.6 0 27.25 24" fill="currentColor" aria-hidden="true"><path d="M2 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L3.7 3.67A1.1 1.1 0 0 0 2 4.6z"/><path d="M15 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L16.7 3.67A1.1 1.1 0 0 0 15 4.6z"/></svg></button><button id="mSkip" title="건너뛰기 / PUSH"><svg viewBox="1.6 0 40.25 24" fill="currentColor" aria-hidden="true"><path d="M2 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L3.7 3.67A1.1 1.1 0 0 0 2 4.6z"/><path d="M15 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L16.7 3.67A1.1 1.1 0 0 0 15 4.6z"/><path d="M28 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L29.7 3.67A1.1 1.1 0 0 0 28 4.6z"/></svg></button></div></div></div>
+<div id="mBar"><div id="mIn"><button id="mFold" title="접기 / 펼치기"><b></b></button><div id="mBtns"><button id="mPlay" title="설정"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><g transform="translate(12 12)"><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(0)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(45)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(90)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(135)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(180)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(225)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(270)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(315)"/></g><path fill-rule="evenodd" d="M12 4.6a7.4 7.4 0 1 0 0 14.8a7.4 7.4 0 1 0 0-14.8zM12 8.9a3.1 3.1 0 1 1 0 6.2a3.1 3.1 0 1 1 0-6.2z"/></svg></button><button id="mStat" title="당첨 횟수 · 히스토리"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="12.5" width="4.4" height="8" rx="1.2"/><rect x="9.8" y="7.5" width="4.4" height="13" rx="1.2"/><rect x="16.1" y="3.5" width="4.4" height="17" rx="1.2"/></svg></button><button id="mRec" title="수지 그래프"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 3.5v17h17"/><path d="M7 15.5l4-4.5 3.2 3 5.3-6.5"/></svg></button><button id="mRank" title="챌린지 랭킹"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 7.5h6V21H9zM2.5 12.5H9V21H2.5zM15 15h6.5v6H15z"/></svg></button><button id="mYen" title="챌린지"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.6 7.6l5 4.3L12 4.2l4.4 7.7 5-4.3-2.1 11.1H4.7z"/><circle cx="2.6" cy="7" r="1.6"/><circle cx="12" cy="3.6" r="1.6"/><circle cx="21.4" cy="7" r="1.6"/><rect x="4.6" y="19.6" width="14.8" height="2" rx="1"/></svg></button><button id="mAuto" title="자동: 누를 때마다 x1 → x5 → x10 → x50 → 끄기"><svg viewBox="1.6 0 14.25 24" fill="currentColor" aria-hidden="true"><path d="M2 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L3.7 3.67A1.1 1.1 0 0 0 2 4.6z"/></svg><i id="mAutoX"></i></button><button id="m5Skip" title="5초 건너뛰기"><svg viewBox="1.6 0 27.25 24" fill="currentColor" aria-hidden="true"><path d="M2 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L3.7 3.67A1.1 1.1 0 0 0 2 4.6z"/><path d="M15 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L16.7 3.67A1.1 1.1 0 0 0 15 4.6z"/></svg></button><button id="mSkip" title="건너뛰기 / PUSH"><svg viewBox="1.6 0 40.25 24" fill="currentColor" aria-hidden="true"><path d="M2 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L3.7 3.67A1.1 1.1 0 0 0 2 4.6z"/><path d="M15 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L16.7 3.67A1.1 1.1 0 0 0 15 4.6z"/><path d="M28 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L29.7 3.67A1.1 1.1 0 0 0 28 4.6z"/></svg></button></div></div></div>
 <div id="dl"><h1>999 <i>v.3</i></h1><p id="dlMsg">게임 영상을 기기에 내려받는 중이에요.<br>한 번 받아 두면 다음부터는 바로 시작돼요.</p><ul id="dlNote" hidden><li>RUSH(ST) 연출 대폭 추가</li><li>통상 배틀에 새 전개 추가</li><li>기기 버튼 = PUSH, 레버 = PULL 전용</li><li>통상에서 버튼 연타 시 빠르게 회전</li><li>화면 확대 · 시점 이동</li><li>화질은 그대로, 용량은 더 작게</li></ul><div id="dlBar"><i></i></div><div id="dlTxt">준비 중…</div><button id="dlNow" class="go" style="display:none">⬇ 내려받기</button><button id="dlGo" class="go" style="display:none">▶ 시작</button><button id="dlSkip">받지 않고 바로 시작 (스트리밍)</button></div>
 <script>
 // ── 모바일 + 웹 주소: 영상을 전부 저장소에 받아 둔 뒤 시작 (sw.js 가 저장된 영상을 내어 줌) ──
@@ -2595,7 +2604,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
   const dEnd=e=>{if(!dg||(e&&e.pointerId!==dg.id))return;if(dg.on&&dg.p)try{localStorage.setItem(dg.w==='c'?'g999SFp':'g999GFp',JSON.stringify(dg.p))}catch(_){}dg=null};addEventListener('pointerup',dEnd);addEventListener('pointercancel',dEnd);
   tap('mPlay',()=>show('a'));tap('mRec',()=>show('b'));tap('mStat',()=>show('c'));tap('mFold',()=>{mv.f=mv.f?0:1;if(mv.f&&mv.w){origin(mv.w);wc.classList.remove('open');mv.w=''}paintB();save()});
   tap('mAuto',()=>{q('wAuto').click();syncA()});
-  tap('mYen',()=>{const r=q('wReal');if(r)r.click()});setInterval(()=>{const r=q('wReal');q('mYen').classList.toggle('sel',!!(r&&r.classList.contains('act')))},400);
+  tap('mRank',()=>{if(window.openRank)window.openRank()});tap('mYen',()=>{const r=q('wReal');if(r)r.click()});setInterval(()=>{const r=q('wReal');q('mYen').classList.toggle('sel',!!(r&&r.classList.contains('act')))},400);
   let lastA='';const syncA=()=>{const m=/x(\d+)/.exec(q('wAuto').textContent||''),s=m?'x'+m[1]:'';if(s===lastA)return;lastA=s;q('mAuto').classList.toggle('sel',!!s);q('mAutoX').textContent=s};setInterval(syncA,250);
   setTimeout(()=>{const a=q('wA');a.classList.remove('free');a.style.left=a.style.top='';syncA();rp()},0);content('a');paintB()}
 q('wAh').onclick=()=>{if(q('wA').dataset.moved)return;if(mob&&document.body.classList.contains('aOff'))fold.a=false;else fold.a=!fold.a;setFold();fitMax();keepIn(q('wA'))};q('wBh').onclick=()=>{if(q('wA').dataset.moved)return;fold.b=!fold.b;setFold();draw();keepIn(q('wA'))};setFold();
@@ -2679,19 +2688,19 @@ q('wAh').onclick=()=>{if(q('wA').dataset.moved)return;if(mob&&document.body.clas
  setTimeout(()=>{try{if(!busy)idleShow(true)}catch(e){}},200);
 })();
 </script>
-<div id="helpBox" hidden><div class="hb"><button id="helpX" title="닫기">✕</button><div class="tabs"><button data-t="0" class="on">조작법</button><button data-t="1">패치노트</button><button data-t="2">실전모드</button><button data-t="3">영상이 안 나와요</button></div><div class="pane" data-p="0">
+<div id="helpBox" hidden><div class="hb"><button id="helpX" title="닫기">✕</button><div class="tabs"><button data-t="0" class="on">조작법</button><button data-t="1">패치노트</button><button data-t="2">챌린지</button><button data-t="3">영상이 안 나와요</button></div><div class="pane" data-p="0">
 <table class="kb"><tr><td>SPACE</td><td>SKIP / PUSH</td></tr><tr><td>← / →</td><td>5초 SKIP / 모드 변경</td></tr></table>
 <table><tr><td>버튼</td><td>PUSH</td></tr><tr><td>레버</td><td>PULL / 모드 변경</td></tr>
 <tr><td class="qkI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" fill="currentColor" stroke="none"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path d="M18.3 6.3a8 8 0 0 1 0 11.4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.6A8.2 8.2 0 1 1 9.4 4a6.6 6.6 0 0 0 10.6 10.6z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.1V17h5v-1.1c0-.8.4-1.5 1.1-2.1A6 6 0 0 0 12 3z"/><path d="M9.8 20.5h4.4"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="4" width="8" height="16" rx="2"/><path d="M4.5 9v6M19.5 9v6M2 11v2M22 11v2"/></svg></td><td>소리 · 다크/라이트 · LED · 진동 켜기/끄기</td></tr>
 <tr><td>AUTO</td><td>x1 → x5 → x10 → x50</td></tr><tr class="tcr"><td>아래 막대</td><td>설정 · 통계 · 그래프 · ▶ AUTO · ▶▶ 5초 · ▶▶▶ SKIP</td></tr><tr><td>HYPER</td><td>진동 &amp; LED 강화</td></tr>
 <tr><td>화면</td><td><span class="kb">스크롤: 확대 · 드래그: 시점 이동</span><span class="tc">두 손가락: 확대 · 드래그: 시점 이동</span></td></tr></table></div><div class="pane" data-p="1" hidden>
-<h4>v.3 · 11월 27일 패치</h4><ul><li>새 프리미엄 연출: 전회전 · ST 전회전</li><li>새 연출: 빌딩 분기, 즉시 7500 새 영상</li><li>전회전 LED: 777 이 내려오는 동안 무지개가 차올라요</li><li>휴대폰: 아래 막대로 조작 (설정 · 통계 · 그래프 · AUTO · 5초 · SKIP), 통계 · 그래프 창을 끌면 작게 꺼내져요</li><li>실전모드 챌린지: 닉네임을 정하고 100k · 회전율 30 으로 파산할 때까지. 실시간 수지 · 일격 · 생존 랭킹</li><li>실전모드는 ¥ 버튼으로 (설정 창에서는 빠짐)</li><li>실전모드: 화면 왼쪽 아래에 DAY · 잔액 표시</li><li>기록 초기화는 두 번 눌러야 돼요</li><li>창 · 버튼 · 아이콘 디자인 정리, 화면 아래 안내 문구 정리</li><li>일부 연출에서 LED · 진동이 멈추던 문제 수정</li><li>아이폰 홈 화면 앱 위쪽이 뿌옇던 문제 수정 (홈 화면에 다시 추가해 주세요)</li></ul>
+<h4>v.3 · 11월 27일 패치</h4><ul><li>새 프리미엄 연출: 전회전 · ST 전회전</li><li>새 연출: 빌딩 분기, 즉시 7500 새 영상</li><li>전회전 LED: 777 이 내려오는 동안 무지개가 차올라요</li><li>휴대폰: 아래 막대로 조작 (설정 · 통계 · 그래프 · AUTO · 5초 · SKIP), 통계 · 그래프 창을 끌면 작게 꺼내져요</li><li>실전모드 → 챌린지 (100k · 회전율 30 · 파산할 때까지)</li><li>랭킹: 최대 수익 · 최대 일격 · 최장 생존</li><li>챌린지 중엔 화면 왼쪽 아래에 DAY · 잔액 표시</li><li>기록 초기화는 두 번 눌러야 돼요</li><li>창 · 버튼 · 아이콘 디자인 정리, 화면 아래 안내 문구 정리</li><li>일부 연출에서 LED · 진동이 멈추던 문제 수정</li><li>아이폰 홈 화면 앱 위쪽이 뿌옇던 문제 수정 (홈 화면에 다시 추가해 주세요)</li></ul>
 <h4>v.3 · 11월 26일 패치</h4><ul><li>커스텀 창 추가: 손떨 · 입상 구울화 · 찬스 암시 · 레버블 업 · 임팩트 플래시</li><li>같이 못 쓰는 커스텀은 한 상자로 묶었어요 (하나를 켜면 나머지는 꺼져요)</li><li>ST 모드 추가: 돌격 · 리제 습격 · 츠키야마 절규. ST 중 레버로 바로 바꿀 수 있어요</li><li>츠키야마 절규: 버튼 연타 · HOLD 고지와 실기 타격음</li><li>레버블 · 임팩트 플래시 · 로고 점등 · 찬스 암시(손 깜박임 · 금속음 · 금목) 연출과 효과음 추가</li><li>예고 · 리치 신뢰도를 실기 수치에 맞춰 조정</li><li>Judgement 브레이크: 남은 4초 · 2초에 먼저 깨지는 성공 추가</li><li>올빼미 부활: 꽝 화면에서 잠깐 멈춘 뒤 부드럽게 전환</li><li>ST 당첨 뒤에도 HYPER 6000 이 나오도록 수정</li><li>출옥 표시 정리: 에피소드 중 TOTAL 위치 · 정산 화면의 큰 총계</li><li>ST 카운트 사이에 모드 초상화가 끊기지 않도록 수정</li><li>실전모드 기본 회전율을 30 으로 변경</li></ul>
 <h4>v.3</h4><ul><li>RUSH(ST) 연출 대폭 추가: 회전마다 다른 연출이 이어져요</li><li>통상 배틀에 새 전개 추가 (패배 뒤 부활 등)</li><li>기기 버튼 = PUSH, 레버 = PULL 전용으로 정리</li><li>통상에서 버튼을 연타하면 빠르게 회전</li><li>화면 확대 · 시점 이동 추가</li><li>실전모드 추가: 자금과 목표를 정하고 도전, 결과 보고서</li><li>컴플리트 기능 추가</li><li>조작 버튼 배치 정리, 조작법에 패치노트 탭 추가</li><li>모바일판: 화질은 그대로, 용량은 더 작게</li></ul>
 <h4>v.2</h4><ul><li>AUTO 배속 추가 (x1 · x5 · x10 · x50)</li><li>HYPER 모드 추가 (진동 · LED 강화)</li><li>소리 · 다크/라이트 · LED · 진동 아이콘 추가</li><li>조작법(?) 버튼 추가</li><li>영상의 안 쓰는 부분을 잘라 용량 축소</li><li>아이폰 홈 화면 앱에서 화면이 가려지던 문제 수정</li></ul>
 <h4>v.1</h4><ul><li>첫 공개판: 기기 화면과 PLAY · RECORD 창</li><li>회전율 설정, 회전수 · 당첨 기록과 그래프</li></ul>
 </div><div class="pane" data-p="2" hidden>
-<ul><li>PLAY 창의 <b>실전모드</b> 버튼으로 시작해요. 소지자금 · 목표 · 회전율을 정하면 목표 달성 확률을 보여 줘요.</li><li>4엔 파친코 기준: 1,000엔 = 250구슬. 자금은 딴 구슬과 쓴 구슬을 엔으로 바꿔 계산해요.</li><li>하루는 4,000회전. 다 돌리면 다음 날(DAY 2, 3 …)로 넘어가고 그래프에 표시돼요.</li><li>자금이 바닥나면 실패, 목표에 닿으면 성공. 판정은 연출(RUSH 포함)이 끝난 뒤에 해요.</li><li>끝나면 그래프와 함께 보고서가 나와요: 최대 수익 · 최대 손실 시점, 운이 상위 몇 %였는지 등.</li><li><b>컴플리트</b>: 하루에 순수하게 딴 구슬이 99,999를 넘으면 그날은 종료. 기기 버튼을 누르면 다음 날로 넘어가요.</li><li>진행 중에 실전모드 버튼을 누르면 현재 상황 확인 · 포기를 할 수 있어요.</li></ul>
+<ul><li>소지자금 100k · 회전율 30 으로 파산할 때까지.</li><li>랭킹: 최대 수익 · 최대 일격 · 최장 생존. 기기마다 랭킹별 최고 기록 하나.</li><li>컴플리트: 하루 순증 99,999구슬을 넘으면 그날 종료.</li></ul>
 </div><div class="pane" data-p="3" hidden>
 <ul><li><b>크롬 최신판</b>으로 열어 주세요. 대부분 이것으로 해결돼요.</li><li>크롬 설정 → 시스템 → <b>「가능한 경우 그래픽 가속 사용」</b>을 켜고 크롬을 다시 시작해 주세요.</li><li>엣지는 Microsoft Store 의 <b>「HEVC 비디오 확장」</b>이 있어야 나오는 경우가 있어요.</li><li>파이어폭스 등 다른 브라우저, 아주 오래된 PC 에서는 영상 형식(H.265)을 재생하지 못할 수 있어요.</li><li>그래도 안 나오면 휴대폰으로 열어 보세요. 최근 몇 년 사이의 아이폰 · 안드로이드는 대부분 재생돼요.</li></ul>
 </div><script>(()=>{const b=document.getElementById('helpBox'),T=b.querySelectorAll('.tabs button'),P=b.querySelectorAll('.pane');T.forEach(t=>t.onclick=()=>{T.forEach(x=>x.classList.toggle('on',x===t));P.forEach(p=>{p.hidden=p.dataset.p!==t.dataset.t});t.blur()})})();</script></div></div><style id="helpcss">
@@ -2747,38 +2756,45 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 #sgRow{display:none!important}#sFloat,#gFloat{transition:transform .42s cubic-bezier(.32,.72,0,1),opacity .25s;transform-origin:50% 50%}#sFloat.pop,#gFloat.pop{transform:scale(2.4);opacity:.25;transition:none}
 .hc #wHelp{flex:1!important;width:auto!important;font-size:17px!important}#wcol #wCus{font-size:12px;letter-spacing:.04em;padding:0 4px}.hyrow{border-top:0!important;margin-bottom:4px}.hyrow #wHyp{flex:0 0 118px!important;height:36px}
 #cusHandRow>span{flex:none;white-space:nowrap}#rCus #cusHand{flex-wrap:nowrap}#rCus #cusHand button{min-width:0;padding:0 7px;height:28px}
-#wReal{display:none!important}#qkY{font:700 13px/1 system-ui,sans-serif}#qkY.sel{color:#ffd27a!important;background:rgba(255,190,60,.2)!important}@media (max-width:760px),(pointer:coarse){#qkY{display:none!important}}
-#rMode{display:flex;gap:4px;margin:2px 0 8px}#rMode button{flex:1;height:34px}#rCh .row input{width:150px;height:30px;padding:0 10px;border:0;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font:600 14px system-ui,sans-serif;text-align:right;outline:none}
-#rCh .err{color:#ff8a9a!important}#rSet .rk,#rRes .rk{display:block;width:100%;margin-top:8px}
-#rRank .hb{width:min(94vw,420px)}#rRank h3{text-align:center;letter-spacing:.1em}#rRankT{display:flex;gap:4px;margin:4px 0 8px}#rRankT button{flex:1;height:32px}
-#rRankL{margin:0;padding:0;list-style:none;min-height:120px}#rRankL li{display:flex;align-items:center;gap:8px;padding:6px 4px;border-top:1px solid rgba(255,255,255,.08)}#rRankL li i{flex:0 0 26px;font-style:normal;font-weight:800;color:rgba(255,255,255,.55);text-align:right}#rRankL li:nth-child(-n+3) i{color:#ffd76a}
-#rRankL li b{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#rRankL li span{text-align:right;font-weight:700}#rRankL li small{display:block;font-weight:400;color:rgba(255,255,255,.5);font-size:11px}#rRankL li.me b{color:#ffd27a}#rRankL .p{color:#7fe0a8}#rRankL .m{color:#ff8a9a}#rRankL p{text-align:center;color:rgba(255,255,255,.5);margin:30px 0}
+#wReal{display:flex!important;align-items:center;justify-content:center;gap:7px}#wReal .yi{display:inline-flex;width:17px;height:17px;color:#ffd76a;flex:none}#wReal.act .yi{filter:drop-shadow(0 0 5px rgba(255,200,80,.8))}@media (max-width:760px),(pointer:coarse){#wReal{display:none!important}}
+#rMode{display:none!important}#rMode button{flex:1;height:34px}#rCh .row input{width:150px;height:30px;padding:0 10px;border:0;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font:600 14px system-ui,sans-serif;text-align:right;outline:none}
+#rCh .err{color:#ff8a9a!important}#rNk .row{border-top:0}#rNk .nk{display:flex;gap:6px;align-items:center}#rNk input{width:130px;height:32px;padding:0 10px;border:0;border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font:700 14px system-ui,sans-serif;text-align:right;outline:none}#rNk input[readonly]{background:transparent;padding-right:2px}#rNk button{height:32px;min-width:0;padding:0 12px;font-size:12px;white-space:nowrap}#rNickE{margin:0 0 6px;text-align:right;color:#ff8a9a!important}#rNickE:empty{display:none}
+#rTop{display:grid!important;grid-template-columns:26px 1fr 1fr 1fr;gap:4px 8px}#rTop>div{min-width:0;text-align:center;font-size:11px;color:rgba(255,255,255,.55)}#rTop>div b{display:block;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#rTop>div em{display:block;font-style:normal;font-weight:700;color:#fff;font-size:12px}
+.rx{position:absolute;top:8px;right:8px;width:32px;height:32px;min-width:0!important;padding:0!important;border-radius:50%!important;font-size:15px}
+#rStat{display:flex;gap:6px;margin:4px 0 10px}#rStat>div{flex:1;min-width:0;text-align:center;padding:9px 4px;border-radius:12px;background:rgba(255,255,255,.07)}#rStat small{display:block;font-size:11px;color:rgba(255,255,255,.55)}#rStat b{display:block;font-size:15px;font-weight:800;color:#fff;white-space:nowrap}#rStat i{display:block;min-height:15px;font-style:normal;font-size:12px;font-weight:800;color:#ffd76a}
+#rRes #rAgree{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 0;padding:9px 12px;border-radius:12px;background:rgba(255,210,122,.12);box-shadow:inset 0 0 0 1px rgba(255,210,122,.3);font-weight:700;color:#ffe9a8}#rRes #rAgree[hidden]{display:none}#rRes #rAgree .cr{width:20px;height:20px;color:#ffd76a;flex:none}#rRes #rAgree span{flex:1;display:flex;align-items:center;gap:7px}#rRes #rAgree button{height:32px;padding:0 14px}
+#wRank,#mRank,#rTop,#rRankB1{display:none!important}.rrow #wReal{flex:1}#rRankQ.arm{background:rgba(255,48,68,.38)!important}
+#rSet .rk,#rRes .rk{display:block;width:100%;margin-top:8px}
+#rRank .hb{width:min(94vw,440px);padding-top:18px}#rRankX{position:absolute;top:8px;right:8px;width:32px;height:32px;min-width:0;padding:0;border-radius:50%!important;font-size:15px}
+.cr{display:block;width:100%;height:100%}.rkHero{text-align:center;margin:0 0 10px}.rkHero .cr{width:46px;height:46px;margin:0 auto 2px;color:#ffd76a;filter:drop-shadow(0 0 10px rgba(255,200,80,.55))}.rkHero h3{margin:0;font-size:19px;letter-spacing:.14em;color:#fff}.rkHero p{margin:3px 0 0;font-size:12px;color:rgba(255,255,255,.55)}
+#rRankT{display:flex;gap:4px;margin:4px 0 10px}#rRankT button{flex:1;height:32px}
+#rPod{display:flex;align-items:flex-end;gap:6px;margin:0 0 6px}#rPod:empty{display:none}#rPod>div{flex:1;min-width:0;text-align:center;border-radius:12px;padding:8px 4px 9px;background:rgba(255,255,255,.07)}
+#rPod .cr{width:26px;height:26px;margin:0 auto 3px}#rPod .k1{padding-top:12px;padding-bottom:16px;background:linear-gradient(180deg,rgba(255,215,106,.24),rgba(255,215,106,.05));box-shadow:inset 0 0 0 1px rgba(255,215,106,.4)}#rPod .k1 .cr{width:34px;height:34px}
+#rPod .k1 .cr{color:#ffd76a;filter:drop-shadow(0 0 8px rgba(255,200,80,.6))}#rPod .k2 .cr{color:#dfe6ee}#rPod .k3 .cr{color:#e0a36a}#rPod .k2{background:rgba(223,230,238,.08)}#rPod .k3{background:rgba(224,163,106,.08)}
+#rPod b{display:block;font-size:13.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#rPod .k1 b{font-size:15px;color:#ffe9a8}#rPod em{display:block;font-style:normal;font-weight:800;font-size:13px;margin-top:2px}#rPod small{display:block;font-size:10.5px;color:rgba(255,255,255,.5)}#rPod .me{box-shadow:inset 0 0 0 2px #ffd27a}
+#rPod .p,#rRankL .p{color:#7fe0a8}#rPod .m,#rRankL .m{color:#ff8a9a}
+#rRankL{margin:0;padding:0;list-style:none;max-height:38vh;overflow-y:auto}#rRankL li{display:flex;align-items:center;gap:8px;padding:6px 4px;border-top:1px solid rgba(255,255,255,.08)}#rRankL li i{flex:0 0 26px;font-style:normal;font-weight:800;color:rgba(255,255,255,.5);text-align:right}
+#rRankL li b{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#rRankL li span{text-align:right;font-weight:700}#rRankL li small{display:block;font-weight:400;color:rgba(255,255,255,.5);font-size:11px}#rRankL li.me{background:rgba(255,210,122,.1);border-radius:8px}#rRankL li.me b{color:#ffd27a}#rRankL p,#rPodE{text-align:center;color:rgba(255,255,255,.5);margin:22px 0}
+#rMe{margin:8px 0 0;padding:9px 12px;border-radius:12px;background:rgba(255,210,122,.1);box-shadow:inset 0 0 0 1px rgba(255,210,122,.25);font-size:12.5px;line-height:1.55}#rMe:empty{display:none}#rMe b{color:#ffd27a}#rMe u{text-decoration:none;color:rgba(255,255,255,.55)}
+#rTop{display:flex;align-items:center;gap:9px;margin:0 0 8px;padding:9px 12px;border-radius:12px;background:linear-gradient(90deg,rgba(255,215,106,.16),rgba(255,215,106,.03));font-size:12.5px;line-height:1.5;cursor:pointer}#rTop .cr{flex:none;width:26px;height:26px;color:#ffd76a}#rTop:empty{display:none}#rTop b{color:#ffe9a8}
+.rrow{display:flex;gap:6px}.rrow #wReal{flex:1}#wRank{flex:0 0 46px;display:flex!important;align-items:center;justify-content:center;padding:0!important;color:rgba(255,255,255,.85)!important}#wRank .cr{width:20px;height:20px}@media (max-width:760px),(pointer:coarse){.rrow{display:none!important}}
+#rRes .rkWin{display:flex;align-items:center;gap:6px;color:#ffe9a8}#rRes .rkWin .cr{width:18px;height:18px;color:#ffd76a}
 </style>
-<div id="rSet" class="rbox" hidden><div class="hb"><h3>실전모드</h3>
+<div id="rSet" class="rbox" hidden><div class="hb"><h3>챌린지</h3>
+<div id="rNk"><div class="row"><span>닉네임</span><div class="nk"><input id="rNick" maxlength="8" autocomplete="off" spellcheck="false" placeholder="닉네임"><button type="button" id="rNickB">저장</button></div></div><p class="note" id="rNickE"></p></div>
+<div id="rTop"></div>
 <div id="rSetIn">
-<div class="seg" id="rMode"><button type="button" data-v="free">일반</button><button type="button" data-v="ch">챌린지</button></div>
-<div id="rFree">
-<div class="row"><span>소지자금 <small>(천 엔)</small></span><div class="stp" data-step="10"><button type="button" class="m" title="줄이기">−</button><label class="pill"><input id="rFund" type="number" min="1" max="100000" value="100" autocomplete="off"><i>k</i></label><button type="button" class="p" title="늘리기">+</button></div></div>
-<div class="row"><span>목표 <small>(천 엔)</small></span><div class="stp" data-step="10"><button type="button" class="m" title="줄이기">−</button><label class="pill"><input id="rGoal" type="number" min="2" max="1000000" value="200" autocomplete="off"><i>k</i></label><button type="button" class="p" title="늘리기">+</button></div></div>
-<div class="row"><span>회전율 <small>(1,000엔당 회전)</small></span><div class="stp" data-step="1"><button type="button" class="m" title="줄이기">−</button><label class="pill"><input id="rRate" type="number" min="5" max="60" value="30" autocomplete="off"></label><button type="button" class="p" title="늘리기">+</button></div></div>
-<div class="big"><small>목표 달성 확률</small><b id="rWp">-</b></div>
-<p class="note">4엔 파친코 기준(1,000엔 = 250구슬). 시작하면 지금의 기록은 초기화돼요.</p>
-</div>
-<div id="rCh" hidden>
-<div class="row"><span>닉네임 <small>(8자까지)</small></span><input id="rNick" maxlength="8" autocomplete="off" spellcheck="false" placeholder="닉네임"></div>
-<p class="note" id="rNickN">한글 · 영어 · 일본어만 쓸 수 있어요(숫자 · 기호 · 띄어쓰기 불가).</p>
-<div class="big"><small>소지자금 100k · 회전율 30 고정</small><b>파산할 때까지</b></div>
-<p class="note">돌리는 동안 수지가 실시간 랭킹에 떠요. 자금이 바닥나면 최대 일격과 버틴 회전수가 영구 랭킹에 올라가요. 포기하면 기록되지 않아요. 시작하면 지금의 기록은 초기화돼요.</p>
-</div>
-<button type="button" class="rk" id="rRankB1">랭킹 보기</button>
+<div class="seg" id="rMode" hidden><button type="button" data-v="ch">챌린지</button></div>
+<div id="rFree" hidden style="display:none"><input id="rFund" value="100"><input id="rGoal" value="200"><input id="rRate" value="30"><b id="rWp"></b></div>
+<div id="rCh"><div class="big"><small>소지자금 · 회전율</small><b>100k · 30</b></div></div>
 <div class="btns"><button id="rCancel">취소</button><button id="rStart" class="go">시작</button></div>
 </div>
 <div id="rSetOn" hidden>
 <div class="big"><small id="rDayT">DAY 1</small><b id="rNow">-</b><small id="rGoalT"></small></div>
 <p class="note" id="rOnNote"></p>
 <div class="btns"><button id="rQuit">포기하기</button><button id="rBack" class="go">계속하기</button></div>
-<button type="button" class="rk" id="rRankB2" hidden>랭킹 보기</button>
 </div>
+<button type="button" class="rk" id="rRankB1">랭킹</button><button id="rRankB2" hidden></button>
 </div></div>
 <div id="rCus" class="rbox" hidden><div class="hb"><h3>커스텀</h3>
 <div class="xg"><em>이 셋은 하나만 켤 수 있어요</em>
@@ -2799,10 +2815,13 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 <p class="note" id="cusStNote" style="display:none"></p>
 <p class="note">어떤 커스텀도 당첨 확률은 바꾸지 않아요. 예고가 나오는 방식만 달라져요.</p>
 <div class="btns"><button id="cusX" class="go">닫기</button></div></div></div>
-<div id="rRes" class="rbox" hidden><div class="hb"><h3 id="rTitle"></h3><canvas id="rCv" width="1040" height="680"></canvas><ul id="rList"></ul>
-<div class="btns"><button id="rClose">닫기</button><button id="rAgain" class="go">다시 도전</button></div><button id="rDouble" class="go" hidden></button><button type="button" class="rk" id="rRankB3" hidden>랭킹 보기</button><p id="rDoubleN" class="note" hidden></p></div></div>
+<div id="rRes" class="rbox" hidden><div class="hb"><button id="rClose" class="rx" title="닫기">✕</button><h3 id="rTitle"></h3>
+<div id="rStat"><div><small>최대 수익</small><b id="rsP"></b><i id="rsPr"></i></div><div><small>최대 일격</small><b id="rsI"></b><i id="rsIr"></i></div><div><small>최장 생존</small><b id="rsS"></b><i id="rsSr"></i></div></div>
+<canvas id="rCv" width="1040" height="520"></canvas><ul id="rList"></ul>
+<div id="rAgree" hidden></div>
+<div class="btns"><button type="button" id="rRankB3">랭킹</button><button id="rAgain" class="go">다시 도전</button></div><button id="rDouble" class="go" hidden></button><p id="rDoubleN" class="note" hidden></p></div></div>
 <div id="rFloor" class="rbox" hidden><div class="hb"><h3 style="text-align:center;color:#ffd76a;letter-spacing:.1em">묻고 더블로</h3><p id="rFloorT" style="text-align:center;line-height:1.6"></p><div class="btns"><button id="rFloorQ">그만두기</button><button id="rFloorC" class="go">계속하기</button></div></div></div>
-<div id="rRank" class="rbox" hidden><div class="hb"><h3>챌린지 랭킹</h3><div class="seg" id="rRankT"><button type="button" data-v="live">수지 (LIVE)</button><button type="button" data-v="ichi">일격</button><button type="button" data-v="span">생존</button></div><ul id="rRankL"></ul><p class="note" id="rRankN"></p><div class="btns"><button id="rRankR">새로고침</button><button id="rRankX" class="go">닫기</button></div></div></div>
+<div id="rRank" class="rbox" hidden><div class="hb"><button id="rRankX" title="닫기">✕</button><div class="rkHero"><svg class="cr" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2.6 7.6l5 4.3L12 4.2l4.4 7.7 5-4.3-2.1 11.1H4.7z"/><circle fill="currentColor" cx="2.6" cy="7" r="1.6"/><circle fill="currentColor" cx="12" cy="3.6" r="1.6"/><circle fill="currentColor" cx="21.4" cy="7" r="1.6"/><rect fill="currentColor" x="4.6" y="19.6" width="14.8" height="2" rx="1"/></svg><h3>챌린지 랭킹</h3></div><div class="seg" id="rRankT"><button type="button" data-v="prof">최대 수익</button><button type="button" data-v="ichi">최대 일격</button><button type="button" data-v="spins">최장 생존</button></div><div id="rPod"></div><ul id="rRankL"></ul><div id="rMe"></div><div class="btns"><button id="rRankQ" hidden>포기하기</button><button id="rRankGo" class="go">챌린지 도전</button></div></div></div>
 <canvas id="gFloat" width="336" height="192"></canvas><div id="rToast"></div><div id="rDay"><b></b><div></div></div>
 <script>(()=>{
  const q=id=>document.getElementById(id),KEY='g999Real',DAYN=4000,COMPN=99999,YEN=4,LOSS=typeof NET_LOSS==='number'?NET_LOSS:.1;
@@ -2818,9 +2837,8 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  function winProb(fund,goal,rate,runs){const c=250/rate,g=goal/YEN;let w=0;for(let i=0;i<runs;i++){let b=fund/YEN,k=0;for(;;){const n=geo();if(b<n*c)break;b-=n*c;b+=hit()*(1-LOSS);if(b>=g){w++;break}if(++k>200000)break}}return w/runs}
  function luck(N,rate,actual,runs){const c=250/rate;let hi=0,sum=0;for(let i=0;i<runs;i++){let left=N,o=0;for(;;){const n=geo();if(n>left)break;left-=n;o+=hit()}const v=o*(1-LOSS)-N*c;sum+=v;if(v>=actual)hi++}return {top:hi/runs*100,avg:sum/runs}}
  /* ── 위젯 버튼 ── */
- const btn=document.createElement('button');btn.id='wReal';btn.className='wide';btn.title='실전모드: 자금과 목표를 정하고 도전';q('wHelp').after(btn);
- { const k=document.getElementById('qk');if(k){const y=document.createElement('button');y.id='qkY';y.title='실전모드';y.textContent='¥';k.insertBefore(y,k.firstChild);y.onclick=()=>{y.blur();btn.click()};setInterval(()=>y.classList.toggle('sel',!!R.on),400)} }
- const paintBtn=()=>{btn.classList.toggle('act',!!R.on);btn.textContent=R.on?'DAY '+R.day+' · '+kk(funds())+' / '+kk(R.goal):'실전모드'};
+ const btn=document.createElement('button');btn.id='wReal';btn.className='wide';btn.title='챌린지: 100k 로 파산할 때까지';q('wHelp').after(btn);
+ const paintBtn=()=>{btn.classList.toggle('act',!!R.on);{const t=R.on?(R.ch?'DAY '+R.day+' · '+kk(funds())+' · 챌린지':'DAY '+R.day+' · '+kk(funds())+' / '+kk(R.goal)):'챌린지',k=t;if(btn._t!==k){btn._t=k;btn.innerHTML='<span class="yi"><svg class=\"cr\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path fill=\"currentColor\" d=\"M2.6 7.6l5 4.3L12 4.2l4.4 7.7 5-4.3-2.1 11.1H4.7z\"/><circle fill=\"currentColor\" cx=\"2.6\" cy=\"7\" r=\"1.6\"/><circle fill=\"currentColor\" cx=\"12\" cy=\"3.6\" r=\"1.6\"/><circle fill=\"currentColor\" cx=\"21.4\" cy=\"7\" r=\"1.6\"/><rect fill=\"currentColor\" x=\"4.6\" y=\"19.6\" width=\"14.8\" height=\"2\" rx=\"1\"/></svg></span>';btn.appendChild(document.createTextNode(t))}}};
  const lockRate=()=>{const i=q('inCost');if(!i)return;if(R.on){i.value=R.rate;i.disabled=true;try{costInfo()}catch(e){}}else i.disabled=false};
  const toast=t=>{const e=q('rToast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2200)};
  /* DAY 전환: 화면이 부드럽게 어두워지며 'DAY n' 을 잠깐 보여 줌. 그동안 회전은 멈추고, AUTO 는 끝난 뒤 이어서 돎 */
@@ -2852,37 +2870,53 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  { const hb=q('hitBtn');if(hb){let t=0,u=0;const stop=()=>{clearTimeout(t);clearInterval(u);t=u=0};
    hb.addEventListener('pointerdown',()=>{stop();t=setTimeout(()=>{u=setInterval(()=>{if(selHook||auto||BLOCK||DAYB||S.mode!=='normal'||curPlay||curEv){stop();window.RQ=0;return}window.RQ=Math.max(window.RQ||0,3);if(!busy)pressBtn()},25)},450)});
    for(const ev of ['pointerup','pointercancel','pointerleave'])hb.addEventListener(ev,stop);addEventListener('blur',stop)} }
- /* ── 챌린지: 닉네임 · 랭킹 서버 ── */
- const API='https://g999rank.bomullee88.workers.dev',NICK=/^[A-Za-z぀-ゟ゠-ヿ一-鿿가-힣ㄱ-ㆎ]{1,8}$/u;
+ /* ── 챌린지: 닉네임 · 랭킹 서버 (기기당 랭킹별 최고 기록 하나) ── */
+ const API='https://g999rank.bomullee88.workers.dev',NICK=/^[A-Za-z\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\uAC00-\uD7A3\u3131-\u318E]{1,8}$/u,HOUR=3600000,DAYMS=86400000;
+ const lsJ=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||'null')??d}catch(e){return d}},lsS=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
  const rid=()=>{let s='';const a='abcdefghijklmnopqrstuvwxyz0123456789';const v=new Uint8Array(20);crypto.getRandomValues(v);for(const x of v)s+=a[x%36];return s};
- const post=(path,o)=>fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o),keepalive:true}).then(r=>r.ok).catch(()=>false);
- /* 파산 기록은 서버에 닿을 때까지 보관했다가 다음에 다시 보냄. 내 최고 기록(일격 · 생존)도 따로 기억 */
- const lsJ=(k,d)=>{try{return JSON.parse(localStorage.getItem(k)||'null')||d}catch(e){return d}},lsS=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
- const flushQ=()=>{const Q=lsJ('g999RkQ',[]);Q.forEach(o=>post('/end',o).then(ok=>{if(ok)lsS('g999RkQ',lsJ('g999RkQ',[]).filter(x=>x.id!==o.id))}))};
- const sendEnd=o=>{const Q=lsJ('g999RkQ',[]);if(!Q.some(x=>x.id===o.id))Q.push(o);lsS('g999RkQ',Q.slice(-20));const B=lsJ('g999RkMe',{i:0,s:0});lsS('g999RkMe',{i:Math.max(B.i,o.ichi),s:Math.max(B.s,o.spins)});flushQ()};
+ let DEV=lsJ('g999Dev','');if(!/^[a-z0-9]{12,32}$/.test(DEV)){DEV=rid();lsS('g999Dev',DEV)}
+ const myNick=()=>{try{return localStorage.getItem('g999Nick')||''}catch(e){return ''}},nickT=()=>+lsJ('g999NickT',0)||0;
+ const postJ=(path,o)=>fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o),keepalive:true}).then(r=>r.json()).catch(()=>null);
+ /* 기록 보내기: 보낼 값을 보관(랭킹별 최댓값)했다가 서버가 받으면 지움 */
+ const flushQ=()=>{const Q=lsJ('g999RkQ',null),n=myNick();if(!Q||!n)return;postJ('/rec',Object.assign({id:DEV,nick:n},Q)).then(d=>{if(d&&d.ok){const Z=lsJ('g999RkQ',null);if(Z&&Z.prof<=Q.prof&&Z.ichi<=Q.ichi&&Z.spins<=Q.spins)lsS('g999RkQ',null)}})};
+ const rec=()=>{if(!R.on&&!R.last)return;const o={prof:Math.max(0,Math.round(R.peak||0)),ichi:R.ichi||0,spins:S.spins},Q=lsJ('g999RkQ',null)||{prof:0,ichi:0,spins:0};lsS('g999RkQ',{prof:Math.max(Q.prof,o.prof),ichi:Math.max(Q.ichi,o.ichi),spins:Math.max(Q.spins,o.spins)});R.lp=Date.now();saveR();flushQ()};
  setTimeout(flushQ,4000);
- let MODE='free';try{MODE=localStorage.getItem('g999RM')==='ch'?'ch':'free'}catch(e){}
- const setMode=v=>{MODE=v;try{localStorage.setItem('g999RM',v)}catch(e){}q('rFree').hidden=v==='ch';q('rCh').hidden=v!=='ch';q('rMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));q('rStart').textContent=v==='ch'?'챌린지 시작':'시작'};
- q('rMode').querySelectorAll('button').forEach(b=>b.onclick=()=>{b.blur();setMode(b.dataset.v)});
- try{q('rNick').value=localStorage.getItem('g999Nick')||''}catch(e){}
- q('rNick').addEventListener('input',()=>{const v=q('rNick').value.trim(),n=q('rNickN');const ok=!v||NICK.test(v);n.classList.toggle('err',!ok);n.textContent=ok?'한글 · 영어 · 일본어만 쓸 수 있어요(숫자 · 기호 · 띄어쓰기 불가).':'숫자 · 기호 · 띄어쓰기는 쓸 수 없어요.'});
- /* 실시간 수지: 챌린지 중 30초마다 (화면을 보고 있을 때만) */
- const live=()=>{if(R.on&&R.ch&&document.visibilityState==='visible')post('/live',{id:R.id,nick:R.nick,bal:Math.round(funds()-R.fund0),spins:S.spins,ichi:R.ichi||0})};setInterval(live,30000);setTimeout(live,3000);
- let RT='live',RD=null;
- const paintRank=()=>{const L=q('rRankL'),me=R.nick||(()=>{try{return localStorage.getItem('g999Nick')}catch(e){return ''}})();L.textContent='';q('rRankT').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===RT));
-  q('rRankN').textContent=RT==='live'?'지금 챌린지 중인 사람 · 수지 순 · 20초마다 갱신':RT==='ichi'?'파산한 챌린지 · 한 번의 대박 연쇄로 받은 최대 구슬':'파산한 챌린지 · 버틴 회전수';{const B=lsJ('g999RkMe',{i:0,s:0}),M=RD&&RD.me;if(RT!=='live'&&B.s&&M)q('rRankN').textContent+=' · 내 최고 '+(RT==='ichi'?B.i.toLocaleString()+'구슬 '+M.i:B.s.toLocaleString()+'회전 '+M.s)+'위';}
-  if(!RD){L.innerHTML='<p>불러오는 중…</p>';return}if(RD.err){L.innerHTML='<p>랭킹 서버에 연결하지 못했어요.</p>';return}
-  const a=RD[RT]||[];if(!a.length){L.innerHTML='<p>아직 기록이 없어요.</p>';return}
-  a.forEach((r,i)=>{const li=document.createElement('li'),n=document.createElement('i'),b=document.createElement('b'),s=document.createElement('span'),sm=document.createElement('small');n.textContent=i+1;b.textContent=r.n;if(r.n===me)li.className='me';
-   if(RT==='live'){s.textContent=(r.b>=0?'+':'−')+Math.abs(r.b).toLocaleString()+'엔';s.className=r.b>=0?'p':'m';sm.textContent=r.s.toLocaleString()+'회전'}
-   else if(RT==='ichi'){s.textContent=r.i.toLocaleString()+'구슬';sm.textContent='총 '+r.s.toLocaleString()+'회전'}
-   else{s.textContent=r.s.toLocaleString()+'회전';sm.textContent='DAY '+r.d}
-   s.appendChild(sm);li.append(n,b,s);L.appendChild(li)})};
- const loadRank=quiet=>{if(!quiet)RD=null;paintRank();live();const B=lsJ('g999RkMe',{i:0,s:0}),qs=B.s?'?ichi='+B.i+'&spins='+B.s:'';fetch(API+'/rank'+qs,{cache:'no-store'}).then(r=>r.json()).then(d=>{RD=d;paintRank()}).catch(()=>{RD={err:1};paintRank()})};
- const openRank=()=>{q('rRank').hidden=false;loadRank()};setInterval(()=>{if(!q('rRank').hidden&&document.visibilityState==='visible')loadRank(true)},20000);
- ['rRankB1','rRankB2','rRankB3'].forEach(i=>q(i).onclick=()=>{q(i).blur();openRank()});
+ /* 챌린지 중에는 1시간마다 지금까지의 기록을 올림 (창을 닫아 둔 동안 1시간이 지났으면 다시 열 때) */
+ setInterval(()=>{if(R.on&&R.ch&&Date.now()-(R.lp||R.t0||0)>=HOUR)rec()},60000);
+ let MODE='ch';if(R.on&&!R.ch){R={on:false};saveR()}
+ const setMode=()=>{q('rStart').textContent='시작'};
+ /* 닉네임: 이 기기에 기억. 바꾼 뒤 24시간 동안은 다시 못 바꿈 */
+ const left=()=>{const t=nickT();return t?Math.max(0,t+DAYMS-Date.now()):0},hm=ms=>{const m=Math.ceil(ms/60000);return [m>=60?Math.floor(m/60)+'시간':'',m%60?m%60+'분':''].filter(Boolean).join(' ')};
+ let NKE=false;const paintNick=()=>{const i=q('rNick'),b=q('rNickB'),n=myNick();if(!NKE&&n){i.value=n;i.readOnly=true;const w=left();b.textContent=w?hm(w)+' 후 변경':'변경';b.disabled=!!w}else{i.readOnly=false;b.textContent='저장';b.disabled=false}};
+ const rndNick=()=>{const A=['붉은','검은','하얀','배고픈','조용한','외로운','미친','빠른','잠든','굶주린','고독한','젖은'],B=['구울','까마귀','가면','나비','늑대','토끼','올빼미','지네','고양이','여우','상어','박쥐'],p=a=>a[Math.floor(Math.random()*a.length)];return p(A)+p(B)};
+ const saveNick=cb=>{const i=q('rNick'),v=i.value.trim(),E=q('rNickE');if(!NICK.test(v)){E.textContent='한글 · 영어 · 일본어 1~8자';i.focus();return}E.textContent='';
+  if(v===myNick()){NKE=false;paintNick();cb&&cb();return}const first=!myNick();
+  postJ('/nick',{id:DEV,nick:v}).then(d=>{if(d&&!d.ok){E.textContent=hm(d.wait)+' 후에 바꿀 수 있어요';try{localStorage.setItem('g999Nick',d.nick)}catch(e){}lsS('g999NickT',d.nts);NKE=false;paintNick();return}
+   try{localStorage.setItem('g999Nick',v)}catch(e){}lsS('g999NickT',d?d.nts:(first?0:Date.now()));NKE=false;paintNick();cb&&cb()})};
+ q('rNickB').onclick=()=>{q('rNickB').blur();if(q('rNick').readOnly){NKE=true;paintNick();q('rNick').focus();q('rNick').select()}else saveNick()};
+ q('rNick').addEventListener('keydown',e=>{if(e.key==='Enter')saveNick()});q('rNick').addEventListener('input',()=>{q('rNickE').textContent=''});
+ /* ── 랭킹 창 ── */
+ let RT='prof',RD=null;const CR='<svg class="cr" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2.6 7.6l5 4.3L12 4.2l4.4 7.7 5-4.3-2.1 11.1H4.7z"/><circle fill="currentColor" cx="2.6" cy="7" r="1.6"/><circle fill="currentColor" cx="12" cy="3.6" r="1.6"/><circle fill="currentColor" cx="21.4" cy="7" r="1.6"/><rect fill="currentColor" x="4.6" y="19.6" width="14.8" height="2" rx="1"/></svg>',nf=v=>Math.round(v).toLocaleString();
+ const fmt=v=>RT==='prof'?'+'+nf(v)+'엔':RT==='ichi'?nf(v)+'구슬':nf(v)+'회전';
+ const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+ const paintRank=()=>{const L=q('rRankL'),P=q('rPod'),M=q('rMe');L.textContent='';P.textContent='';M.textContent='';q('rRankT').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===RT));
+  q('rRankGo').textContent=R.on?'계속하기':'챌린지 도전';q('rRankQ').hidden=!R.on;
+  if(!RD){L.innerHTML='<p>…</p>';return}if(RD.err){L.innerHTML='<p>연결 실패</p>';return}
+  const a=RD[RT]||[];
+  a.slice(0,3).forEach((r,i)=>{const d=el('div','k'+(i+1));d.innerHTML=CR;if(r.m)d.classList.add('me');d.append(el('b','',r.n),el('em','',fmt(r.v)));P.appendChild(d)});
+  if(P.children.length>1)P.insertBefore(P.children[1],P.children[0]);
+  a.slice(3).forEach((r,k)=>{const li=el('li',r.m?'me':'');li.append(el('i','',k+4),el('b','',r.n),el('span','',fmt(r.v)));L.appendChild(li)});
+  if(!a.length)L.innerHTML='<p>-</p>';
+  const X=RD.me&&RD.me[RT];if(X)M.innerHTML='<b>'+(RD.me.nick||'').replace(/[<&]/g,'')+'</b> · '+fmt(X.v)+' · <b>'+X.r+'위</b> <u>/ '+X.t+'</u>'};
+ const loadRank=()=>{RD=null;paintRank();fetch(API+'/rank?id='+DEV,{cache:'no-store'}).then(r=>r.json()).then(d=>{RD=d;paintRank()}).catch(()=>{RD={err:1};paintRank()})};
+ const openRank=()=>{q('rSet').hidden=true;q('rRank').hidden=false;rqArm=0;q('rRankQ').textContent='포기하기';q('rRankQ').classList.remove('arm');loadRank()};let rqArm=0;
+ q('rRankQ').onclick=()=>{const b=q('rRankQ');b.blur();if(!R.on)return;if(!rqArm){rqArm=1;b.textContent='한 번 더 누르면 포기';b.classList.add('arm');return}if(busy||S.mode!=='normal'){b.textContent='연출 뒤에 가능';return}q('rRank').hidden=true;finish('quit')};window.openRank=openRank;addEventListener('keydown',e=>{if(e.key==='Escape'&&!q('rRank').hidden)q('rRank').hidden=true});
+ q('rRankGo').onclick=()=>{q('rRankGo').blur();q('rRank').hidden=true;if(R.on)return;if(!q('rRes').hidden)q('rClose').click();openSet()};
+ ['rRankB1','rRankB3'].forEach(i=>q(i).onclick=()=>{q(i).blur();openRank()});
  q('rRankT').querySelectorAll('button').forEach(b=>b.onclick=()=>{b.blur();RT=b.dataset.v;paintRank()});
- q('rRankR').onclick=()=>{q('rRankR').blur();loadRank()};q('rRankX').onclick=()=>{q('rRank').hidden=true};q('rRank').addEventListener('pointerdown',e=>{if(e.target===q('rRank'))q('rRank').hidden=true});
+ q('rRankX').onclick=()=>{q('rRank').hidden=true};q('rRank').addEventListener('pointerdown',e=>{if(e.target===q('rRank'))q('rRank').hidden=true});
+ /* 챌린지가 끝나면(파산 · 포기) 항상 등재 */
+ const showRanks=()=>{fetch(API+'/rank?id='+DEV,{cache:'no-store'}).then(r=>r.json()).then(d=>{const m=d.me;if(!m)return;[['rsPr','prof'],['rsIr','ichi'],['rsSr','spins']].forEach(([e,k])=>{q(e).textContent=m[k]?m[k].r+'위':''})}).catch(()=>{})};
  /* ── 설정 창 ── */
  let wpT=0;const calcWp=()=>{clearTimeout(wpT);wpT=setTimeout(()=>{const f=+q('rFund').value*1000,g=+q('rGoal').value*1000,r=+q('rRate').value;if(!(f>0&&g>f&&r>=5&&r<=60)){q('rWp').textContent='-';return}q('rWp').textContent=(winProb(f,g,r,6000)*100).toFixed(1)+'%'},150)};
  ['rFund','rGoal','rRate'].forEach(i=>q(i).addEventListener('input',()=>{fit(q(i));calcWp()}));
@@ -2890,25 +2924,26 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  document.querySelectorAll('#rSet .stp').forEach(s=>{const i=s.querySelector('input'),st=+s.dataset.step,mn=+i.min,mx=+i.max,bump=d=>{let v=Math.round((+i.value||0)/st)*st+d*st;v=Math.min(mx,Math.max(mn,v));i.value=v;fit(i);calcWp()};
   let t=0,u=0;const stop=()=>{clearTimeout(t);clearInterval(u)},hold=d=>e=>{e.preventDefault();bump(d);stop();t=setTimeout(()=>{u=setInterval(()=>bump(d),70)},420)};
   for(const [c,d] of [['.m',-1],['.p',1]]){const b=s.querySelector(c);b.addEventListener('pointerdown',hold(d));for(const ev of ['pointerup','pointerleave','pointercancel'])b.addEventListener(ev,stop)}fit(i)});
+ const topT=()=>{const T=q('rTop');fetch(API+'/rank',{cache:'no-store'}).then(r=>r.json()).then(d=>{T.innerHTML=CR;[['최대 수익','prof'],['최대 일격','ichi'],['최장 생존','spins']].forEach(([t,k])=>{const r=d[k]&&d[k][0],c=el('div','',t);c.append(el('b','',r?r.n:'-'),el('em','',r?(k==='prof'?'+'+nf(r.v)+'엔':k==='ichi'?nf(r.v)+'구슬':nf(r.v)+'회전'):''));T.appendChild(c)})}).catch(()=>{T.innerHTML=''})};q('rTop').onclick=()=>openRank();
  const openSet=()=>{const on=!!R.on;q('rSetIn').hidden=on;q('rSetOn').hidden=!on;quitArm=false;q('rQuit').textContent='포기하기';
-  if(on){q('rDayT').textContent='DAY '+R.day+' · 오늘 '+(S.spins-R.dayS).toLocaleString()+' / '+DAYN.toLocaleString()+'회전';q('rNow').textContent=yen(funds());q('rGoalT').textContent='목표 '+yen(R.goal)+' · 시작 '+yen(R.fund0);q('rOnNote').textContent='시작할 때 계산한 목표 달성 확률: '+(R.wp*100).toFixed(1)+'%'}else calcWp();
-  q('rRankB2').hidden=!(on&&R.ch);if(on&&R.ch){q('rGoalT').textContent='챌린지 · '+R.nick+' · 최대 일격 '+(R.ichi||0).toLocaleString()+'구슬';q('rOnNote').textContent='자금이 바닥나면 랭킹에 올라가요.'}if(!on)setMode(MODE);
+  if(on){q('rDayT').textContent='DAY '+R.day+' · 오늘 '+(S.spins-R.dayS).toLocaleString()+' / '+DAYN.toLocaleString()+'회전';q('rNow').textContent=yen(funds());q('rGoalT').textContent='목표 '+yen(R.goal)+' · 시작 '+yen(R.fund0);q('rOnNote').textContent='시작할 때 계산한 목표 달성 확률: '+(R.wp*100).toFixed(1)+'%'}
+  if(on&&R.ch){q('rGoalT').textContent='최대 수익 +'+nf(Math.max(0,R.peak||0))+'엔 · 최대 일격 '+nf(R.ichi||0)+'구슬';q('rOnNote').textContent=''}NKE=!myNick();paintNick();q('rNickE').textContent='';topT();setMode()
   q('rSet').hidden=false};
- btn.onclick=()=>{btn.blur();openSet()};q('rCancel').onclick=q('rBack').onclick=()=>{q('rSet').hidden=true};
+ btn.onclick=()=>{btn.blur();openRank()};q('rCancel').onclick=()=>{q('rSet').hidden=true;openRank()};q('rBack').onclick=()=>{q('rSet').hidden=true};
  q('rSet').addEventListener('pointerdown',e=>{if(e.target===q('rSet'))q('rSet').hidden=true});
- q('rStart').onclick=()=>{const CH=MODE==='ch',nick=q('rNick').value.trim();if(CH&&!NICK.test(nick)){q('rNickN').textContent='닉네임은 한글 · 영어 · 일본어 1~8자로 지어 주세요.';q('rNickN').classList.add('err');return}
+ q('rStart').onclick=()=>{if(!myNick()&&!q('rNick').value.trim())q('rNick').value=rndNick();if(!q('rNick').readOnly||!myNick())return saveNick(()=>q('rStart').click());const CH=true,nick=myNick();
   const f=CH?100000:+q('rFund').value*1000,g=CH?1e12:+q('rGoal').value*1000,r=CH?30:Math.round(+q('rRate').value);
   if(!(f>0&&g>f&&r>=5&&r<=60)){q('rWp').textContent='목표는 소지자금보다 커야 해요';return}
   const mid=busy||S.mode!=='normal'||!!curPlay;   /* 연출 도중에 시작: 그 연출을 끝내고(정산까지 마친 것으로 치고) 통상 화면에서 새로 시작 */
   auto=false;window.RQ=0;Object.assign(S,{spins:0,cur:0,hits:0,rushes:0,out:0,used:0,maxChain:0,hist:[],g:[[0,0]]});S._o=0;
-  R={on:true,fund0:f,goal:g,goal0:g,dbl:0,rate:r,day:1,dayS:0,dayNet0:0,days:[],comp:0,wp:CH?0:winProb(f,g,r,20000),t0:Date.now()};if(CH){Object.assign(R,{ch:1,nick,id:rid(),ichi:0,base:0});try{localStorage.setItem('g999Nick',nick)}catch(e){}}
+  R={on:true,fund0:f,goal:g,goal0:g,dbl:0,rate:r,day:1,dayS:0,dayNet0:0,days:[],comp:0,wp:CH?0:winProb(f,g,r,20000),t0:Date.now()};if(CH)Object.assign(R,{ch:1,nick,id:rid(),ichi:0,base:0,peak:0,lp:Date.now()});
   if(mid){R.note=1;saveR();save();q('rSet').hidden=true;try{stopAll=true;stopReq=true}catch(e){}location.reload();return}
-  saveR();lockRate();save();render();paintBtn();q('rSet').hidden=true;dayShow(1);setTimeout(live,1500)};
+  saveR();lockRate();save();render();paintBtn();q('rSet').hidden=true;dayShow(1)};
  let quitArm=false;q('rQuit').onclick=()=>{if(!quitArm){quitArm=true;q('rQuit').textContent='한 번 더 누르면 포기';return}if(busy||S.mode!=='normal'){q('rOnNote').textContent='연출이 끝난 뒤에 포기할 수 있어요.';return}q('rSet').hidden=true;finish('quit')};
  /* ── 하루 · 판정 ── */
  function nextDay(){R.prev=(net()-R.dayNet0)*YEN;R.day++;R.dayS=S.spins;R.dayNet0=net();R.days.push(S.spins);saveR();dayShow(R.day)}
  function check(){if(!R.on||BLOCK||busy||S.mode!=='normal')return;
-  if(R.ch){const gn=S.out-(R.base||0);if(gn>(R.ichi||0))R.ichi=gn;if(S.out!==R.base){R.base=S.out;saveR()}}
+  if(R.ch){const pf=funds()-R.fund0;if(pf>(R.peak||0))R.peak=pf;const gn=S.out-(R.base||0);if(gn>(R.ichi||0))R.ichi=gn;if(S.out!==R.base){R.base=S.out;saveR()}}
   if(funds()>=R.goal)return finish('win');if(funds()<spinCost()*YEN)return finish('lose');
   if(R.floor!=null&&!R.asked&&funds()<=R.floor){R.asked=true;saveR();BLOCK=true;auto=false;window.RQ=0;paintBtn();q('rFloorT').innerHTML='자금이 이전 출발 지점 <b>'+yen(R.floor)+'</b>까지 떨어졌어요.<br>지금 '+yen(funds())+' · 목표 '+yen(R.goal)+'<br>여기서 그만둘까요?';q('rFloor').hidden=false;return}   /* 묻고 더블로 뒤 이전 출발 지점까지 떨어지면 한 번 물어봄 */
   if(S.spins-R.dayS>=DAYN)nextDay();paintBtn()}
@@ -2916,7 +2951,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  const _sp=spin;spin=async function(){if(BLOCK||DAYB)return;const was=busy;const r=await _sp.apply(this,arguments);if(!was)check();return r};
  const _ps=pressSkip;pressSkip=function(){if(BLOCK||DAYB)return;if(R.on&&!busy&&!selHook&&S.mode==='normal'){check();if(BLOCK)return;if(window.RCAP())return spin()}const r=_ps.apply(this,arguments);if(!busy)check();return r};
  const _pb=pressBtn;pressBtn=function(){if(COMP){if(performance.now()-compAt>1500)compEnd();return}if(BLOCK||DAYB)return;return _pb.apply(this,arguments)};
- { const w=q('wReset'),o=w.onclick;w.onclick=function(){if(R.on){w.blur();toast('실전모드 중');return}return o.apply(this,arguments)} }
+ { const w=q('wReset'),o=w.onclick;w.onclick=function(){if(R.on){w.blur();toast('챌린지 중');return}return o.apply(this,arguments)} }
  /* ── 그래프에 DAY 구분선 ── */
  const _gd=gDraw;gDraw=function(){_gd.apply(this,arguments);const c=q('gCv');if(!c)return;const x=c.getContext('2d'),W=c.width,H=c.height,g=(S.g&&S.g.length?S.g:[[0,0]]),pl=6,pr=6,pt=24,pb=8,x1=Math.max(1,g[g.length-1][0]);
   let lo=0,hi=0;for(const p of g){if(p[1]<lo)lo=p[1];if(p[1]>hi)hi=p[1]}const mx=hi,mn=lo;if(hi-lo<1000){hi+=500;lo-=500}
@@ -2983,23 +3018,21 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  /* ── 결과 화면 ── */
  const dayOf=sp=>{let d=1;for(const s of R.days||[])if(sp>=s)d++;return d};
  function finish(kind){BLOCK=true;auto=false;window.RQ=0;const g=(S.g||[[0,0]]).slice(),end=funds();let mx=g[0],mn=g[0];for(const p of g){if(p[1]>mx[1])mx=p;if(p[1]<mn[1])mn=p}
-  const N=Math.round(S.used>0?(S.used-S.out*LOSS)/(250/R.rate):0),L=luck(Math.max(1,N),R.rate,net(),20000);
-  if(R.ch&&kind==='lose')sendEnd({id:R.id,nick:R.nick,ichi:R.ichi||0,spins:S.spins,days:R.day});if(R.ch&&kind!=='lose')post('/quit',{id:R.id});
+  
   R.on=false;R.last={kind,end};saveR();lockRate();paintBtn();
-  const t=q('rTitle');t.className=kind==='win'?'win':'lose';t.textContent=kind==='win'?'목표 달성':kind==='lose'?(R.ch?'파산 · 챌린지 종료':'자금 소진'):kind==='stop'?'묻더 종료':'도전 중단';if(kind==='stop')t.className=end>=R.fund0?'win':'lose';
-  const pm=v=>(v>=0?'+':'−')+yen(Math.abs(v)),top=L.top<.1?'상위 0.1% 이내':L.top<=50?'상위 '+L.top.toFixed(1)+'%':'하위 '+Math.max(.1,100-L.top).toFixed(1)+'%';
-  const rows=[['최종 자금',yen(end)+' ('+pm(end-R.fund0)+')'],['기간','DAY '+R.day+' · 총 '+S.spins.toLocaleString()+'회전'],['당첨','대당 '+S.hits+'회 · RUSH '+S.rushes+'회 · 최고 '+S.maxChain+'연'+(R.comp?' · 컴플리트 '+R.comp+'회':'')],
-   ['최대 수익','DAY '+dayOf(mx[0])+' · '+mx[0].toLocaleString()+'회전째 '+pm(mx[1]*YEN)],['최대 손실','DAY '+dayOf(mn[0])+' · '+mn[0].toLocaleString()+'회전째 '+pm(mn[1]*YEN)],
-   ['운','같은 회전수를 돌린 사람 중 '+top],['같은 회전수의 평균 결과',pm(L.avg*YEN)],(R.ch?['챌린지 최대 일격',(R.ichi||0).toLocaleString()+'구슬'+(kind==='lose'?' · 랭킹에 기록됨':' · 포기라 기록 안 됨')]:['시작할 때 달성 확률',(R.wp*100).toFixed(1)+'%'])].concat(R.dbl?[['묻고 더블로',R.dbl+'번 · 첫 목표 '+yen(R.goal0||R.fund0)+' → 마지막 목표 '+yen(R.goal)+(R.stage!=null?' (마지막 출발 '+yen(R.stage)+')':'')]]:[]);
+  const t=q('rTitle');t.className=kind==='win'?'win':'lose';t.textContent=kind==='win'?'목표 달성':kind==='lose'?'파산':kind==='stop'?'묻더 종료':'챌린지 종료';if(kind==='stop')t.className=end>=R.fund0?'win':'lose';
+  const pm=v=>(v>=0?'+':'−')+yen(Math.abs(v));
+  q('rsP').textContent='+'+nf(Math.max(0,R.peak||0))+'엔';q('rsI').textContent=nf(R.ichi||0)+'구슬';q('rsS').textContent=nf(S.spins)+'회전';['rsPr','rsIr','rsSr'].forEach(k=>q(k).textContent='');
+  const rows=[['DAY '+R.day,'대당 '+S.hits+'회 · RUSH '+S.rushes+'회 · 최고 '+S.maxChain+'연'+(R.comp?' · 컴플리트 '+R.comp+'회':'')]];
   q('rList').innerHTML=rows.map(r=>'<li><span>'+r[0]+'</span><b>'+r[1]+'</b></li>').join('');
   const db=q('rDouble'),dn=q('rDoubleN');db.hidden=dn.hidden=kind!=='win';const st=(R.goal0||R.goal)-R.fund0;if(kind==='win'){db.textContent='묻고 더블로 가!  (목표 '+yen(end+st)+')';dn.textContent='이번 판을 끝내지 않고 지금 자금('+yen(end)+')에서 이어서 '+yen(st)+' 더 벌어요. '+yen(R.stage!=null?R.stage:R.fund0)+'까지 떨어지면 그만둘지 물어봐요.'}
-  q('rRankB3').hidden=!R.ch;q('rRes').hidden=false;drawRes(g,mx,mn);
-  if(R.ch&&kind==='lose'){const li=document.createElement('li'),sp=document.createElement('span'),b=document.createElement('b');sp.textContent='챌린지 순위';b.textContent='확인 중…';li.append(sp,b);q('rList').appendChild(li);const ic=R.ichi||0,ss=S.spins;setTimeout(()=>fetch(API+'/rank?ichi='+ic+'&spins='+ss,{cache:'no-store'}).then(r=>r.json()).then(d=>{b.textContent=d.me?'일격 '+d.me.i+'위 · 생존 '+d.me.s+'위 (전체 '+Math.max(d.me.t,1)+'명)':'-'}).catch(()=>{b.textContent='서버에 연결하지 못했어요 (다음에 다시 보내요)'}),1200)}}
+  q('rRes').hidden=false;drawRes(g,mx,mn);
+  q('rAgree').hidden=true;if(R.ch){rec();setTimeout(showRanks,1500)}}
  function drawRes(g,mx,mn){const c=q('rCv'),x=c.getContext('2d'),W=c.width,H=c.height,pl=120,pr=24,pt=34,pb=40,F=v=>R.fund0+v*YEN;
-  let lo=Math.min(0,F(mn[1])),hi=Math.max(R.goal,F(mx[1]));const sp=hi-lo;lo-=sp*.05;hi+=sp*.08;const xm=Math.max(100,g[g.length-1][0]),X=v=>pl+(W-pl-pr)*v/xm,Y=v=>pt+(H-pt-pb)*(hi-v)/(hi-lo);
+  let lo=Math.min(0,F(mn[1])),hi=Math.max(R.ch?R.fund0:R.goal,F(mx[1]));const sp=hi-lo;lo-=sp*.05;hi+=sp*.08;const xm=Math.max(100,g[g.length-1][0]),X=v=>pl+(W-pl-pr)*v/xm,Y=v=>pt+(H-pt-pb)*(hi-v)/(hi-lo);
   x.clearRect(0,0,W,H);x.font='20px sans-serif';x.textBaseline='middle';
   const line=(v,col,lab)=>{x.strokeStyle=col;x.lineWidth=1.5;x.setLineDash([8,6]);x.beginPath();x.moveTo(pl,Y(v));x.lineTo(W-pr,Y(v));x.stroke();x.setLineDash([]);x.fillStyle=col;x.textAlign='right';x.fillText(lab,pl-8,Y(v))};
-  line(0,'#ff5364','0');line(R.fund0,'#8a93a3','시작 '+kk(R.fund0));line(R.goal,'#ffd76a','목표 '+kk(R.goal));
+  line(0,'#ff5364','0');line(R.fund0,'#8a93a3','시작 '+kk(R.fund0));if(!R.ch)line(R.goal,'#ffd76a','목표 '+kk(R.goal));
   x.textAlign='left';x.textBaseline='top';x.strokeStyle='#5a2a33';x.fillStyle='#c98a94';x.lineWidth=1;[0].concat(R.days||[]).forEach((d,i)=>{if(i){x.beginPath();x.moveTo(X(d),pt);x.lineTo(X(d),H-pb);x.stroke()}x.fillText('DAY '+(i+1),X(d)+4,6)});
   const y0=Y(R.fund0),path=()=>{x.beginPath();x.moveTo(X(g[0][0]),Y(F(g[0][1])));for(let i=1;i<g.length;i++)x.lineTo(X(g[i][0]),Y(F(g[i][1])))};
   const area=(top,bot,far,rgb)=>{if(Math.abs(far-y0)<2)return;x.save();x.beginPath();x.rect(pl,top,W-pl-pr,bot-top);x.clip();const gr=x.createLinearGradient(0,y0,0,far);gr.addColorStop(0,'rgba('+rgb+',.04)');gr.addColorStop(1,'rgba('+rgb+',.8)');x.fillStyle=gr;path();x.lineTo(X(g[g.length-1][0]),y0);x.lineTo(X(g[0][0]),y0);x.closePath();x.fill();x.restore()};
