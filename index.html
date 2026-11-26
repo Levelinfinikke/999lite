@@ -316,6 +316,40 @@ body{box-sizing:border-box;padding-top:env(safe-area-inset-top)!important}
 #sbFix{display:none}
 @media (display-mode:standalone),(display-mode:fullscreen){#sbFix{display:block;position:fixed;top:0;left:0;right:0;height:11px;background:#050506;-webkit-background-clip:text;background-clip:text;color:transparent;z-index:2147483647;pointer-events:none}}
 </style>
+<style>
+#mBar{display:none;position:fixed;left:0;top:0;z-index:130;gap:4px;padding:4px;transform-origin:0 0;will-change:transform;flex-direction:row;align-items:stretch;
+ background:rgba(0,0,0,.5);border:0;border-radius:11px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#mBtns{display:flex;gap:4px;flex-direction:inherit}
+#mBar.vert{flex-direction:column}
+#mBar.fold #mBtns{display:none}
+#mBar button{position:static!important;display:flex!important;align-items:center;justify-content:center;gap:3px;transform:none!important;min-width:34px;width:auto!important;height:26px!important;padding:0 7px!important;margin:0;border-radius:7px!important;clip-path:none;box-shadow:none!important;
+ background:rgba(255,255,255,.12)!important;border:0!important;color:rgba(255,255,255,.92)!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+#mBar.vert button{width:42px!important;padding:0!important}
+#mBar button svg{height:14px;width:auto;display:block}
+#mBar button.on{color:#fff!important;background:rgba(57,194,255,.42)!important}
+#mAuto.sel{color:#ff3044!important;background:rgba(255,48,68,.18)!important}
+#mAutoX{font:800 9px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;font-style:normal;letter-spacing:.02em;color:#ff5364}#mAutoX:empty{display:none}
+#mBar.vert #mAuto{flex-direction:column;gap:1px;height:auto!important;min-height:26px;padding:3px 0!important}
+#mBar #mFold{min-width:18px;padding:0 4px!important;background:rgba(255,255,255,.07)!important}
+#mFold b{display:block;width:0;height:0;border:5px solid transparent;border-left:6px solid rgba(255,255,255,.75);border-right:0}
+#mBar.fold #mFold b{transform:scaleX(-1)}
+#mBar.vert #mFold{height:18px!important;width:42px!important}#mBar.vert #mFold b{transform:rotate(90deg)}#mBar.vert.fold #mFold b{transform:rotate(-90deg)}
+#mBar button:active{filter:brightness(1.5)}
+@media (max-width:760px),(pointer:coarse){#mBar{display:flex}
+ body{--ww:0px!important}#wAh,#wBh,#wAuto,#wSkip{display:none!important}#wA>.bd{padding-top:7px!important}
+ body.mA0 #wA>.bd>:not(#wB){display:none!important}body.mA0 #wB{margin-top:0;border-top:0}
+ body.mB0 #wB{display:none!important}
+ body.mA0.mB0 #wA{display:none!important}
+ /* 설정 · 기록 위젯도 막대와 같은 모양: 테두리 없는 반투명 둥근 사각형, 버튼은 반투명 흰 둥근 사각형 */
+ #wcol .wg{background:rgba(0,0,0,.5)!important;border:0!important;border-radius:11px!important;box-shadow:none!important;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+ #wcol .wg::before,#wcol .wg::after{display:none!important}
+ #wA #wB{background:transparent!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+ #wcol button,#wcol label,#wcol #qk button{background:rgba(255,255,255,.12)!important;border:0!important;border-radius:7px!important;box-shadow:none!important;color:rgba(255,255,255,.92)!important}
+ #wcol #qk button{border-radius:50%!important}
+ #wcol label button,#wcol .stp button{background:rgba(255,255,255,.1)!important}
+ #wcol button.sel,#wcol button.act,#wcol button.on{background:rgba(255,48,68,.22)!important;color:#ff6a7a!important}
+ #wcol canvas,#wcol #gCv{border-radius:7px;background:transparent!important;border:0!important}}
+</style>
 <style>#wcol #wAuto{letter-spacing:.04em;font-size:13px;padding:0 2px}#wcol #wSkip{height:44px}#dl button.go{flex:none}#dlNote{margin:0;padding-left:20px;text-align:left;font-size:13px;line-height:1.75;color:#d8cfd2;max-width:min(420px,84vw)}#dlNote[hidden]{display:none}#wPay{right:23.3%!important;bottom:41.55%!important;align-items:baseline!important;gap:.4cqw!important;padding:.75cqw .9cqw .55cqw 1cqw!important;background:rgba(4,2,3,.86)!important;border-radius:.5cqw}#wPay b{font-size:7.4cqw!important}#wPay i{font-size:2.4cqw!important;padding:0!important}#wPay:not(.fold) u{display:none}#wPay.fold{padding:.5cqw .9cqw!important}#wPay.fold u{font-size:1.5cqw!important;margin:0!important}.wg{border-color:#7a1422!important;background:linear-gradient(180deg,rgba(28,9,13,.9),rgba(9,4,6,.9))!important}.wg::before{background:linear-gradient(90deg,#8a0b15,#ff2d40,#8a0b15)!important}.wg .hd{color:#f0a3ad!important}.wg .hd i{color:#a8868b!important}.wg.drag{box-shadow:0 0 0 1px #ff5364,0 8px 30px rgba(0,0,0,.6)!important}#wcol button,#wcol label{background-color:#201115;border-color:#4d2830}#wcol button:hover{border-color:#ff5364;background-color:#2c161b}#wcol label{color:#c9a9ae}#wcol #inCost{background:#0a0506;border-color:#4d2830}#wcol #wReset{border-color:#3a1c22!important;color:#a8868b!important;background:transparent!important}#wcol #wHelp{color:#f0a3ad!important}#helpBox .hb{border-color:#7a1422!important;background:linear-gradient(180deg,#1c090d,#090406)!important}#helpBox h3{color:#f0a3ad!important}#helpBox h4{color:#ff5364!important}#helpBox td{border-top-color:#3a1c22!important}#helpX{background:#201115!important;border-color:#4d2830!important}#helpBox .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 36px 10px 0}#helpBox .tabs button{flex:1 1 auto;padding:0 8px;white-space:nowrap;height:30px;clip-path:none;border-radius:3px;background:#201115;border:1px solid #4d2830;color:#a8868b;font-weight:700;font-size:13px;letter-spacing:.08em;cursor:pointer}#helpBox .tabs button.on{background:linear-gradient(180deg,#e01b2c,#8a0b15);border-color:#ff5364;color:#fff}#helpBox .pane[hidden]{display:none}#helpBox ul{margin:0 0 4px;padding-left:18px}#helpBox li{margin:3px 0}</style>
 <style>html.flip180 body{transform:rotate(180deg);transform-origin:50% 50%}
 /* 아이폰 홈 화면 앱: 상태 표시줄 뒤에 시스템이 덧씌우는 막이 페이지 배경색을 따라가도록, 배경색을 색 값으로도 분명히 지정 (그라데이션만 있으면 밝은 페이지로 보고 뿌연 막을 씌움) */
@@ -529,6 +563,13 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
+ ['v487','(배포판 · 휴대폰) 기록 위젯의 숫자판 · 히스토리 · 그래프 바탕도 반투명 (뒤가 비침)',{url:'../999lite v.3/index.html'}],
+ ['v486','(배포판 · 휴대폰) 설정 · 기록 위젯도 막대와 같은 모양: 테두리 없는 반투명 둥근 사각형, 버튼은 반투명 흰 둥근 사각형 (켜진 버튼은 옅은 빨강). 위젯 · 막대의 바탕을 조금 더 어둡게(글자가 잘 보이게)',{url:'../999lite v.3/index.html'}],
+ ['v484','(배포판 · 휴대폰) 막대 위젯: 화면 오른쪽 아래 구석에 붙임 · 접기 버튼은 왼쪽(가로 화면은 위) · 테두리 없앰 · 위젯과 버튼을 반투명 둥근 사각형으로 · 화살표 아이콘을 버튼 가운데로',{url:'../999lite v.3/index.html'}],
+ ['v483','(배포판 · 휴대폰) 아래 막대를 위젯 하나로: [설정(톱니) | 기록(그래프) | AUTO ▶ | 5초 ▶▶ | SKIP ▶▶▶ | 접기]. 설정 = 예전 PLAY 위젯(AUTO · SKIP 빠짐), AUTO 를 누를 때마다 x1 → x5 → x10 → x50 → 끄기 (켜지면 빨간 화살표 + 오른쪽에 배속). 맨 끝 화살표로 막대 접기/펼치기. 가로 화면은 오른쪽에 세로로',{url:'../999lite v.3/index.html'}],
+ ['v481','(배포판 · 휴대폰) 아래 막대 버튼을 훨씬 작게 · 제목 줄을 없앤 PLAY 위젯의 위쪽에 여유(AUTO 버튼이 테두리에 붙지 않게)',{url:'../999lite v.3/index.html'}],
+ ['v480','(배포판 · 휴대폰) 아래 막대 [PLAY | RECORD | 5초 | SKIP] (가로 화면은 오른쪽에 세로로). PLAY · RECORD 로 위젯 보이기/숨기기 — 위젯 끌기 · 제목 줄 없앰. 5초 = 연출 중 5초 앞으로, SKIP = 건너뛰기. 화면을 확대해도 같은 자리 · 같은 크기',{url:'../999lite v.3/index.html'}],
+ ['v479','(배포판 · 휴대폰) 화면의 둥근 SKIP 버튼 왼쪽에 같은 모양의 「5초」 버튼: 연출 중에 누르면 5초 앞으로 (→ 키와 같음). 대기 중에는 아무 일도 안 함',{url:'../999lite v.3/index.html'}],
  ['v478','LED 가 흰색에서 안 바뀌던 문제: 이어 붙이기 재생(serve_ghoulsim 으로 연 GhoulSim · 배포판)에서는 한 재생기에 여러 영상이 이어져 있는데, LED · 진동 표를 재생기 전체 시각으로 찾아서 두 번째 영상부터 표를 못 찾았음. 지금 영상의 시작부터 재서 찾도록 고침 — serve_ghoulsim 으로 열고 아무 연출이나 이어서 볼 때 LED 색 · 진동',{e:'RUSH 돌입 → ST 5회'}],
  ['v477','(배포판 · 아이폰 홈 화면 앱) 화면 맨 위가 뿌옇게 덮이던 문제: iOS 27 이 상태 표시줄 밑에 그리는 유리 효과 때문. 상태 표시줄을 불투명(검정)으로 바꿔 효과가 안 생기게 함 — 홈 화면 아이콘을 지우고 다시 추가한 뒤 확인',{url:'../999lite v.3/index.html'}],
  ['v476','화면 아래 안내 문구 전부 없앰: 「Space: 정산 건너뛰기」 · 「PUSH ▶ 화면 클릭 · Space · SKIP」 · JUDGEMENT 「모드 선택: 화면 왼쪽 · 오른쪽 …」. ST 모드를 바꿀 때 위에 뜨던 「MODE · 돌격」 같은 안내도 없앰 (모드는 왼쪽 아래 배지 그림으로만 바뀜) — 정산 · PUSH · 모드 선택 · ST 중 레버',{e:'RUSH 돌입 → ST 5회'}],
@@ -2411,7 +2452,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
 </div></div>
 </div></div>
 </div>
-<button id="mSkip" title="건너뛰기 / PUSH">SKIP</button>
+<div id="mBar"><button id="mFold" title="접기 / 펼치기"><b></b></button><div id="mBtns"><button id="mPlay" title="설정"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><g transform="translate(12 12)"><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(0)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(45)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(90)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(135)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(180)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(225)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(270)"/><rect x="-2.1" y="-11" width="4.2" height="5" rx="1" transform="rotate(315)"/></g><path fill-rule="evenodd" d="M12 4.6a7.4 7.4 0 1 0 0 14.8a7.4 7.4 0 1 0 0-14.8zM12 8.9a3.1 3.1 0 1 1 0 6.2a3.1 3.1 0 1 1 0-6.2z"/></svg></button><button id="mRec" title="기록"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 3.5v17h17"/><path d="M7 15.5l4-4.5 3.2 3 5.3-6.5"/></svg></button><button id="mAuto" title="자동: 누를 때마다 x1 → x5 → x10 → x50 → 끄기"><svg viewBox="1.6 0 14.25 24" fill="currentColor" aria-hidden="true"><path d="M2 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L3.7 3.67A1.1 1.1 0 0 0 2 4.6z"/></svg><i id="mAutoX"></i></button><button id="m5Skip" title="5초 건너뛰기"><svg viewBox="1.6 0 27.25 24" fill="currentColor" aria-hidden="true"><path d="M2 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L3.7 3.67A1.1 1.1 0 0 0 2 4.6z"/><path d="M15 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L16.7 3.67A1.1 1.1 0 0 0 15 4.6z"/></svg></button><button id="mSkip" title="건너뛰기 / PUSH"><svg viewBox="1.6 0 40.25 24" fill="currentColor" aria-hidden="true"><path d="M2 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L3.7 3.67A1.1 1.1 0 0 0 2 4.6z"/><path d="M15 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L16.7 3.67A1.1 1.1 0 0 0 15 4.6z"/><path d="M28 4.6v14.8a1.1 1.1 0 0 0 1.7.93l11.2-7.4a1.1 1.1 0 0 0 0-1.86L29.7 3.67A1.1 1.1 0 0 0 28 4.6z"/></svg></button></div></div>
 <div id="dl"><h1>999 <i>v.3</i></h1><p id="dlMsg">게임 영상을 기기에 내려받는 중이에요.<br>한 번 받아 두면 다음부터는 바로 시작돼요.</p><ul id="dlNote" hidden><li>RUSH(ST) 연출 대폭 추가</li><li>통상 배틀에 새 전개 추가</li><li>기기 버튼 = PUSH, 레버 = PULL 전용</li><li>통상에서 버튼 연타 시 빠르게 회전</li><li>화면 확대 · 시점 이동</li><li>화질은 그대로, 용량은 더 작게</li></ul><div id="dlBar"><i></i></div><div id="dlTxt">준비 중…</div><button id="dlNow" class="go" style="display:none">⬇ 내려받기</button><button id="dlGo" class="go" style="display:none">▶ 시작</button><button id="dlSkip">받지 않고 바로 시작 (스트리밍)</button></div>
 <script>
 // ── 모바일 + 웹 주소: 영상을 전부 저장소에 받아 둔 뒤 시작 (sw.js 가 저장된 영상을 내어 줌) ──
@@ -2478,11 +2519,11 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
  // Space = SKIP (통상 대기 중에는 다음 당첨까지 넘김, 연출 중에는 건너뛰기·PUSH). 1회 회전은 PLAY 버튼 / Enter
  addEventListener('keydown',e=>{if(e.code!=='Space'||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||''))return;e.preventDefault();e.stopImmediatePropagation();if(e.repeat)return;
   if(!busy&&!selHook&&S.mode!=='normal')return spin();pressSkip()},true);
- q('mSkip').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();pressSkip()});   // 누르는 즉시 반응
+ q('mSkip').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();pressSkip()});q('m5Skip').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(!selHook&&busy&&curPlay)seekReq=5});   // 누르는 즉시 반응
  // 화면을 확대(핀치 줌)해도 보이는 화면의 오른쪽 아래에 같은 크기로 붙어 있게: 보이는 영역(visualViewport)에 맞춰 위치·배율을 계속 맞춤
- const ms=q('mSkip'),SZ=44,MG=12;
+ const ms=q('mBar'),MG=6;
  const place=()=>{const vv=window.visualViewport,k=vv?1/vv.scale:1,w=vv?vv.width:innerWidth,h=vv?vv.height:innerHeight,ox=vv?vv.offsetLeft:0,oy=vv?vv.offsetTop:0;
-  ms.style.transform=`translate(${(ox+w-(SZ+MG)*k).toFixed(1)}px,${(oy+h-(SZ+MG+14)*k).toFixed(1)}px) scale(${k.toFixed(4)})`};
+  const vt=w>h;ms.classList.toggle('vert',vt);const bw=ms.offsetWidth,bh=ms.offsetHeight,x=ox+w-(bw+MG)*k,y=oy+h-(bh+MG)*k;ms.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${k.toFixed(4)})`};
  place();addEventListener('resize',place);if(window.visualViewport){visualViewport.addEventListener('resize',place);visualViewport.addEventListener('scroll',place)}
  // AUTO: 한 버튼으로 x1 → x2 → x4 → x8 → 끄기
  const SP=[1,5,10,50];let ai=-1;window.AUTOX=true;
@@ -2507,7 +2548,16 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
  const mob=matchMedia('(max-width:760px)').matches,fold={a:false,b:mob};try{Object.assign(fold,JSON.parse(localStorage.getItem('g999Fold2')||'{}'))}catch(e){}
  // 모바일: PLAY 칸과 RECORD 칸을 따로 접음. 둘 다 접히면 작은 PLAY 버튼 하나로 줄어듦.  PC: PLAY 제목 줄이 위젯 전체를 접음
  const setFold=()=>{const B=document.body.classList,ma=mob&&fold.a&&!fold.b;B.toggle('aOff',mob?fold.a&&fold.b:fold.a);B.toggle('cOff',ma);B.toggle('bOff',fold.b);q('wAh').lastChild.textContent=fold.a?'▸':'◂';q('wBh').lastChild.textContent=fold.b?'▸':'◂';try{localStorage.setItem('g999Fold2',JSON.stringify(fold))}catch(e){}};
- q('wAh').onclick=()=>{if(q('wA').dataset.moved)return;if(mob&&document.body.classList.contains('aOff'))fold.a=false;else fold.a=!fold.a;setFold();fitMax();keepIn(q('wA'))};q('wBh').onclick=()=>{if(q('wA').dataset.moved)return;fold.b=!fold.b;setFold();draw();keepIn(q('wA'))};setFold();
+ /* 터치 기기: 아래 막대로 설정 · 기록 위젯 보이기/숨기기, AUTO, 막대 접기. 위젯은 접기·끌기 대신 늘 펼친 모양으로 원래 자리 */
+ if(matchMedia('(max-width:760px),(pointer:coarse)').matches){window.MOBT=1;fold.a=false;fold.b=false;const B=document.body.classList;let mv={a:0,b:0,f:0};try{Object.assign(mv,JSON.parse(localStorage.getItem('g999Bar2')||'{}'))}catch(e){}
+  const rp=()=>dispatchEvent(new Event('resize'));
+  const paint=()=>{B.toggle('mA0',!mv.a);B.toggle('mB0',!mv.b);q('mPlay').classList.toggle('on',!!mv.a);q('mRec').classList.toggle('on',!!mv.b);q('mBar').classList.toggle('fold',!!mv.f);try{localStorage.setItem('g999Bar2',JSON.stringify(mv))}catch(e){}};
+  const tap=(id,f)=>q(id).addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();f()});
+  tap('mPlay',()=>{mv.a=mv.a?0:1;paint()});tap('mRec',()=>{mv.b=mv.b?0:1;paint();if(mv.b)try{draw()}catch(_){}});tap('mFold',()=>{mv.f=mv.f?0:1;paint();rp()});
+  tap('mAuto',()=>{q('wAuto').click();syncA()});
+  let lastA='';const syncA=()=>{const m=/x(\d+)/.exec(q('wAuto').textContent||''),s=m?'x'+m[1]:'';if(s===lastA)return;lastA=s;q('mAuto').classList.toggle('sel',!!s);q('mAutoX').textContent=s;rp()};setInterval(syncA,250);
+  setTimeout(()=>{const a=q('wA');a.classList.remove('free');a.style.left=a.style.top='';syncA();rp()},0);paint()}
+q('wAh').onclick=()=>{if(q('wA').dataset.moved)return;if(mob&&document.body.classList.contains('aOff'))fold.a=false;else fold.a=!fold.a;setFold();fitMax();keepIn(q('wA'))};q('wBh').onclick=()=>{if(q('wA').dataset.moved)return;fold.b=!fold.b;setFold();draw();keepIn(q('wA'))};setFold();
  // ── 위젯 끌어서 옮기기: 제목 줄을 잡고 끌면 원하는 곳으로. 위치는 기억. 제목 줄을 두 번 누르면 원래 자리로 ──
  let POS={};try{POS=JSON.parse(localStorage.getItem('g999Pos')||'{}')}catch(e){}
  const savePos=()=>{try{localStorage.setItem('g999Pos',JSON.stringify(POS))}catch(e){}};
@@ -2552,25 +2602,25 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
    cx-=w;if(ch==='/'){x.strokeStyle=on;x.lineWidth=w*.2;x.beginPath();x.moveTo(cx+w*.1,Y+h);x.lineTo(cx+w*.95,Y);x.stroke()}else seg(x,cx,Y,w,h,ch,on,off);cx-=gap;k++}
   for(;k<n;k++){cx-=w;seg(x,cx,Y,w,h,' ',on,off);cx-=gap}}
  const RED='#ff3b12',GRN='#4dffa6';
- function draw(){if(fold.b)return;const c=q('wData'),x=c.getContext('2d'),W=c.width;x.clearRect(0,0,W,c.height);x.fillStyle='#000';x.fillRect(0,0,W,c.height);
+ function draw(){if(fold.b)return;const c=q('wData'),x=c.getContext('2d'),W=c.width;x.clearRect(0,0,W,c.height);x.fillStyle=window.MOBT?'rgba(0,0,0,.22)':'#000';x.fillRect(0,0,W,c.height);
   const lab=(t,X,Y)=>{x.fillStyle='#e8e8e8';x.font='700 19px "Malgun Gothic","Noto Sans KR",sans-serif';x.textAlign='left';x.fillText(t,X,Y)};
   lab('대박',8,20);num(x,10,28,S.hits,4,24,46,RED);
   lab('대박 확률',196,20);num(x,196,28,S.hits?('1/'+(S.spins/S.hits).toFixed(1)):'-/---.-',6,24,46,RED);
-  x.fillStyle='#333';x.fillRect(0,86,W,1);
+  x.fillStyle=window.MOBT?'rgba(255,255,255,.14)':'#333';x.fillRect(0,86,W,1);
   lab('시작',8,108);num(x,10,116,S.cur,4,24,46,GRN);
   lab('총 회전수',196,108);num(x,196,116,S.spins,6,24,46,GRN);
   // 히스토리: 최근 10번의 첫 당첨 (칸 높이 = 시작 회전수, 한 칸 100회전 · 아래 = 연속 · 시작 회전수)
-  x.fillStyle='#2a2a2a';x.fillRect(0,174,W,24);x.fillStyle='#fff';x.font='700 15px "Malgun Gothic","Noto Sans KR",sans-serif';x.textAlign='center';x.fillText('히스토리',W/2,191);
+  x.fillStyle=window.MOBT?'rgba(255,255,255,.1)':'#2a2a2a';x.fillRect(0,174,W,24);x.fillStyle='#fff';x.font='700 15px "Malgun Gothic","Noto Sans KR",sans-serif';x.textAlign='center';x.fillText('히스토리',W/2,191);
   x.font='700 12px "Malgun Gothic",sans-serif';x.textAlign='right';x.fillStyle='#19f29a';x.fillText('■ 대당',W-62,190);x.fillStyle='#3aa8ff';x.fillText('■ 차지',W-8,190);
   const L=H.slice(-10).reverse(),n=10,x0=34,cw=(W-x0-6)/n,y0=206,rh=13;
   for(let r=0;r<10;r++){x.fillStyle='#8a8a8a';x.font='600 9px sans-serif';x.textAlign='center';x.fillText(10-r,16,y0+r*rh+9);
-   for(let i=0;i<n;i++){const e=L[i],on=e&&Math.min(10,Math.ceil(e[0]/100))>=10-r;x.fillStyle=on?(e[2]?'#3aa8ff':'#19f29a'):'#2b2b2b';x.fillRect(x0+i*cw+2,y0+r*rh,cw-4,rh-3)}}
+   for(let i=0;i<n;i++){const e=L[i],on=e&&Math.min(10,Math.ceil(e[0]/100))>=10-r;x.fillStyle=on?(e[2]?'#3aa8ff':'#19f29a'):(window.MOBT?'rgba(255,255,255,.09)':'#2b2b2b');x.fillRect(x0+i*cw+2,y0+r*rh,cw-4,rh-3)}}
   x.fillStyle='#bbb';x.font='600 12px sans-serif';x.fillText('連続',17,y0+10*rh+14);
   L.forEach((e,i)=>{const cx=x0+i*cw+cw/2;x.fillStyle=e[2]?'#7cc6ff':'#fff';x.font='italic 700 17px sans-serif';x.fillText(e[2]&&e[1]<2?'C':e[1],cx,y0+10*rh+15);x.fillStyle='#ddd';x.font='italic 600 13px sans-serif';x.fillText(e[0],cx,y0+10*rh+32)})}
  // 좁은 위젯용 수지 그래프: 0선, 수지 곡선, 현재·최고·최저 값
  gDraw=function(){const c=q('gCv'),x=c.getContext('2d'),W=c.width,Hh=c.height,g=(S.g&&S.g.length?S.g:[[0,0]]),pl=6,pr=6,pt=24,pb=8;
   let x1=Math.max(1,g[g.length-1][0]),lo=0,hi=0;for(const p of g){if(p[1]<lo)lo=p[1];if(p[1]>hi)hi=p[1]}if(hi-lo<1000){hi+=500;lo-=500}
-  const X=v=>pl+(W-pl-pr)*v/x1,Y=v=>pt+(Hh-pt-pb)*(hi-v)/(hi-lo);x.fillStyle='#000';x.fillRect(0,0,W,Hh);
+  const X=v=>pl+(W-pl-pr)*v/x1,Y=v=>pt+(Hh-pt-pb)*(hi-v)/(hi-lo);x.clearRect(0,0,W,Hh);x.fillStyle=window.MOBT?'rgba(0,0,0,.22)':'#000';x.fillRect(0,0,W,Hh);
   x.strokeStyle='#3a3a3a';x.lineWidth=1;x.setLineDash([4,4]);x.beginPath();x.moveTo(pl,Y(0));x.lineTo(W-pr,Y(0));x.stroke();x.setLineDash([]);
   // 경계선: 변동폭에 맞춰 1,000 · 2,500 · 5,000 · 10,000 · 20,000 · 50,000 … 단위 (선이 6개를 넘지 않게)
   let st=1000;for(const c of [1000,2500,5000,10000,20000,50000,100000,200000,500000,1000000]){st=c;if((hi-lo)/c<=6)break}
