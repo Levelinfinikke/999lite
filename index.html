@@ -524,7 +524,7 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
- ['v418','SKIP 연타(휴대폰): SKIP 직후에는 다음 영상 깨우기를 건너뛰고, 준비가 덜 끝났으면 올려 둔 영상을 그대로 이어 씀 — ST 에서 SKIP 을 계속 눌러 넘어가는 순간이 덜 끊기는지',{e:'RUSH 돌입 → ST 5회'}],
+ ['v419','SKIP(휴대폰): 영상 끝 1.5초 전으로 건너뜀(PC 는 1초). 준비가 덜 끝났으면 올려 둔 영상을 그대로 이어 씀',{e:'RUSH 돌입 → ST 5회'}],
  ['v417','츠키야마 고지: 첫 두 프레임에 남아 있던 앞 장면의 카운트 · TOTAL 표시를 잘라 냄 (시작 0.6 → 0.67초)',{e:'ST 모드 ─ 츠키야마 절규: 당첨(버튼 고지)'}],
  ['v416','ST 브금(휴대폰): 리치 배틀 뒤 다시 켜질 때 끊긴 채로 남지 않음 — 첫 터치 때 브금을 풀어 둠',{e:'RUSH 돌입 → ST 5회'}],
  ['v415','TOTAL: ST 리치 배틀처럼 영상 속 아래 표시가 사라지는 장면에서는 같이 숨음',{e:'ST 조각 ─ 꽝: yamori 리치 (앞부분 → eye → 전투, 연타 무효)'}],
@@ -875,7 +875,7 @@ let nextRes=null,skipPend=false,loadT=0,skipFast=false,skipAt=0,skipIdle=false,c
 // 기기 버튼: 연출 중이면 5초 앞으로(PUSH 구간에서는 PUSH), 판정 선택 중이면 결정, 대기 중이면 한 번 회전
 let skip5Req=false,seekReq=0;   // seekReq: 화살표 ← → 로 영상 안에서 5초 뒤로/앞으로
 function pressBtn(){if(window.TKPRESS&&window.TKPRESS())return;if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}}if(selHook)return selHook('ok');if(busy){if(curPlay)skip5Req=true;return}spin()}
-function pressSkip(){primeAbort=performance.now();if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}}   // SKIP 을 누르면 자동 회전은 꺼짐
+function pressSkip(){if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=false;const b=$('bAuto');if(b)b.classList.remove('on')}}   // SKIP 을 누르면 자동 회전은 꺼짐
  if(selHook)return selHook('ok');
  if(busy&&skipPend&&!curPlay)return;   // SKIP 으로 다음 당첨을 부른 직후 영상을 불러오는 중: 추가로 누른 건 버림(불러온 영상이 바로 건너뛰어지지 않게)
  if(busy&&chargeSkip&&curPlay&&cname(curPlay.src)==='charge'){chargeSkip=false;stopReq=true;if(!auto)skipNext=true;return}   /* AUTO 중에는 차지만 끝내고, 이어지는 통상 회전은 AUTO 가 돌림 */   // 차지(승격 없음) 중 SKIP: 차지를 바로 끝내고 다음 당첨까지 넘김
@@ -961,10 +961,9 @@ async function prepClip(nx){nx=nextOf(nx);if(!nx||!nx.src||NOCLIP()||!(await pro
  await new Promise(r=>{v.onseeked=r;setTimeout(r,1500);try{v.currentTime=t0}catch(e){r()}});
  await new Promise(r=>{if(v.readyState>=3)r();else{v.oncanplay=r;setTimeout(r,1500)}});
  /* 휴대폰: 준비한 영상을 소리 없이 한 번 잠깐 틀었다가 시작점으로 되돌려 둠(디코더를 미리 깨움). 이렇게 해 두면 넘어갈 때 재생이 곧바로 시작돼서, 미리 눌러 두는 시간을 짧게 잡을 수 있음 → 앞머리가 잘리지도, 이음매에서 멈추지도 않음 */
- /* SKIP 을 누른 직후에는 깨우기를 건너뜀(남은 시간이 1초뿐이라 준비를 빨리 끝내는 쪽이 중요). 깨우는 도중에 SKIP 이 들어오면 그 자리에서 끊고 마무리 */
- let primed=false;const ps=performance.now();if(MOBV&&my===prepSeq&&ps-primeAbort>1500){try{v.muted=true;const q=v.play();if(q&&q.then)await Promise.race([q,new Promise(r=>setTimeout(r,700)),new Promise(r=>{const w=setInterval(()=>{if(primeAbort>ps||my!==prepSeq){clearInterval(w);r()}},20);setTimeout(()=>clearInterval(w),800)})]);
-   for(let i=0;i<60&&my===prepSeq&&primeAbort<=ps&&!(v.currentTime>t0+.001);i++)await new Promise(r=>setTimeout(r,10));
-   if(my===prepSeq){primed=v.currentTime>t0+.001;v.pause();if(primeAbort<=ps||v.currentTime-t0>.06)await new Promise(r=>{v.onseeked=r;setTimeout(r,primeAbort>ps?350:900);try{v.currentTime=t0}catch(e){r()}})}}catch(e){}}
+ let primed=false;if(MOBV&&my===prepSeq){try{v.muted=true;const q=v.play();if(q&&q.then)await Promise.race([q,new Promise(r=>setTimeout(r,700))]);
+   for(let i=0;i<60&&my===prepSeq&&!(v.currentTime>t0+.001);i++)await new Promise(r=>setTimeout(r,10));
+   if(my===prepSeq){primed=v.currentTime>t0+.001;v.pause();await new Promise(r=>{v.onseeked=r;setTimeout(r,900);try{v.currentTime=t0}catch(e){r()}})}}catch(e){}}
  if(my===prepSeq)prepared={src:nx.src,t0,v,g,primed}}
 // opt: {from,to,skip:[[a,b]]|'all',marks:[[t,fn]],onTime:fn(t,d)}  (모두 기준 시각, 초)
 async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!(await probe(src)))return false;if(window.AUTOX)slowOn();
@@ -1010,7 +1009,8 @@ async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!
   if(skip5Req){skip5Req=false;const now=performance.now();if(now>=inputLock&&!levW){if(inPush&&!opt.noskip){pw.done=true;skipReq=pushReq=false;inputLock=now+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}
    const to=Math.min(t+5,t1-g.base-1);if(to>t+.05){try{v.currentTime=g.base+to}catch(e){}return}}}   // 버튼: 5초 앞으로 (끝나기 1초 전까지만). 바로 뒤의 SKIP 을 막지 않게 입력 잠금은 걸지 않음
   if(skipReq&&performance.now()<inputLock)skipReq=false;
-  if(skipReq){const now=performance.now(),e1=t1-g.base-1,nx=sr.find(x=>x[0]>t),go=(to,lock)=>{skipReq=false;inputLock=now+lock;primeAbort=now;try{v.currentTime=g.base+to}catch(e){}};
+  if(skipReq){const now=performance.now(),e1=t1-g.base-(MOBV?1.5:1),   /* 휴대폰은 끝 1.5초 전으로(다음 영상을 준비하고 깨울 시간을 더 줌), PC 는 1초 전 */
+   nx=sr.find(x=>x[0]>t),go=(to,lock)=>{skipReq=false;inputLock=now+lock;try{v.currentTime=g.base+to}catch(e){}};
    /* 멈출 지점: 버튼·레버 조작 구간(PUSH)과 연타 구간의 0.4초 전, 역물이 떨어지는 순간(결과가 드러나는 지점)의 0.6초 전. SKIP 은 그보다 앞에 있으면 거기서 멈추고, 한 번 더 누르면 지나감 */
    const st=pws.filter(w=>!w.done).map(w=>w[0]-.4).concat((NOBTN[g.n]||[]).map(w=>w[0]-.4),(g.n==='bonus7500'?[]:(TUNE.cues[src]||CUES[src]||[])).filter(c=>!sr.some(x=>c[0]>=x[0]&&c[0]<x[1])).map(c=>c[0]-.6)).filter(x=>x>t+.8&&x<e1).sort((a,b)=>a-b)[0],cap=x=>st!=null&&st<x?st:x;
    if(inPush&&!levW){pw.done=true;pushReq=false;$('pushHint').style.display='none';go(pEnd,800);return}   // 버튼 구간 안에서 SKIP: 버튼을 누른 것과 같음(결과로)
