@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <script>/* 영상 저장소 주소(비어 있으면 이 사이트의 videos/). 영상 태그에 videos/….mp4 를 넣으면 이 주소가 앞에 붙음 */
-window.VBASE="https://pub-8c9947559127422da866e6c25b1c8792.r2.dev/";window.VDIR="videos/";(function(){const B=window.VBASE;if(!B)return;
+window.VBASE="https://pub-8c9947559127422da866e6c25b1c8792.r2.dev/";window.VDIR="videos/";window.MSESETS=["265"];(function(){const B=window.VBASE;if(!B)return;
  /* H.265 를 못 트는 브라우저는 H.264 로 만든 같은 영상(videos264/)을 씀. 주소 끝에 ?h264=1 을 붙이면 강제로 H.264, ?h264=0 이면 해제 */
  try{const T='video/mp4; codecs="hvc1.1.6.L93.B0"';let f=localStorage.getItem("g999Codec")||"";const q=/[?&]h264=([01])/.exec(location.search);if(q){f=q[1]==="1"?"h264":"";localStorage.setItem("g999Codec",f)}
   if(f==="h264"||!document.createElement("video").canPlayType(T))window.VDIR="videos264/";
@@ -468,7 +468,7 @@ const FALL={};   /* 만든 소리(비프)는 쓰지 않음: 실기 영상의 소
 function se(k){if(muted||speed>=20)return;if(sndOk[k]){const a=sndEl[k];try{a.currentTime=0;a.play().catch(()=>{})}catch(e){}}else if(FALL[k])FALL[k]()}
 let bgmNow=null;
 function bgm(k){if(bgmNow===k)return;for(const b of ['bgm','bgmRush'])try{sndEl[b].pause()}catch(e){};bgmNow=k;if(k&&sndOk[k]&&!muted){sndEl[k].volume=.5;sndEl[k].play().catch(()=>{})}}
-function applyMute(){$('muteBtn').textContent=muted?'🔇 음소거 중':'🔊 소리';if(MG)MG.gain.value=muted?0:.25;for(const a of Object.values(sndEl))a.muted=muted;$('vid').muted=muted;$('vid2').muted=muted;$('bgVid').muted=muted;if(!muted&&bgmNow&&sndOk[bgmNow])sndEl[bgmNow].play().catch(()=>{});try{localStorage.setItem('tgMute',muted?'1':'0')}catch(e){}}
+function applyMute(){$('muteBtn').textContent=muted?'🔇 음소거 중':'🔊 소리';if(MG)MG.gain.value=muted?0:.25;for(const a of Object.values(sndEl))a.muted=muted;$('vid').muted=muted;$('vid2').muted=muted;if(MXP.v)MXP.v.muted=muted;$('bgVid').muted=muted;if(!muted&&bgmNow&&sndOk[bgmNow])sndEl[bgmNow].play().catch(()=>{});try{localStorage.setItem('tgMute',muted?'1':'0')}catch(e){}}
 $('muteBtn').onclick=()=>{muted=!muted;applyMute()};
 /* ---- 녹화: 이 탭의 화면+소리를 파일로 저장 ---- */
 let rec=null,recStream=null,recChunks=[],recT0=0,recTimer=0;
@@ -524,6 +524,15 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
+ ['v451','추가 3000 의 레버블 업 · 임팩트 플래시: 당첨 영상이 시작되는 순간 3초 전 ~ 직전 사이에 고르게 발동 (꽝의 흰색은 판정 영상 끝 3초 전 ~ 끝). 실패 화면 도중 역전은 그 당첨 영상 시작 기준',{}],
+ ['v450','JUDGEMENT(모드 1)의 레버블 업 · 임팩트 플래시: 버튼 조작(judge_ready 의 버튼) 7초 전 ~ 버튼 직전 사이에 고르게 발동 (모드 선택 화면의 룰렛 버튼은 기준이 아님). 버튼이 없는 브레이크 모드는 예전처럼 역물 낙하 5초 전까지',{e:'Judgement ─ 브레이크: 남은 2초에 성공'}],
+ ['v448','커스텀 레버블 업 · 임팩트 플래시: 7500 JUDGEMENT(모드 1 · 2)에서도 발동 — 성공(7500 + RUSH)의 선고지. 발생률 · 색의 뜻은 통상과 같음. 계수 중 역전도 포함',{e:'Judgement ─ 브레이크: 남은 2초에 성공'}],
+ ['v447','실전모드 묻고 더블로(배포판에서 확인): 목표 달성 때의 자금에서 처음 목표 이익만큼 더 버는 것이 새 목표 (예: 10만→20만 목표를 23만에 달성 → 새 목표 33만). 이전 출발 지점(10만)까지 떨어지면 한 번 「그만두기 / 계속하기」를 물음. 그만두면 결과 제목 「묻더 종료」',{}],
+ ['v446','실전모드(배포판 999 v.3 · lite 에서 확인): 목표를 달성하면 결과 화면에 「묻고 더블로 가!」 버튼 — 누르면 이번 판을 끝내지 않고 지금 자금 그대로 목표만 두 배로 이어 감. 다음에 끝나면 결과에 묻더 횟수 · 첫 목표 → 마지막 목표가 나옴',{}],
+ ['v444','이어 붙이기 재생 H.265 영상(videos_mse265, 배포판용): build_mse265.bat 으로 만든 뒤 휴대폰에서 영상이 나오는지 · 화질이 괜찮은지 · 이음매가 예전처럼 매끄러운지. GhoulSim 은 H.265 를 먼저 쓰고, 주소 끝에 ?h264mse 를 붙이면 H.264 묶음으로 비교',{e:'RUSH 돌입 → ST 5회'}],
+ ['v441','GhoulSim: 기록(RECORD) 창 없앰. 휴대폰에서는 조작 창을 줄여 왼쪽에 두고 기기 화면을 크게 (PC 는 조작 창 + 기기 화면)',{}],
+ ['v432','이어 붙이기 재생(MSE): serve_ghoulsim.bat 로 연 GhoulSim 에서, videos_mse 에 변환된 영상은 한 화면에 이어 붙여 재생 — 영상이 바뀌는 순간 멈칫 · 첫 프레임 잘림 · 소리 끊김이 없는지, SKIP 연타 · 버튼 구간 · ←/→ 이동이 예전과 같은지. (주소 끝에 ?nomse 를 붙이면 예전 방식으로 비교)',{e:'RUSH 돌입 → ST 5회'}],
+ ['v432','이어 붙이기 재생(MSE): 7500 보너스 → ST → 추가 3000 → ST 계속까지 끊김 없이 이어지는지',{e:'7500 보너스 → ST'}],
  ['v431','영상 이음매(휴대폰): 다음 영상을 먼저 눌러 두는 시간을 0.06초로 묶음 — 첫 프레임 · 첫 소리가 잘리지 않는지',{e:'RUSH 돌입 → ST 5회'}],
  ['v429','7500 보너스 끝의 모드 선택: 시각을 기준 시각으로 잼 (lite 판에서 2.55초 늦던 문제) — 큰 초상화가 카운트 화면으로 바뀔 때 작은 배지로 넘어가는지',{e:'7500 보너스 → ST'}],
  ['v428','영상 이음매(휴대폰): 예전 방식으로 되돌림 (미리 깨우기 · 준비 미루기 · 올려 둔 영상 이어 쓰기 제거). SKIP 은 끝 2초 전 유지',{e:'RUSH 돌입 → ST 5회'}],
@@ -859,7 +868,7 @@ $('tuneBtn').onclick=tuneToggle;
 const clipState={};
 const CLIP_OFF=new Set([]); // 소재 보강 전까지 쓰지 않는 클립
 function probe(src){if(CLIP_OFF.has(src))return Promise.resolve(false);if(src in clipState)return clipState[src];
- if(/^https?:$/.test(location.protocol)&&Object.keys(CLIPS).length)return clipState[src]=Promise.resolve(cname(src) in CLIPS||/idle_loop\.mp4$/.test(src));
+ if(/^https?:$/.test(location.protocol)&&Object.keys(CLIPS).length&&(cname(src) in CLIPS||/idle_loop\.mp4$/.test(src)))return clipState[src]=Promise.resolve(true);   // 웹: 목록에 있는 영상은 확인 생략. 목록에 없는 영상(GhoulSim 의 ST 조각 등)은 아래에서 직접 확인
  return clipState[src]=new Promise(res=>{const v=document.createElement('video');v.preload='metadata';let done=false;const fin=ok=>{if(!done){done=true;res(ok)}};v.onloadedmetadata=()=>fin(true);v.onerror=()=>fin(false);setTimeout(()=>fin(false),1500);v.src=src})}
 // 20배속 이상은 원래 영상 없이 빠르게 돌림. 단 v.2 의 AUTO(AUTOX)는 배속을 통상 회전에만 쓰고, 연출이 뜨면 1배속으로 영상을 보여 줌
 const NOCLIP=()=>speed>=20&&!window.AUTOX;
@@ -963,7 +972,95 @@ let primeAbort=0;
 const VIDS=[$('vid'),$('vid2')];let vidI=0,hideT=0,curPlay=null,prepared=null,prepSeq=0;
 // 다음에 나올 영상을 쉬는 쪽 화면에 미리 올려 시작점까지 찾아 둠 → 앞 영상이 끝나는 프레임에 바로 이어 재생
 const nextOf=n=>!n?null:(typeof n==='string'?{src:n}:n);
+// ═══ 이어 붙이기 재생(MSE): 영상 조각을 한 재생기의 버퍼에 이어 붙여 이음매 없이 재생. http 로 열었고 videos_mse/ 에 그 영상이 있을 때만 씀 (없으면 기존 두 화면 방식) ═══
+const MXP=(()=>{
+ const MSC=window.ManagedMediaSource||window.MediaSource;
+ // 영상 묶음: H.265(videos_mse265, 용량 약 60%) → 안 되면 H.264(videos_mse). 배포판은 window.MSESETS 로 쓸 묶음을 정함. 처음 찾은 묶음으로 고정(한 버퍼에 두 코덱을 섞지 않음)
+ const SETS={'265':['videos_mse265/','video/mp4; codecs="hvc1.1.6.L93.B0,mp4a.40.2"'],'264':['videos_mse/','video/mp4; codecs="avc1.64001f,mp4a.40.2"']};
+ let pref=true;try{pref=localStorage.getItem('tgMSE')!=='0'}catch(e){}
+ const want=(window.MSESETS||(/[?&]h264mse/.test(location.search)?['264']:['265','264'])).filter(k=>SETS[k]&&MSC&&MSC.isTypeSupported&&MSC.isTypeSupported(SETS[k][1]));
+ const M={on:false,v:null,miss:[],log:[],set:null,dir:want.length?(window.VBASE||'')+SETS[want[0]][0]:''};let MIME=want.length?SETS[want[0]][1]:'',lock=null;
+ if(!MSC||!/^https?:$/.test(location.protocol)||/[?&]nomse/.test(location.search)||!pref||!want.length)return M;
+ M.on=true;
+ const v=document.createElement('video');v.id='vidM';v.className='vid';v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.disableRemotePlayback=true;v.style.display='none';M.v=v;
+ VIDS[0].parentNode.insertBefore(v,VIDS[0].nextSibling);VIDS.push(v);
+ const AHEAD=12,IX={},INIT={};let ms=null,sb=null,opened=null,ops=Promise.resolve(),cur=null,q=null,pid=0,tailT=0,lastInit='',busy=false,guardT=0;
+ const fail=e=>{if(!M.on)return;M.on=false;dbg('MSE off: '+(e&&e.message||e));console.warn('MSE off',e)};
+ const open=()=>opened||(opened=new Promise((res,rej)=>{ms=new MSC();v.src=URL.createObjectURL(ms);
+  ms.addEventListener('sourceopen',()=>{try{sb=ms.addSourceBuffer(MIME);sb.mode='segments';sb.addEventListener('error',()=>fail('sourcebuffer error'));res()}catch(e){fail(e);rej(e)}},{once:true});
+  setTimeout(()=>{if(!sb){fail('sourceopen timeout');rej(new Error('sourceopen'))}},5000)}));
+ v.addEventListener('error',()=>fail('video error '+(v.error&&v.error.code)));
+ // 조각 목록: ffmpeg 가 만든 m3u8 (초기화 부분 · 조각별 위치와 길이)
+ const idx1=(dir,n)=>fetch(dir+n+'.m3u8',{cache:'no-cache'}).then(r=>r.ok?r.text():null).then(tx=>{if(!tx||tx.indexOf('#EXTM3U')<0)return null;
+  const init=/BYTERANGE="(\d+)@(\d+)"/.exec(tx);if(!init)return null;const seg=[];let t=0,d=0;
+  for(const ln of tx.split(/\r?\n/)){let m;if((m=/^#EXTINF:([\d.]+)/.exec(ln)))d=+m[1];else if((m=/^#EXT-X-BYTERANGE:(\d+)@(\d+)/.exec(ln))){seg.push({t,d,l:+m[1],o:+m[2]});t+=d}}
+  return seg.length?{init:[+init[2],+init[1]],seg,end:t}:null}).catch(()=>null);
+ const idx=n=>IX[n]||(IX[n]=(async()=>{if(lock)return idx1(M.dir,n);for(const k of want){const d=(window.VBASE||'')+SETS[k][0],r=await idx1(d,n);if(r){if(!lock){if(k==='265'&&!M.ct){M.ct=await fetch(d+'clips.json',{cache:'no-cache'}).then(x=>x.ok?x.json():null).catch(()=>null);if(!M.ct)continue}if(!lock){lock=k;M.set=k;M.dir=d;MIME=SETS[k][1];if(k!=='265')M.ct=null;dbg('MSE 묶음 '+k)}}return lock===k?r:idx1(M.dir,n)}}return null})());
+ M.ok=async src=>M.on&&!!(await idx(cname(src)));
+ const bytes=async(n,o,l)=>{const r=await fetch(M.dir+n+'.mp4',{headers:{Range:'bytes='+o+'-'+(o+l-1)}});if(!r.ok)throw new Error(n+' '+r.status);const b=await r.arrayBuffer();return r.status===206||b.byteLength===l?b:b.slice(o,o+l)};
+ const op=f=>ops=ops.then(f).catch(e=>{if(e&&e.name==='QuotaExceededError')return;fail(e)});
+ const sbDo=f=>new Promise((res,rej)=>{const ok=()=>{off();res()},er=()=>{off();rej(new Error('append'))},off=()=>{sb.removeEventListener('updateend',ok);sb.removeEventListener('error',er)};
+  sb.addEventListener('updateend',ok);sb.addEventListener('error',er);try{f()}catch(e){off();rej(e)}});
+ const isBuf=x=>{try{const b=sb.buffered;for(let i=0;i<b.length;i++)if(x>=b.start(i)&&x<b.end(i))return true}catch(e){}return false};
+ const bufEnd=()=>{try{const b=sb.buffered;return b.length?b.end(b.length-1):0}catch(e){return 0}};
+ const rm=(a,b)=>op(async()=>{const e=Math.min(b,ms&&isFinite(ms.duration)?ms.duration:b);if(e-a>.001)await sbDo(()=>sb.remove(a,e))});
+ // 조각(piece): 파일 하나의 쓰는 구간. off = 버퍼 시각 - 파일 시각. join = 버퍼에서 시작하는 시각
+ const mk=(n,ix,fs,join)=>{let kf=0;for(const s of ix.seg){if(s.t<=fs+.02)kf=s.t;else break}
+  if(fs-kf>.02){M.miss.push([n,+fs.toFixed(3),+kf.toFixed(3)]);dbg('MSE 시작점 '+n+' '+fs.toFixed(2)+' → '+kf.toFixed(2))}
+  const P={id:++pid,n,ix,fs,kf,join,off:join-kf,end:Infinity,app:new Map()};tailT=Math.max(tailT,P.off+ix.end);return P};
+ const fEnd=P=>Math.min(P.end,P.off+P.ix.end);
+ const geo=(src,ix)=>{const g=clipGeom(src,{duration:ix.end}),C=M.ct;if(C){const c=C[g.n]||{};g.base=c.in||0;g.dur=c.dur!=null?c.dur:Math.max(0,ix.end-g.base)}return g};   // M.ct: H.265 묶음(videos_mse265/clips.json)의 시작 위치 표. 그 영상은 lite 와 같은 구간만 잘라 만들어서 lite 의 표를 씀
+ const coldJoin=()=>Math.ceil(Math.max(tailT,v.currentTime||0,bufEnd()))+2;
+ const dropQ=()=>{if(!q)return;const a=q.join;q=null;if(a>v.currentTime+.05)rm(a,1e9)};
+ // 아직 버퍼에 없는 조각들을 [a,b] 구간에서 찾음 (붙인 지 3초가 안 된 조각은 다시 받지 않음)
+ const need=(P,a,b)=>{const S=P.ix.seg,now=performance.now();let i0=-1,i1=-1;
+  for(let i=0;i<S.length;i++){const ts=P.off+S[i].t,lo=Math.max(ts,P.join),hi=Math.min(ts+S[i].d,fEnd(P));
+   const want=hi-lo>.02&&hi>a&&lo<b&&!isBuf((lo+hi)/2)&&!(P.app.has(i)&&now-P.app.get(i)<3000);
+   if(want){if(i0<0)i0=i;i1=i;if(i1-i0>=5)break}else if(i0>=0)break}
+  return i0<0?null:{P,i0,i1}};
+ const pick=()=>{const t=v.currentTime;let j;
+  if(cur){const a=Math.max(t,cur.join);if((j=need(cur,a,Math.min(fEnd(cur),a+AHEAD))))return j;if((j=need(cur,fEnd(cur)-2.6,fEnd(cur))))return j}
+  if(q){const lead=cur?Math.max(3,AHEAD-Math.max(0,fEnd(cur)-t)):3;if((j=need(q,q.join,Math.min(fEnd(q),q.join+lead))))return j}
+  return null};
+ const pump=async()=>{if(busy||!M.on||!sb)return;busy=true;let did=false;
+  try{const j=pick();
+   if(j){did=true;const {P,i0,i1}=j,S=P.ix.seg,o=S[i0].o,l=S[i1].o+S[i1].l-o,now=performance.now();for(let i=i0;i<=i1;i++)P.app.set(i,now);
+    const ini=lastInit!==P.n?(INIT[P.n]||(INIT[P.n]=bytes(P.n,P.ix.init[0],P.ix.init[1]))):null,data=await bytes(P.n,o,l),ib=ini&&await ini;
+    await op(async()=>{if(sb.updating)await sbDo(()=>{});sb.timestampOffset=P.off;sb.appendWindowEnd=Infinity;sb.appendWindowStart=Math.max(0,P.join-.001);sb.appendWindowEnd=fEnd(P)+.001;
+     if(ib){await sbDo(()=>sb.appendBuffer(ib));lastInit=P.n}
+     try{await sbDo(()=>sb.appendBuffer(data))}catch(e){if(e.name!=='QuotaExceededError')throw e;await sbDo(()=>sb.remove(0,Math.max(.1,v.currentTime-2)));await sbDo(()=>sb.appendBuffer(data))}})}
+   else{const t=v.currentTime;let b0=0;try{b0=sb.buffered.length?sb.buffered.start(0):0}catch(e){}if(b0<t-30)await rm(0,t-20);
+    if(!cur&&q&&!q.primed&&v.paused&&isBuf(q.off+q.fs+.02)){q.primed=true;try{v.currentTime=q.off+q.fs}catch(e){}}}}   // 다른 화면이 재생 중: 다음 조각의 첫 장면을 미리 찾아 둠
+  catch(e){fail(e)}finally{busy=false}if(did)setTimeout(pump,0)};
+ setInterval(pump,150);v.addEventListener('seeking',()=>setTimeout(pump,0));v.addEventListener('waiting',()=>setTimeout(pump,0));
+ const waitBuf=(x,ms_)=>new Promise(r=>{const t0=performance.now(),k=setInterval(()=>{if(isBuf(x)||performance.now()-t0>ms_||!M.on){clearInterval(k);r(isBuf(x))}},20);pump()});
+ // 다음 영상 예약: 지금 조각 끝에 바로 이어 붙임 (지금 조각이 없으면 따로 떨어진 자리에 받아 첫 장면까지 찾아 둠)
+ M.queue=async nx=>{if(!M.on)return false;const n=cname(nx.src),ix=await idx(n);if(!ix)return false;await open();
+  const gF=geo(nx.src,ix),fs=Math.max(0,gF.base+(nx.from!=null?nx.from:gF.tin));
+  if(q&&q.n===n&&Math.abs(q.fs-fs)<.02)return true;dropQ();
+  q=mk(n,ix,fs,cur&&isFinite(cur.end)?cur.end:coldJoin());pump();return true};
+ M.seam=()=>!!(cur&&q&&Math.abs(q.join-cur.end)<1e-6&&isBuf(q.join+.04));
+ M.linked=()=>!!(cur&&q&&Math.abs(q.join-cur.end)<1e-6);   // 다음 조각이 바로 뒤에 예약돼 있음(아직 다 안 받았어도)
+ M.ready=()=>!!(cur&&isBuf(Math.min(v.currentTime+.3,cur.end-.02)));
+ M.start=async(src,opt)=>{if(!M.on)return null;const n=cname(src),ix=await idx(n);if(!ix)return null;try{await open()}catch(e){return null}
+  clearTimeout(guardT);const gF=geo(src,ix),fs=Math.max(0,gF.base+(opt.from!=null?opt.from:gF.tin));
+  let P=q&&q.n===n&&Math.abs(q.fs-fs)<.02?q:null;
+  if(P)q=null;else{dropQ();P=mk(n,ix,fs,coldJoin())}
+  P.end=Math.min(P.off+ix.end,P.off+gF.base+(opt.to!=null?opt.to:gF.dur+gF.tout));tailT=Math.max(tailT,P.end);
+  if(bufEnd()>P.end+.02&&P.end>v.currentTime)rm(P.end,1e9);
+  cur=P;const t0=P.off+fs,ct=v.currentTime;
+  const flow=!v.paused&&ct>=P.join-.35&&ct<P.join+.5;   // 앞 조각에서 흘러 들어오는 중: 아무것도 하지 않음
+  M.log.push([n,flow?'flow':'seek',+(ct-P.join).toFixed(3),v.paused?1:0]);if(M.log.length>60)M.log.shift();dbg('MSE '+n+' '+(flow?'flow':'seek')+' '+(ct-P.join).toFixed(2));
+  if(!flow){const ok=await waitBuf(t0+.02,4000);if(!ok&&!M.on)return null;
+   if(Math.abs(v.currentTime-t0)>.01||v.readyState<3)await new Promise(r=>{const k=setTimeout(r,1500);v.addEventListener('seeked',()=>{clearTimeout(k);r()},{once:true});try{v.currentTime=t0}catch(e){clearTimeout(k);r()}})}
+  pump();const base=P.off+gF.base;return {g:Object.assign({},gF,{base,min:P.join-base,fend:P.off+ix.end}),t0,t1:P.end}};
+ // 이어지는 영상이 900ms 안에 시작되지 않으면(다른 분기로 감) 멈추고 숨김
+ M.ended=()=>{const P=cur;guardT=setTimeout(()=>{if(cur===P&&v.currentTime>P.end){v.pause();v.style.display='none'}},900)};
+ M.leave=()=>{clearTimeout(guardT);cur=null;try{v.pause()}catch(e){}v.style.display='none'};
+ M.state=()=>({cur:cur&&{n:cur.n,join:cur.join,end:cur.end},q:q&&{n:q.n,join:q.join},t:v.currentTime,buf:(()=>{let s='';try{const b=sb.buffered;for(let i=0;i<b.length;i++)s+=b.start(i).toFixed(2)+'~'+b.end(i).toFixed(2)+' '}catch(e){}return s})(),miss:M.miss.length});
+ window.MXP=M;return M})();
 async function prepClip(nx){nx=nextOf(nx);if(!nx||!nx.src||NOCLIP()||!(await probe(nx.src)))return;
+ if(MXP.on&&await MXP.ok(nx.src)){if(prepared&&!prepared.started){prepared=null;prepSeq++}await MXP.queue(nx);return}   // 이어 붙이기 재생: 지금 조각 끝에 예약
  const my=++prepSeq,v=VIDS[vidI^1];prepared=null;v.preload='auto';v.muted=true;v.src=nx.src;
  await new Promise(r=>{if(v.readyState>=1)r();else{v.onloadedmetadata=r;v.onerror=r;setTimeout(r,2500)}});if(my!==prepSeq)return;
  const g=clipGeom(nx.src,v),t0=Math.max(0,g.base+(nx.from!=null?nx.from:g.tin));
@@ -972,20 +1069,22 @@ async function prepClip(nx){nx=nextOf(nx);if(!nx||!nx.src||NOCLIP()||!(await pro
  if(my===prepSeq)prepared={src:nx.src,t0,v,g}}
 // opt: {from,to,skip:[[a,b]]|'all',marks:[[t,fn]],onTime:fn(t,d)}  (모두 기준 시각, 초)
 async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!(await probe(src)))return false;if(window.AUTOX)slowOn();
- clearTimeout(hideT);const v=VIDS[vidI^=1],old=VIDS[vidI^1];let g,t0;
+ clearTimeout(hideT);const MSEP=MXP.on&&await MXP.ok(src);const v=MSEP?MXP.v:VIDS[vidI^=1],old=MSEP?null:VIDS[vidI^1];let g,t0;
  document.body.classList.add('inclip');bgPause();idleHide();
- const want=x=>x&&x.src===src&&x.v===v;
+ const want=x=>!MSEP&&x&&x.src===src&&x.v===v;
  if(want(prepared)){g=clipGeom(src,v);t0=Math.max(0,g.base+(opt.from!=null?opt.from:g.tin));if(Math.abs(prepared.t0-t0)>.02)prepared=null}
  let started=false;
- if(want(prepared)){started=!!prepared.started;clearTimeout(prepared.guard);prepared=null;prepSeq++;(window.__hot=window.__hot||[]).push([cname(src),+(v.currentTime-t0).toFixed(3)]);if(window.__hot.length>200)window.__hot.shift()}   // 미리 준비된 영상: 불러오기·탐색 없이 바로 재생
+ if(MSEP){if(prepared){clearTimeout(prepared.guard);try{prepared.v.pause()}catch(e){}prepared.v.style.display='none';prepared=null;prepSeq++}
+  const m=await MXP.start(src,opt);if(!m)return false;g=m.g;t0=m.t0;started=!v.paused}   // 이어 붙이기 재생: 예약된 조각이면 그대로 흘러감, 아니면 그 자리로 찾아감
+ else if(want(prepared)){started=!!prepared.started;clearTimeout(prepared.guard);prepared=null;prepSeq++;(window.__hot=window.__hot||[]).push([cname(src),+(v.currentTime-t0).toFixed(3)]);if(window.__hot.length>200)window.__hot.shift()}   // 미리 준비된 영상: 불러오기·탐색 없이 바로 재생
  else{(window.__cold=window.__cold||[]).push([cname(src),curPlay?cname(curPlay.src):(window.__lastClip||'-')]);if(window.__cold.length>200)window.__cold.shift();if(prepared&&prepared.started){clearTimeout(prepared.guard);prepared.v.pause();prepared.v.style.display='none'}prepSeq++;prepared=null;v.src=src;
   await new Promise(r=>{if(v.readyState>=1)r();else{v.onloadedmetadata=r;v.onerror=r;setTimeout(r,2500)}});
   g=clipGeom(src,v);t0=Math.max(0,g.base+(opt.from!=null?opt.from:g.tin));
   if(t0>.01)await new Promise(r=>{v.onseeked=r;setTimeout(r,1500);try{v.currentTime=t0}catch(e){r()}})}
- const t1=g.base+(opt.to!=null?opt.to:g.dur+g.tout);
+ const t1=Math.min(g.base+(opt.to!=null?opt.to:g.dur+g.tout),g.fend||1e12);   // fend: 이어 붙이기 재생에서 파일의 실제 끝
  v.muted=muted;v.playbackRate=1 /* 연출 영상은 배속하지 않음 (배속은 통상 회전에만 적용) */;
  if(!started){try{await v.play()}catch(e){v.style.display='none';return false}}
- v.style.zIndex=6;v.style.display='block';old.style.zIndex=5;old.pause();old.style.display='none';   // 새 영상이 준비된 뒤에 교체 → 이음매에 빈 화면 없음
+ v.style.zIndex=6;v.style.display='block';if(MSEP){for(const o of VIDS)if(o!==v){o.style.zIndex=5;try{o.pause()}catch(e){}o.style.display='none'}}else{old.style.zIndex=5;old.pause();old.style.display='none';if(MXP.v)MXP.leave()}   // 새 영상이 준비된 뒤에 교체 → 이음매에 빈 화면 없음
  const stopCues=runCues(v,src,g.base);const marks=(opt.marks||[]).map(m=>[m[0],m[1],false]);{const now_=performance.now(),age=now_-skipAt;if(!(skipReq&&(age<400||(skipIdle&&age<2000))))skipReq=false;skipIdle=false;if(skipCarry&&now_-skipCarry<1500){skipReq=true;skipAt=now_}skipCarry=0}stopReq=false;let iv=0;
  window.__lastClip=g.n;curPlay={v,g,src,t1,ns:!!opt.noskip};if(skipPend){skipPend=false;clearTimeout(loadT);loadHint(false)}let pushShown=false;pushReq=false;const pws=opt.noskip?[]:(p=>!p?[]:(Array.isArray(p[0])?p:[p]).map(w=>[w[0],w[1]]))(PUSH[g.n]);
  if(opt.next)prepClip(opt.next);
@@ -996,7 +1095,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!
   const m=setInterval(()=>{if(p.v.currentTime>p.t0+.001){clearInterval(m);LAT=Math.min(.3,Math.max(.02,LAT*.6+(performance.now()-tc)/1000*.4))}},4);setTimeout(()=>clearInterval(m),1000);
   p.guard=setTimeout(()=>{if(prepared===p){p.v.pause();p.v.style.display='none';prepared=null}},900)};
  const handoff=()=>{if(!preDone)pre();const p=prepared;if(p&&p.started){if(IOS){try{v.pause()}catch(e){}}p.v.muted=muted;p.v.style.zIndex=7;p.v.style.display='block'}};
- let stuckAt=0,lastTry=0;
+ let stuckAt=0,lastTry=0,mxLt=0,mxLm=0;
  await new Promise(r=>{v.onended=()=>{handoff();r()};v.onerror=r;iv=setInterval(()=>{const t=v.currentTime-g.base;
   if(v.paused&&!v.ended&&!v.seeking&&!window.__hold){const now=performance.now();if(!stuckAt)stuckAt=now;if(now-lastTry>400){lastTry=now;v.play().catch(()=>{})}if(now-stuckAt>3000){dbg('stuck → next '+g.n+' @'+t.toFixed(1));handoff();return r()}}else stuckAt=0;
   const sr=opt.skip==='all'?[[1.5,g.dur-.4]]:(opt.skip||[]);const sk=sr.find(x=>t>=x[0]&&t<x[1]-.3);$('skipHint').style.display=sk?'block':'none';
@@ -1010,7 +1109,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!
   if((NOBTN[g.n]||[]).some(w=>t>=w[0]&&t<w[1])){pushReq=false;skip5Req=false}
   if(opt.noskip)pushReq=false;   // 브레이크 모드: 화면 클릭(PUSH)은 불가, SKIP 버튼·Space 는 가능
   if(pushReq){pushReq=false;if(inPush){pw.done=true;skipReq=false;inputLock=performance.now()+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
-  if(seekReq){const d=seekReq;seekReq=0;if(!levW){const to=d>0?Math.min(t+d,t1-g.base-1):Math.max(0,t+d);if(Math.abs(to-t)>.05){pws.forEach(w=>{if(w[0]>=to-.01)w.done=false});marks.forEach(m=>{if(m[0]>=to)m[2]=false});skipReq=pushReq=false;try{v.currentTime=g.base+to}catch(e){}return}}}   // → 5초 앞(끝나기 1초 전까지) / ← 5초 뒤(영상 처음까지). 되돌아간 구간의 PUSH 창은 다시 쓸 수 있게
+  if(seekReq){const d=seekReq;seekReq=0;if(!levW){const to=d>0?Math.min(t+d,t1-g.base-1):Math.max(g.min||0,t+d);if(Math.abs(to-t)>.05){pws.forEach(w=>{if(w[0]>=to-.01)w.done=false});marks.forEach(m=>{if(m[0]>=to)m[2]=false});skipReq=pushReq=false;try{v.currentTime=g.base+to}catch(e){}return}}}   // → 5초 앞(끝나기 1초 전까지) / ← 5초 뒤(영상 처음까지). 되돌아간 구간의 PUSH 창은 다시 쓸 수 있게
   if(skip5Req){skip5Req=false;const now=performance.now();if(now>=inputLock&&!levW){if(inPush&&!opt.noskip){pw.done=true;skipReq=pushReq=false;inputLock=now+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}
    const to=Math.min(t+5,t1-g.base-1);if(to>t+.05){try{v.currentTime=g.base+to}catch(e){}return}}}   // 버튼: 5초 앞으로 (끝나기 1초 전까지만). 바로 뒤의 SKIP 을 막지 않게 입력 잠금은 걸지 않음
   if(skipReq&&performance.now()<inputLock)skipReq=false;
@@ -1027,8 +1126,11 @@ async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!
    else{skipReq=false;skipCarry=now}}
   for(const m of marks)if(!m[2]&&t>=m[0]){m[2]=true;try{m[1]()}catch(e){console.error(e)}}
   if(opt.onTime)try{opt.onTime(t,g.dur)}catch(e){}
-  const tEnd=Math.min(t1,v.duration||1e9);if(!preDone&&(tEnd-v.currentTime)/(v.playbackRate||1)<=(MOBV?Math.min(LAT,.06):LAT))pre();   /* 휴대폰: 다음 영상을 먼저 눌러 두는 시간을 0.06초로 묶음. 길게 잡으면(최대 0.3초) 다음 영상이 그만큼 먼저 흘러가 첫 프레임·첫 소리가 잘렸음. 짧게 잡으면 잘리지 않는 대신, 느린 기기에서는 넘어간 직후 첫 장면에서 아주 잠깐 머뭇할 수 있음 */
-  if(v.currentTime>=t1-.008&&t1<(v.duration||1e9)-.02){handoff();v.pause();r()}},4)});
+  const tEnd=MSEP?t1:Math.min(t1,v.duration||1e9);if(!preDone&&(tEnd-v.currentTime)/(v.playbackRate||1)<=(MOBV?Math.min(LAT,.06):LAT))pre();   /* 휴대폰: 다음 영상을 먼저 눌러 두는 시간을 0.06초로 묶음. 길게 잡으면(최대 0.3초) 다음 영상이 그만큼 먼저 흘러가 첫 프레임·첫 소리가 잘렸음. 짧게 잡으면 잘리지 않는 대신, 느린 기기에서는 넘어간 직후 첫 장면에서 아주 잠깐 머뭇할 수 있음 */
+  if(MSEP){if(v.currentTime>=t1-.008&&MXP.seam()){MXP.ended();r()}else if(MXP.linked()&&(v.currentTime>=t1-.05||(v.readyState<3&&!v.seeking&&v.currentTime>=t1-.35))){dbg('MSE 이음매 대기 '+g.n);MXP.ended();r()}   /* 다음 조각이 아직 덜 받아졌어도 멈추거나 되감지 않고 그대로 기다림(멈췄다 다시 찾아가면 휴대폰에서 소리가 줄었다가 되풀이됨) */
+   else if(v.currentTime>=t1-.05||(v.readyState<3&&!v.seeking&&v.currentTime>=t1-.35)){handoff();v.pause();r()}   /* 이어 붙이기 재생(버퍼 끝에서는 마지막 몇 프레임 앞에서 멈추므로 거기서 끝냄): 다음 조각이 버퍼에 있으면 멈추지 않고 흘러감 */
+   else if(!v.paused&&!window.__hold){const now=performance.now();if(Math.abs(v.currentTime-(mxLt||0))>.001){mxLt=v.currentTime;mxLm=now}else if(mxLm&&now-mxLm>5000){dbg('MSE stuck '+g.n);handoff();v.pause();r()}}}
+  else if(v.currentTime>=t1-.008&&t1<(v.duration||1e9)-.02){handoff();v.pause();r()}},4)});
  clearInterval(iv);$('skipHint').style.display='none';$('pushHint').style.display='none';stopCues();if(curPlay&&curPlay.v===v)curPlay=null;
  hideT=setTimeout(()=>{v.style.display='none'},opt.next?2000:350);return true}
 
@@ -1679,17 +1781,20 @@ async function judgement(success,j,jfrom){
  if(j===undefined)j=await pickJudge(success);
  const fJl=take('jlate');
  if(j&&success&&(fJl!==undefined?fJl:(!window.TMP_BREAKWIN&&Math.random()<LATE_J))){   // 실패로 보인 뒤 계수 중 아무 때나 역물이 떨어지며 역전 (안내 문구가 뜨기 전까지)
-  const tl={src:JT.lose,from:j.loseFrom||undefined};if(j.k!=='break'){await playClip(JSELC,{from:jfrom,next:j.body});jfrom=undefined}await playClip(j.body,{from:jfrom,next:j.pre||JT.lose,noskip:j.k==='break'});if(j.pre)await playClip(j.pre,{from:j.preFrom,next:JT.lose});
-  const BW='videos/judge_break_win.mp4',bwOK=await probe(BW);   // 계수 중 역전: 브레이크 당첨 영상(번쩍임 → 별 → 손 낙하)으로 뒤집고 7500 보너스는 2.24초부터
-  await playClip(JT.lose,{from:j.loseFrom||undefined,to:+(LATE.j0+Math.sqrt(Math.random())*Math.max(0,LATE.j1-LATE.j0)).toFixed(3),next:bwOK?BW:{src:'videos/direct7500.mp4',from:D75F()}});
+  const tl={src:JT.lose,from:j.loseFrom||undefined},BW='videos/judge_break_win.mp4',bwOK=await probe(BW),lto=+(LATE.j0+Math.sqrt(Math.random())*Math.max(0,LATE.j1-LATE.j0)).toFixed(3);
+  if(window.cusRush)window.cusRush(true,window.cusEta((j.k!=='break'?[{src:JSELC,from:jfrom}]:[]).concat([{src:j.body,from:j.k==='break'?jfrom:undefined}],j.pre?[{src:j.pre,from:j.preFrom}]:[],[{src:JT.lose,from:j.loseFrom||undefined,to:lto},bwOK?{src:BW}:{src:'videos/direct7500.mp4',from:D75F()}])),'judge');   /* JUDGEMENT 의 레버블 · 임팩트 플래시 (계수 중 역전) */
+  if(j.k!=='break'){await playClip(JSELC,{from:jfrom,next:j.body});jfrom=undefined}await playClip(j.body,{from:jfrom,next:j.pre||JT.lose,noskip:j.k==='break'});if(j.pre)await playClip(j.pre,{from:j.preFrom,next:JT.lose});
+  // 계수 중 역전: 브레이크 당첨 영상(번쩍임 → 별 → 손 낙하)으로 뒤집고 7500 보너스는 2.24초부터
+  await playClip(JT.lose,{from:j.loseFrom||undefined,to:lto,next:bwOK?BW:{src:'videos/direct7500.mp4',from:D75F()}});
   if(bwOK&&await playClip(BW,{next:{src:CLIP.bonus7500,from:2.24}})){B75FROM=2.24;return true}
   // 실패 계수 도중 → 즉시 7500 영상 → 7500 확정(전체 낙하) → 7500 보너스. 3000 도중의 즉시 7500 분기와 같은 순서
   // 부활 때만: 즉시 7500 영상 맨 앞의 '3000' 프레임(0.03초까지)을 잘라 냄
   if(await playClip('videos/direct7500.mp4',{from:D75F(),next:JT.win}))await playClip(JT.win,{next:CLIP.bonus7500});else if(!(await playClip(JT.win,{next:CLIP.bonus7500}))){clearTimeout(hideT);await handDrop(true)}return true}
  if(j){const tail=success?{src:(j.win&&await probe(j.win))?j.win:JT.win}:{src:JT.lose,from:j.loseFrom||undefined}   /* 배틀 실패는 조정한 시작점(+0.6)부터 */,ns=j.k==='break';   // 브레이크 모드는 화면 클릭 불가
+  const er=Math.random(),bf=window.BRKFORCE;window.BRKFORCE=0;const eto=success&&ns&&j.win&&tail.src===j.win?(bf||(er<.03?33.0:er<.06?35.2:undefined)):undefined;   /* 브레이크 모드: 남은 4초(3%)·2초(3%)에 먼저 깨지는 건 성공일 때만 → 나오면 RUSH 농후 */
+  if(window.cusRush)window.cusRush(success,window.cusEta((ns?[]:[{src:JSELC,from:jfrom}]).concat([{src:j.body,from:ns?jfrom:undefined,to:eto}],j.pre?[{src:j.pre,from:j.preFrom}]:[],[tail])),'judge');   /* JUDGEMENT(모드 1 · 2)의 레버블 · 임팩트 플래시: 성공 = 7500 + RUSH */
   if(!ns){await playClip(JSELC,{from:jfrom,next:j.body});jfrom=undefined}
-  {const er=Math.random(),bf=window.BRKFORCE;window.BRKFORCE=0;const eto=success&&ns&&j.win&&tail.src===j.win?(bf||(er<.03?33.0:er<.06?35.2:undefined)):undefined;   /* 브레이크 모드: 남은 4초(3%)·2초(3%)에 먼저 깨지는 건 성공일 때만 → 나오면 RUSH 농후 */
-  await playClip(j.body,{from:jfrom,to:eto,next:j.pre||tail,noskip:ns})}if(j.pre)await playClip(j.pre,{from:j.preFrom,next:tail});
+  {await playClip(j.body,{from:jfrom,to:eto,next:j.pre||tail,noskip:ns})}if(j.pre)await playClip(j.pre,{from:j.preFrom,next:tail});
   const bw=success&&j.win&&tail.src===j.win;if(bw)B75FROM=2.24;
   await playClip(tail.src,{from:tail.from,next:success?(bw?{src:CLIP.bonus7500,from:2.24}:CLIP.bonus7500):null,noskip:ns});return success}
  const opp=success?wpick(JUDGE,x=>x[2]):wpick(JUDGE,x=>x[2]*(1-x[1])/x[1]);
@@ -1813,16 +1918,26 @@ async function stPrep(){
   const s0=performance.now(),Z=window.LEDZO=window.LEDZO||{};Z.imp=()=>[1.3,(Math.floor((performance.now()-s0)/100)*137)%360,1];window.CUSROT=performance.now()+6e5;const iv=setInterval(()=>{if(window.cusDropNow()||!busy||S.hits!==h0||S.mode!==m0){clearInterval(iv);Z.imp=null;window.CUSROT=0}},60)};   /* 임팩트 플래시 발동: 효과음 + 번쩍 + 역물이 떨어지는 순간까지 기둥·상단 무지개 회전, 버튼·레버 무지개 */
  // 영상 목록(parts)에서 '역물이 떨어질 때까지 남은 초'를 재는 함수를 만듦: 지금 재생 중인 조각의 남은 길이 + 뒤 조각들의 길이, 역물 시각표가 있는 조각을 만나면 그 시각까지
  const dur0=n=>{try{for(const c in STP.L){const l=STP.L[c].find(x=>x[0]===n);if(l)return l[2]}const iv=STM.MD.iv[n];if(iv&&iv.length)return iv[iv.length-1][1];const w=STP.T[n];if(w&&w.length)return w[w.length-1][1]}catch(e){}return 4};   /* 영상 길이표(clips.js)가 없을 때의 대략 길이 */
- window.cusEta=parts=>{let k0=0;return ()=>{try{const c=curPlay;if(!c)return null;let k=-1;for(let j=k0;j<parts.length;j++)if(parts[j].src===c.src){k=j;break}if(k<0)return null;k0=k;const t=c.v.currentTime-c.g.base;let rem=0;
+ window.cusEta=parts=>{let k0=0;const f=()=>{try{const c=curPlay;if(!c)return null;let k=-1;for(let j=k0;j<parts.length;j++)if(parts[j].src===c.src){k=j;break}if(k<0)return null;k0=k;const t=c.v.currentTime-c.g.base;let rem=0;
    for(let j=k;j<parts.length;j++){const p=parts[j],n=cname(p.src),g=CLIPS[n]||{},tr=TUNE.trim[n]||[0,0],a=j===k?t:(p.from!=null?p.from:(tr[0]||0)),e=p.to!=null?p.to:(g.dur!=null?g.dur+(tr[1]||0):(j===k&&c.v.duration?c.v.duration-c.g.base:dur0(n)));
-    const cu=(TUNE.cues[p.src]||CUES[p.src]||[]).filter(q=>q[2]!=='hand'&&q[0]>=a-.05&&(e==null||q[0]<e)).map(q=>q[0])[0];if(cu!=null)return rem+cu-a;if(e==null)return null;rem+=Math.max(0,e-a)}return rem}catch(e){return null}}};
- // RUSH 중(ST 회전 · 추가 3000 판정)의 레버블 · 임팩트 플래시. 뜻과 발생률은 통상과 같음. 발동은 역물 낙하(꽝·실패는 그 회전의 끝) 5초 전까지: 5초에 가까운 쪽이 많음
- window.cusRush=(win,eta,kind)=>{try{if(speed>=20||!eta)return;const F=window.CUSFORCE2;window.CUSFORCE2=null;const pw=kind==='uw'?SPEC.loop:SPEC.rushP,od=pw/(1-pw);let tier='';
+    const cu=(TUNE.cues[p.src]||CUES[p.src]||[]).filter(q=>q[2]!=='hand'&&q[0]>=a-.05&&(e==null||q[0]<e)).map(q=>q[0])[0];if(cu!=null)return rem+cu-a;if(e==null)return null;rem+=Math.max(0,e-a)}return rem}catch(e){return null}};f.parts=parts;return f};
+ // 남은 시간: 마지막 조각(당첨 영상)이 시작될 때까지. 조각이 하나면 그 조각이 끝날 때까지
+ window.cusLastEta=parts=>{if(!parts.length)return null;let k0=0;const L=parts.length>1?parts.length-1:1;return ()=>{try{const c=curPlay;if(!c)return null;let k=-1;for(let j=k0;j<parts.length;j++)if(parts[j].src===c.src){k=j;break}if(k<0||k>=L)return null;k0=k;const t=c.v.currentTime-c.g.base;let rem=0;
+   for(let j=k;j<L;j++){const p=parts[j],n=cname(p.src),g=CLIPS[n]||{},tr=TUNE.trim[n]||[0,0],a=j===k?t:(p.from!=null?p.from:(tr[0]||0)),e=p.to!=null?p.to:(g.dur!=null?g.dur+(tr[1]||0):(j===k&&c.v.duration?c.v.duration-c.g.base:dur0(n)));if(e==null)return null;rem+=Math.max(0,e-a)}return rem}catch(e){return null}}};
+ // 남은 시간: 버튼 조작 구간(PUSH)의 시작까지. 모드 선택 화면의 룰렛 버튼은 빼고 셈. 버튼이 없으면 null
+ window.cusBtnEta=parts=>{let k0=0;const any=parts.some(p=>p.src!==JSELC&&PUSH[cname(p.src)]);if(!any)return null;return ()=>{try{const c=curPlay;if(!c)return null;let k=-1;for(let j=k0;j<parts.length;j++)if(parts[j].src===c.src){k=j;break}if(k<0)return null;k0=k;const t=c.v.currentTime-c.g.base;let rem=0;
+   for(let j=k;j<parts.length;j++){const p=parts[j],n=cname(p.src),g=CLIPS[n]||{},tr=TUNE.trim[n]||[0,0],a=j===k?t:(p.from!=null?p.from:(tr[0]||0)),e=p.to!=null?p.to:(g.dur!=null?g.dur+(tr[1]||0):dur0(n));
+    const pw=p.src===JSELC?null:PUSH[n],ws=!pw?[]:(Array.isArray(pw[0])?pw:[pw]),w=ws.map(x=>x[0]).filter(x=>x>=a-.05&&(e==null||x<e))[0];if(w!=null)return rem+w-a;if(e==null)return null;rem+=Math.max(0,e-a)}return null}catch(e){return null}}};
+ // RUSH 중(ST 회전 · 추가 3000 판정)과 7500 JUDGEMENT(모드 1 · 2)의 레버블 · 임팩트 플래시. 뜻과 발생률은 통상과 같음. 발동은 역물 낙하(꽝·실패는 그 회전의 끝) 5초 전까지: 5초에 가까운 쪽이 많음
+ window.cusRush=(win,eta,kind)=>{try{if(speed>=20||!eta)return;const F=window.CUSFORCE2;window.CUSFORCE2=null;const pw=kind==='uw'?SPEC.loop:kind==='judge'?SPEC.rushIn:SPEC.rushP,od=pw/(1-pw);let tier='';
    if(F&&F.lev)tier=F.lev;else if(CU.lev==='on'){if(win){if(Math.random()<.5)tier=Math.random()<.1?'rb':(Math.random()<.34?'r':'w')}else if(Math.random()<od*.3135*(5/95))tier='w'}   /* ON: 당첨의 50%, 흰색 신뢰도 약 95% */
    else if(!F){if(win){if(Math.random()<.16){const l=wpick(LEVER,x=>x[2]);tier={white:'w',red:'r',rainbow:'rb'}[l[0]]||''}}else if(Math.random()<od*.1*(25/75))tier='w'}   /* OFF: 당첨의 16%, 흰색 신뢰도 약 75% */
    const imp=F?!!F.imp:(win&&CU.lev!=='on'&&Math.random()<(CU.imp==='on'?.5:.1));if(!tier&&!imp)return;
-   const h0=S.hits,m0=S.mode,R=F?1e9:5+15*Math.pow(Math.random(),2),t0=performance.now();let seen=false;
-   const wt=setInterval(()=>{if(!busy||S.hits!==h0||S.mode!==m0||performance.now()-t0>180000)return clearInterval(wt);const r=eta();if(r==null){if(seen)clearInterval(wt);return}seen=true;if(r<5)return clearInterval(wt);if(r>R)return;clearInterval(wt);if(tier)window.cusLev(tier);if(imp)window.cusImpFire()},100)}catch(e){}};
+   const MIN=5,h0=S.hits,m0=S.mode,R=F?1e9:MIN+15*Math.pow(Math.random(),2),t0=performance.now();let seen=false;
+   /* 버튼 기준(JUDGEMENT): 버튼 조작 시점 최대 BMAX초 전 ~ 버튼 직전 사이에 고르게 발동 (실기 영상 judge_shiro_body 의 임팩트 플래시 소리가 버튼 약 8초 전) */
+   const BMAX=kind==='judge'?7:kind==='uw'?3:0,BL=F?1e9:.3+(BMAX-.3)*Math.random(),eb=kind==='uw'?window.cusLastEta(eta.parts||[]):(BMAX&&window.cusBtnEta?window.cusBtnEta(eta.parts||[]):null);   /* 추가 3000: 당첨 영상이 시작되는 순간(꽝은 판정 영상 끝) 최대 3초 전 */
+   if(eb){const wb=setInterval(()=>{if(!busy||S.hits!==h0||S.mode!==m0||performance.now()-t0>180000)return clearInterval(wb);const r=eb();if(r==null)return;if(r<.2)return clearInterval(wb);if(r>BL)return;clearInterval(wb);if(tier)window.cusLev(tier);if(imp)window.cusImpFire()},50);return}
+   const wt=setInterval(()=>{if(!busy||S.hits!==h0||S.mode!==m0||performance.now()-t0>180000)return clearInterval(wt);const r=eta();if(r==null){if(seen)clearInterval(wt);return}seen=true;if(r<MIN)return clearInterval(wt);if(r>R)return;clearInterval(wt);if(tier)window.cusLev(tier);if(imp)window.cusImpFire()},100)}catch(e){}};
  window.CUSHOOK=async o=>{let ev=false;const hit=o.res!=='lose',fastv=speed>=20,F=window.CUSFORCE;window.CUSFORCE=false;
   nS++;if(!hit&&o.sp)nL++;if(nS%50===0){try{localStorage.setItem('g999SpRate',JSON.stringify([nS,nL]))}catch(e){}}
   if(CU.logo!=='off'){const rate=Math.max(1e-4,nL/nS),qq=Math.min(1,PH0*(51/49)/rate);if(hit||(CU.logo==='ghoul'&&o.sp&&Math.random()<qq)){ev=true;if(!fastv&&performance.now()>(lamp._u||0)){lamp._u=performance.now()+5400;const h0=S.hits;clearTimeout(lamp._t);clearTimeout(lamp._b);clearInterval(lamp._i);try{LOGA.muted=muted;LOGA.currentTime=0;LOGA.play().catch(()=>{})}catch(e){}lamp._b=setTimeout(()=>{lamp.className='bl'},900);   /* 효과음 앞부분(내려가는 소리 0.9초) 뒤에 깜빡임 시작 */
@@ -2042,12 +2157,12 @@ async function rushBonus(skipIntro){
   // 성공은 2·1·LAST 어느 단계의 정적 끝에서든 떨어질 수 있음 (뒤로 갈수록 확률 큼). 실패는 항상 끝까지 감
   let cut=null,late=false;if(win){const r=Math.random(),a=UW_STAGE[0],b=a+UW_STAGE[1],c=b+(UW_STAGE[2]||0);cut=r<a?UWT.t2:(r<b?UWT.t1:null);late=r>=b&&r<c;if(fUw){cut=fUw[i]==='t2'?UWT.t2:(fUw[i]==='t1'?UWT.t1:null);late=fUw[i]==='late'}}
   // 판정 중 상단 역물의 밝기: 실기를 찍은 영상에서 프레임 단위로 잰 밝기 곡선을 그대로 따라감
-  if(window.cusRush)window.cusRush(win,window.cusEta(win&&!late&&wc?[{src:UW.try,to:cut!=null?cut:undefined},{src:wc}]:[{src:UW.try}]),'uw');   /* 추가 3000 판정의 레버블 · 임팩트 플래시(성공의 중간 선고지) */
+  let ttL=null;if(late){const tr=n=>TUNE.trim[n]||[0,0],L0=tr('uw_lose')[0]||0,L1=((CLIPS.uw_lose||{}).dur||0)+(tr('uw_lose')[1]||0);ttL=+(L0+.8+Math.random()*Math.max(0,L1-L0-1.2)).toFixed(2)}
+  if(window.cusRush)window.cusRush(win,window.cusEta(win&&wc?(late?[{src:UW.try},{src:UW.lose,to:ttL},{src:wc}]:[{src:UW.try,to:cut!=null?cut:undefined},{src:wc}]):[{src:UW.try}]),'uw');   /* 추가 3000 판정의 레버블 · 임팩트 플래시(성공의 중간 선고지) */
   await playClip(UW.try,cut!=null?{to:cut,onTime:gLit,next:wc||UW.pay}:{onTime:gLit,next:win&&!late?(wc||UW.pay):UW.lose});gDim(false);
   if(!win){await playClip(UW.lose,{next:rin});break}
   if(late){   // 실패 화면 도중(RUSH 계속 화면이 나오기 전) 아무 때나 역물 낙하로 역전 → 성공 영상
-   const tr=n=>TUNE.trim[n]||[0,0],L0=tr('uw_lose')[0]||0,L1=((CLIPS.uw_lose||{}).dur||0)+(tr('uw_lose')[1]||0);
-   const tt=L0+.8+Math.random()*Math.max(0,L1-L0-1.2);await playClip(UW.lose,{to:+tt.toFixed(2),next:wc||UW.pay})}
+   await playClip(UW.lose,{to:ttL,next:wc||UW.pay})}
   const prev=gain;gain+=3000;set(gain);
   if(!(await playClip(wc,{next:UW.pay}))){fx('上乗せ成功!! '+fmt(gain),'big t-rainbow');se('win');await sleep(1300);clearFx()}
   await playClip(UW.pay,{next:UW.try,skip:'all'});
@@ -2093,7 +2208,7 @@ document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.
 let fullView=false;try{fullView=localStorage.getItem('g999Full')==='1'}catch(e){}
 function applyView(){document.body.classList.toggle('full',fullView);$('bView').textContent=fullView?'액정 확대 보기':'기기 전체 보기';try{localStorage.setItem('g999Full',fullView?'1':'0')}catch(e){}}
 $('bView').onclick=()=>{fullView=!fullView;applyView()};applyView();
-$('main').insertBefore($('vid'),$('main').firstChild); // 영상은 액정 창 영역 기준으로 배치
+$('main').insertBefore($('vid'),$('main').firstChild);if(MXP.v)$('main').insertBefore(MXP.v,$('vid').nextSibling); // 영상은 액정 창 영역 기준으로 배치
 setTimeout(()=>{for(let i=0;i<3;i++)setNum(i,[2,3,5][i])},600);
 renderHolds('');applyMute();render();
 </script>
@@ -2192,19 +2307,19 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
  const box=q('dl'),bar=q('dlBar').firstChild,txt=q('dlTxt'),mb=n=>(n/1048576).toFixed(0);
  // 모바일은 열자마자 받기 시작. PC는 PLAY 위젯의 '영상 미리 받기' 버튼을 눌렀을 때만 (안 받으면 재생할 때마다 받아 옴)
  let pcBtn=null;
- const SK='g999seen3:'+location.pathname;let seen=true;try{seen=localStorage.getItem(SK)==='1'}catch(e){}
+ const SK='g999seen4:'+location.pathname;let seen=true;try{seen=localStorage.getItem(SK)==='1'}catch(e){}
  const notice=()=>new Promise(res=>{const N=q('dlNote'),B=q('dlNow'),K=q('dlSkip'),bw=q('dlBar'),fin=v=>{try{localStorage.setItem(SK,'1')}catch(e){}seen=true;N.hidden=true;B.style.display='none';bw.style.display='';txt.style.display='';if(!v)box.classList.remove('on');res(v)};
-  q('dlMsg').innerHTML='새 버전 <b style="color:#fff">v.3</b> 이 나왔어요.<br>바뀐 영상을 새로 내려받아 주세요. (Wi-Fi 권장)';N.hidden=false;B.style.display='';q('dlGo').style.display='none';bw.style.display='none';txt.style.display='none';
+  q('dlMsg').innerHTML='영상이 끊김 없이 이어지는 <b style="color:#fff">새 영상</b>이 나왔어요.<br>새로 내려받아 주세요. (Wi-Fi 권장)';N.hidden=false;B.style.display='';q('dlGo').style.display='none';bw.style.display='none';txt.style.display='none';
   K.style.display='';K.textContent='받지 않고 바로 시작 (스트리밍)';B.onclick=()=>fin(true);K.onclick=()=>fin(false);box.classList.add('on');
   (async()=>{try{const c=await caches.open(CN);let t=0;await Promise.all(all().map(async f=>{if(await c.match(absU(f)))return;try{const r=await fetch(f,{method:'HEAD',cache:'no-store'});if(r.ok)t+=+r.headers.get('content-length')||0}catch(e){}}));if(t)B.textContent='⬇ 내려받기 ('+mb(t)+' MB)'}catch(e){}})()});
  if(mobile&&seen)box.classList.add('on');
  const ready=(async()=>{await navigator.serviceWorker.register('sw.js');await navigator.serviceWorker.ready;
   if(!navigator.serviceWorker.controller)await new Promise(r=>{navigator.serviceWorker.addEventListener('controllerchange',r,{once:true});setTimeout(r,3000)})})();
- const all=()=>Object.keys(window.CLIPS||{}).map(n=>'videos/'+n+'.mp4').concat(['videos/idle_loop.mp4']).map(f=>(window.VBASE||'')+(window.VBASE?(window.VDIR||'videos/')+f.slice(7):f)),absU=f=>new URL(f,location.href).href.split('?')[0];
- // 받아 둔 영상 정리(한 번만, 정리 번호 6 = 안 쓰는 ST 조각 4개 삭제): 지금 목록(주소 포함)에 없는 것은 전부 지움 → 예전 판 영상은 지워지고 새로 받음
- try{const vk='g999cv:'+location.pathname,cvn=localStorage.getItem(vk);if(cvn!=='6'&&Object.keys(window.CLIPS||{}).length>10){const c=await caches.open(CN),KEEP=new Set(all().map(absU));
+ const all=()=>(window.MXP&&window.MXP.on?Object.keys(window.CLIPS||{}).reduce((a,n)=>a.concat([window.MXP.dir+n+'.mp4',window.MXP.dir+n+'.m3u8']),[]).concat([1,2,3,4,5].map(i=>'videos/normal_'+i+'.mp4'),['videos/idle_loop.mp4']):Object.keys(window.CLIPS||{}).map(n=>'videos/'+n+'.mp4').concat(['videos/idle_loop.mp4'])).map(f=>/^videos\//.test(f)?(window.VBASE||'')+(window.VBASE?(window.VDIR||'videos/')+f.slice(7):f):f),absU=f=>new URL(f,location.href).href.split('?')[0];
+ // 받아 둔 영상 정리(한 번만, 정리 번호 7 = 이어 붙이기 영상(videos_mse265)으로 바꾸며 예전 영상 삭제): 지금 목록(주소 포함)에 없는 것은 전부 지움 → 예전 판 영상은 지워지고 새로 받음
+ try{const vk='g999cv:'+location.pathname,cvn=localStorage.getItem(vk);if(cvn!=='7'&&Object.keys(window.CLIPS||{}).length>10){const c=await caches.open(CN),KEEP=new Set(all().map(absU));
   for(const k of await c.keys()){if(!KEEP.has(k.url.split('?')[0]))await c.delete(k)}
-  localStorage.setItem(vk,'6')}}catch(e){}
+  localStorage.setItem(vk,'7')}}catch(e){}
  if(!mobile){try{await ready;const c=await caches.open(CN);let miss=0;for(const f of all())if(!(await c.match(absU(f)))){try{const r=await fetch(f,{method:'HEAD',cache:'no-store'});if(r.ok)miss++}catch(e){}}
    if(miss){pcBtn=document.createElement('button');pcBtn.className='wide';pcBtn.id='wDl';pcBtn.textContent='⬇ 영상 미리 받기';pcBtn.title='영상을 전부 받아 두면 끊김 없이 재생돼요';q('wA').querySelector('.bd').appendChild(pcBtn);
     pcBtn.onclick=()=>{pcBtn.blur();if(typeof busy!=='undefined'&&busy)return;q('dlSkip').textContent='취소';box.classList.add('on');run()};if(!seen&&await notice()){q('dlSkip').textContent='취소';run()}}}catch(e){}return}
@@ -2215,7 +2330,7 @@ html.lightm #qk button{background:rgba(255,255,255,.75);border-color:#999;color:
  q('dlMsg').innerHTML='게임 영상을 기기에 내려받는 중이에요.<br>한 번 받아 두면 다음부터는 바로 시작돼요.';q('dlSkip').onclick=()=>{stop=true;done()};q('dlGo').onclick=done;
  try{await ready;
   try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
-  const files=Object.keys(window.CLIPS||{}).map(n=>'videos/'+n+'.mp4').concat(['videos/idle_loop.mp4']).map(f=>(window.VBASE||'')+(window.VBASE?(window.VDIR||'videos/')+f.slice(7):f)),cache=await caches.open(CN),abs=f=>new URL(f,location.href).href.split('?')[0];
+  const files=(window.MXP&&window.MXP.on?Object.keys(window.CLIPS||{}).reduce((a,n)=>a.concat([window.MXP.dir+n+'.mp4',window.MXP.dir+n+'.m3u8']),[]).concat([1,2,3,4,5].map(i=>'videos/normal_'+i+'.mp4'),['videos/idle_loop.mp4']):Object.keys(window.CLIPS||{}).map(n=>'videos/'+n+'.mp4').concat(['videos/idle_loop.mp4'])).map(f=>/^videos\//.test(f)?(window.VBASE||'')+(window.VBASE?(window.VDIR||'videos/')+f.slice(7):f):f),cache=await caches.open(CN),abs=f=>new URL(f,location.href).href.split('?')[0];
   // 아직 안 받은 파일과 전체 크기 확인
   const need=[];let total=0,got=0,fail=0;
   await Promise.all(files.map(async f=>{if(await cache.match(abs(f)))return;try{const r=await fetch(f,{method:'HEAD',cache:'no-store'});if(!r.ok)return;const n=+r.headers.get('content-length')||0;total+=n;need.push([f,n])}catch(e){}}));
@@ -2397,6 +2512,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 .rbox button.go{flex:1;height:38px;padding:0;background:linear-gradient(180deg,#e01b2c,#8a0b15);border-color:#ff5364;color:#fff;font-size:13px;letter-spacing:.08em}
 .rbox .note{margin:8px 0 0;color:#a8868b;font-size:11.5px;line-height:1.5}
 #rRes .hb{width:min(96vw,560px)}#rRes h3{font-size:20px;text-align:center;letter-spacing:.2em}#rRes h3.win{color:#ffd76a}#rRes h3.lose{color:#ff5364}
+#rRes #rDouble{display:block;width:100%;margin-top:8px;height:46px;font-size:16px;letter-spacing:.06em;background:linear-gradient(180deg,#ffcf4a,#d9860f);border-color:#ffe6a0;color:#2a1500}#rRes #rDoubleN{margin:6px 0 0;text-align:center;font-size:12px;color:#c9b48a}
 #rRes canvas{display:block;width:100%;height:auto;background:#0a0506;border:1px solid #3a1c22}
 #rRes ul{margin:10px 0 0;padding:0;list-style:none}#rRes li{display:flex;justify-content:space-between;gap:10px;padding:5px 2px;border-top:1px solid #3a1c22}#rRes li span{color:#ffd08a;font-weight:700;white-space:nowrap}#rRes li b{font-weight:600;text-align:right}
 #rToast{position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:310;padding:10px 26px;background:rgba(20,6,9,.92);border:1px solid #ff5364;color:#fff;font:900 22px/1.2 "Noto Serif KR",Georgia,serif;letter-spacing:.2em;pointer-events:none;opacity:0;transition:opacity .4s}#rToast.on{opacity:1}
@@ -2450,7 +2566,8 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 <p class="note">어떤 커스텀도 당첨 확률은 바꾸지 않아요. 예고가 나오는 방식만 달라져요.</p>
 <div class="btns"><button id="cusX" class="go">닫기</button></div></div></div>
 <div id="rRes" class="rbox" hidden><div class="hb"><h3 id="rTitle"></h3><canvas id="rCv" width="1040" height="680"></canvas><ul id="rList"></ul>
-<div class="btns"><button id="rClose">닫기</button><button id="rAgain" class="go">다시 도전</button></div></div></div>
+<div class="btns"><button id="rClose">닫기</button><button id="rAgain" class="go">다시 도전</button></div><button id="rDouble" class="go" hidden></button><p id="rDoubleN" class="note" hidden></p></div></div>
+<div id="rFloor" class="rbox" hidden><div class="hb"><h3 style="text-align:center;color:#ffd76a;letter-spacing:.1em">묻고 더블로</h3><p id="rFloorT" style="text-align:center;line-height:1.6"></p><div class="btns"><button id="rFloorQ">그만두기</button><button id="rFloorC" class="go">계속하기</button></div></div></div>
 <canvas id="gFloat" width="336" height="192"></canvas><div id="rToast"></div><div id="rDay"><b></b><div></div></div>
 <script>(()=>{
  const q=id=>document.getElementById(id),KEY='g999Real',DAYN=4000,COMPN=99999,YEN=4,LOSS=typeof NET_LOSS==='number'?NET_LOSS:.1;
@@ -2512,12 +2629,13 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
   if(!(f>0&&g>f&&r>=5&&r<=60)){q('rWp').textContent='목표는 소지자금보다 커야 해요';return}
   if(busy||S.mode!=='normal'){q('rWp').textContent='연출이 끝난 뒤에 시작해 주세요';return}
   auto=false;window.RQ=0;Object.assign(S,{spins:0,cur:0,hits:0,rushes:0,out:0,used:0,maxChain:0,hist:[],g:[[0,0]]});S._o=0;
-  R={on:true,fund0:f,goal:g,rate:r,day:1,dayS:0,dayNet0:0,days:[],comp:0,wp:winProb(f,g,r,20000),t0:Date.now()};saveR();lockRate();save();render();paintBtn();q('rSet').hidden=true;dayShow(1)};
+  R={on:true,fund0:f,goal:g,goal0:g,dbl:0,rate:r,day:1,dayS:0,dayNet0:0,days:[],comp:0,wp:winProb(f,g,r,20000),t0:Date.now()};saveR();lockRate();save();render();paintBtn();q('rSet').hidden=true;dayShow(1)};
  let quitArm=false;q('rQuit').onclick=()=>{if(!quitArm){quitArm=true;q('rQuit').textContent='한 번 더 누르면 포기';return}if(busy||S.mode!=='normal'){q('rOnNote').textContent='연출이 끝난 뒤에 포기할 수 있어요.';return}q('rSet').hidden=true;finish('quit')};
  /* ── 하루 · 판정 ── */
  function nextDay(){R.prev=(net()-R.dayNet0)*YEN;R.day++;R.dayS=S.spins;R.dayNet0=net();R.days.push(S.spins);saveR();dayShow(R.day)}
  function check(){if(!R.on||BLOCK||busy||S.mode!=='normal')return;
   if(funds()>=R.goal)return finish('win');if(funds()<spinCost()*YEN)return finish('lose');
+  if(R.floor!=null&&!R.asked&&funds()<=R.floor){R.asked=true;saveR();BLOCK=true;auto=false;window.RQ=0;paintBtn();q('rFloorT').innerHTML='자금이 이전 출발 지점 <b>'+yen(R.floor)+'</b>까지 떨어졌어요.<br>지금 '+yen(funds())+' · 목표 '+yen(R.goal)+'<br>여기서 그만둘까요?';q('rFloor').hidden=false;return}   /* 묻고 더블로 뒤 이전 출발 지점까지 떨어지면 한 번 물어봄 */
   if(S.spins-R.dayS>=DAYN)nextDay();paintBtn()}
  window.RCAP=()=>R.on&&(funds()<spinCost()*YEN*2||S.spins-R.dayS>=DAYN);
  const _sp=spin;spin=async function(){if(BLOCK||DAYB)return;const was=busy;const r=await _sp.apply(this,arguments);if(!was)check();return r};
@@ -2575,12 +2693,13 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  function finish(kind){BLOCK=true;auto=false;window.RQ=0;const g=(S.g||[[0,0]]).slice(),end=funds();let mx=g[0],mn=g[0];for(const p of g){if(p[1]>mx[1])mx=p;if(p[1]<mn[1])mn=p}
   const N=Math.round(S.used>0?(S.used-S.out*LOSS)/(250/R.rate):0),L=luck(Math.max(1,N),R.rate,net(),20000);
   R.on=false;R.last={kind,end};saveR();lockRate();paintBtn();
-  const t=q('rTitle');t.className=kind==='win'?'win':'lose';t.textContent=kind==='win'?'목표 달성':kind==='lose'?'자금 소진':'도전 중단';
+  const t=q('rTitle');t.className=kind==='win'?'win':'lose';t.textContent=kind==='win'?'목표 달성':kind==='lose'?'자금 소진':kind==='stop'?'묻더 종료':'도전 중단';if(kind==='stop')t.className=end>=R.fund0?'win':'lose';
   const pm=v=>(v>=0?'+':'−')+yen(Math.abs(v)),top=L.top<.1?'상위 0.1% 이내':L.top<=50?'상위 '+L.top.toFixed(1)+'%':'하위 '+Math.max(.1,100-L.top).toFixed(1)+'%';
   const rows=[['최종 자금',yen(end)+' ('+pm(end-R.fund0)+')'],['기간','DAY '+R.day+' · 총 '+S.spins.toLocaleString()+'회전'],['당첨','대당 '+S.hits+'회 · RUSH '+S.rushes+'회 · 최고 '+S.maxChain+'연'+(R.comp?' · 컴플리트 '+R.comp+'회':'')],
    ['최대 수익','DAY '+dayOf(mx[0])+' · '+mx[0].toLocaleString()+'회전째 '+pm(mx[1]*YEN)],['최대 손실','DAY '+dayOf(mn[0])+' · '+mn[0].toLocaleString()+'회전째 '+pm(mn[1]*YEN)],
-   ['운','같은 회전수를 돌린 사람 중 '+top],['같은 회전수의 평균 결과',pm(L.avg*YEN)],['시작할 때 달성 확률',(R.wp*100).toFixed(1)+'%']];
+   ['운','같은 회전수를 돌린 사람 중 '+top],['같은 회전수의 평균 결과',pm(L.avg*YEN)],['시작할 때 달성 확률',(R.wp*100).toFixed(1)+'%']].concat(R.dbl?[['묻고 더블로',R.dbl+'번 · 첫 목표 '+yen(R.goal0||R.fund0)+' → 마지막 목표 '+yen(R.goal)+(R.stage!=null?' (마지막 출발 '+yen(R.stage)+')':'')]]:[]);
   q('rList').innerHTML=rows.map(r=>'<li><span>'+r[0]+'</span><b>'+r[1]+'</b></li>').join('');
+  const db=q('rDouble'),dn=q('rDoubleN');db.hidden=dn.hidden=kind!=='win';const st=(R.goal0||R.goal)-R.fund0;if(kind==='win'){db.textContent='묻고 더블로 가!  (목표 '+yen(end+st)+')';dn.textContent='이번 판을 끝내지 않고 지금 자금('+yen(end)+')에서 이어서 '+yen(st)+' 더 벌어요. '+yen(R.stage!=null?R.stage:R.fund0)+'까지 떨어지면 그만둘지 물어봐요.'}
   q('rRes').hidden=false;drawRes(g,mx,mn)}
  function drawRes(g,mx,mn){const c=q('rCv'),x=c.getContext('2d'),W=c.width,H=c.height,pl=120,pr=24,pt=34,pb=40,F=v=>R.fund0+v*YEN;
   let lo=Math.min(0,F(mn[1])),hi=Math.max(R.goal,F(mx[1]));const sp=hi-lo;lo-=sp*.05;hi+=sp*.08;const xm=Math.max(100,g[g.length-1][0]),X=v=>pl+(W-pl-pr)*v/xm,Y=v=>pt+(H-pt-pb)*(hi-v)/(hi-lo);
@@ -2596,7 +2715,10 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
   const dot=(p,col,lab,up)=>{x.fillStyle=col;x.beginPath();x.arc(X(p[0]),Y(F(p[1])),7,0,7);x.fill();x.textAlign=X(p[0])>W*.75?'right':'left';x.textBaseline=up?'bottom':'top';x.fillText(lab,X(p[0])+(X(p[0])>W*.75?-10:10),Y(F(p[1]))+(up?-6:6))};
   dot(mx,'#ffd76a','최고 '+kk(F(mx[1])),true);dot(mn,'#6ab7ff','최저 '+kk(F(mn[1])),false);
   x.fillStyle='#777';x.textAlign='right';x.textBaseline='bottom';x.fillText(xm.toLocaleString()+'회전',W-pr,H-8)}
- q('rClose').onclick=()=>{q('rRes').hidden=true;BLOCK=false};q('rAgain').onclick=()=>{q('rRes').hidden=true;BLOCK=false;openSet()};
+ q('rClose').onclick=()=>{q('rRes').hidden=true;BLOCK=false};
+ q('rFloorQ').onclick=()=>{q('rFloor').hidden=true;finish('stop')};q('rFloorC').onclick=()=>{q('rFloor').hidden=true;BLOCK=false;toast('계속해요 · 목표 '+yen(R.goal))};
+ /* 묻고 더블로: 목표 달성 뒤 이번 판을 끝내지 않고 목표만 두 배로 해서 이어 감 (자금 · 회전수 · DAY · 그래프 그대로) */
+ q('rDouble').onclick=()=>{if(!R.last||R.last.kind!=='win')return;R.goal0=R.goal0||R.goal;{const st=R.goal0-R.fund0,f=funds();R.floor=R.stage!=null?R.stage:R.fund0;R.stage=f;R.goal=f+st;R.asked=false}R.dbl=(R.dbl||0)+1;R.on=true;R.last=null;saveR();lockRate();paintBtn();q('rRes').hidden=true;BLOCK=false;toast('묻고 더블로! 목표 '+yen(R.goal)+' · '+yen(R.floor)+'까지 떨어지면 물어봐요');try{render()}catch(e){}};q('rAgain').onclick=()=>{q('rRes').hidden=true;BLOCK=false;openSet()};
  /* ── 시작 ── */
  try{q('gCv').height=230;gDraw()}catch(e){}
  lockRate();paintBtn();setInterval(paintBtn,500);

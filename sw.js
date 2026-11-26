@@ -4,7 +4,7 @@ self.addEventListener('install',e=>self.skipWaiting());
 self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch',e=>{
  const u=new URL(e.request.url);
- if(!/\/videos(264)?\/[^/]+\.mp4$/.test(u.pathname))return;   // 영상 저장소가 다른 주소(R2)여도 처리
+ if(!/\/videos(264|_mse|_mse265)?\/[^/]+\.(mp4|m3u8)$/.test(u.pathname))return;   // 영상 저장소가 다른 주소(R2)여도 처리
  e.respondWith((async()=>{
   const key=u.origin+u.pathname;let bp=MEM.get(key);
   if(!bp){const c=await caches.open(CN),hit=await c.match(key);if(!hit)return fetch(e.request);
