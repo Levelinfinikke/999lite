@@ -586,6 +586,7 @@ const REVIEW=[
  ['v498','(배포판) 실전모드 챌린지: 일반/챌린지 전환 · 닉네임(한글·영어·일본어 8자) · 100k·회전율30 고정 · 랭킹 창(수지 LIVE / 일격 / 생존) · 파산 시 영구 랭킹 등록 · 포기는 기록 안 됨',{url:'../999lite v.3/index.html'}],
  ['v499','(배포판) PC: 설정 창의 실전모드 버튼 제거 → 아이콘 줄 맨 앞 ¥ 버튼 · HYPER 설명 "진동 · LED 강화" · 손떨 커스텀 버튼을 제목과 같은 줄 오른쪽에',{url:'../999lite v.3/index.html'}],
  ['v500','(배포판) 챌린지 보완: 파산 기록은 서버에 닿을 때까지 보관 후 재전송 · 포기하면 실시간 랭킹에서 바로 빠짐 · 파산 결과 화면에 일격/생존 순위 표시 · 랭킹 창 20초마다 자동 갱신 · 일격/생존 탭에 내 최고 기록과 순위',{url:'../999lite v.3/index.html'}],
+ ['v524','(배포판) 챌린지 고정 회전율 30 → 29 (파산 중간값 약 10,800회전, 상위 10% 약 14만 회전). 챌린지 창 "100k · 29" · 도움말 · 패치노트 반영. 이미 진행 중인 챌린지는 시작할 때의 회전율 그대로',{url:'../999lite v.3/index.html'}],
  ['v523','(배포판) 버그 수정: 서버의 1~30위 목록은 최대 1분 전 것이라 기록을 올린 직후 내 줄 · 순위가 늦게 반영되던 것 — 내 최신 기록을 목록에 끼워 넣어 바로 반영(랭킹 창 · 결과 카드) · 화면에 안 보이는 1위 배너가 챌린지 창을 열 때마다 서버에 묻던 것 제거',{url:'../999lite v.3/index.html'}],
  ['v522','(배포판) 프리미엄 연출 업에 추가: 카쿠자 · 어머니(통상 배틀, 실패도 함께 늘어 신뢰도 그대로) · ST 데드리제(당첨 · 실패) · ST 리제 카쿠자/키리시마 카쿠자 당첨 — 모두 3배',{url:'../999lite v.3/index.html'}],
  ['v521','(배포판) 커스텀 추가: 프리미엄 연출 업(실기에 없는 옵션) — 켜면 전회전(통상 · ST) · 부활(올빼미 · 리제) · 아몬 · 빌딩 분기 · 무지개 보류 · 무지개 레버블이 3배. 당첨 확률과 각 연출의 신뢰도는 그대로',{url:'../999lite v.3/index.html'}],
@@ -2730,13 +2731,13 @@ q('wAh').onclick=()=>{if(q('wA').dataset.moved)return;if(mob&&document.body.clas
 <tr><td class="qkI"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" fill="currentColor" stroke="none"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6"/><path d="M18.3 6.3a8 8 0 0 1 0 11.4"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.6A8.2 8.2 0 1 1 9.4 4a6.6 6.6 0 0 0 10.6 10.6z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.1V17h5v-1.1c0-.8.4-1.5 1.1-2.1A6 6 0 0 0 12 3z"/><path d="M9.8 20.5h4.4"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="4" width="8" height="16" rx="2"/><path d="M4.5 9v6M19.5 9v6M2 11v2M22 11v2"/></svg></td><td>소리 · 다크/라이트 · LED · 진동 켜기/끄기</td></tr>
 <tr><td>AUTO</td><td>x1 → x5 → x10 → x50</td></tr><tr class="tcr"><td>아래 막대</td><td>설정 · 통계 · 그래프 · ▶ AUTO · ▶▶ 5초 · ▶▶▶ SKIP</td></tr><tr><td>HYPER</td><td>진동 &amp; LED 강화</td></tr>
 <tr><td>화면</td><td><span class="kb">스크롤: 확대 · 드래그: 시점 이동</span><span class="tc">두 손가락: 확대 · 드래그: 시점 이동</span></td></tr></table></div><div class="pane" data-p="1" hidden>
-<h4>v.3 · 11월 27일 패치</h4><ul><li>새 프리미엄 연출: 전회전 · ST 전회전</li><li>새 연출: 빌딩 분기, 즉시 7500 새 영상</li><li>전회전 LED: 777 이 내려오는 동안 무지개가 차올라요</li><li>휴대폰: 아래 막대로 조작 (설정 · 통계 · 그래프 · AUTO · 5초 · SKIP), 통계 · 그래프 창을 끌면 작게 꺼내져요</li><li>실전모드 → 챌린지 (100k · 회전율 30 · 파산할 때까지)</li><li>랭킹: 최대 수익 · 최대 일격 · 최장 생존</li><li>리치 · 부활 연출 확률을 실기 신뢰도에 맞춤</li><li>챌린지 중엔 화면 왼쪽 아래에 DAY · 잔액 표시</li><li>기록 초기화는 두 번 눌러야 돼요</li><li>창 · 버튼 · 아이콘 디자인 정리, 화면 아래 안내 문구 정리</li><li>일부 연출에서 LED · 진동이 멈추던 문제 수정</li><li>아이폰 홈 화면 앱 위쪽이 뿌옇던 문제 수정 (홈 화면에 다시 추가해 주세요)</li></ul>
+<h4>v.3 · 11월 27일 패치</h4><ul><li>새 프리미엄 연출: 전회전 · ST 전회전</li><li>새 연출: 빌딩 분기, 즉시 7500 새 영상</li><li>전회전 LED: 777 이 내려오는 동안 무지개가 차올라요</li><li>휴대폰: 아래 막대로 조작 (설정 · 통계 · 그래프 · AUTO · 5초 · SKIP), 통계 · 그래프 창을 끌면 작게 꺼내져요</li><li>실전모드 → 챌린지 (100k · 회전율 29 · 파산할 때까지)</li><li>랭킹: 최대 수익 · 최대 일격 · 최장 생존</li><li>리치 · 부활 연출 확률을 실기 신뢰도에 맞춤</li><li>챌린지 중엔 화면 왼쪽 아래에 DAY · 잔액 표시</li><li>기록 초기화는 두 번 눌러야 돼요</li><li>창 · 버튼 · 아이콘 디자인 정리, 화면 아래 안내 문구 정리</li><li>일부 연출에서 LED · 진동이 멈추던 문제 수정</li><li>아이폰 홈 화면 앱 위쪽이 뿌옇던 문제 수정 (홈 화면에 다시 추가해 주세요)</li></ul>
 <h4>v.3 · 11월 26일 패치</h4><ul><li>커스텀 창 추가: 손떨 · 입상 구울화 · 찬스 암시 · 레버블 업 · 임팩트 플래시</li><li>같이 못 쓰는 커스텀은 한 상자로 묶었어요 (하나를 켜면 나머지는 꺼져요)</li><li>ST 모드 추가: 돌격 · 리제 습격 · 츠키야마 절규. ST 중 레버로 바로 바꿀 수 있어요</li><li>츠키야마 절규: 버튼 연타 · HOLD 고지와 실기 타격음</li><li>레버블 · 임팩트 플래시 · 로고 점등 · 찬스 암시(손 깜박임 · 금속음 · 금목) 연출과 효과음 추가</li><li>예고 · 리치 신뢰도를 실기 수치에 맞춰 조정</li><li>Judgement 브레이크: 남은 4초 · 2초에 먼저 깨지는 성공 추가</li><li>올빼미 부활: 꽝 화면에서 잠깐 멈춘 뒤 부드럽게 전환</li><li>ST 당첨 뒤에도 HYPER 6000 이 나오도록 수정</li><li>출옥 표시 정리: 에피소드 중 TOTAL 위치 · 정산 화면의 큰 총계</li><li>ST 카운트 사이에 모드 초상화가 끊기지 않도록 수정</li><li>실전모드 기본 회전율을 30 으로 변경</li></ul>
 <h4>v.3</h4><ul><li>RUSH(ST) 연출 대폭 추가: 회전마다 다른 연출이 이어져요</li><li>통상 배틀에 새 전개 추가 (패배 뒤 부활 등)</li><li>기기 버튼 = PUSH, 레버 = PULL 전용으로 정리</li><li>통상에서 버튼을 연타하면 빠르게 회전</li><li>화면 확대 · 시점 이동 추가</li><li>실전모드 추가: 자금과 목표를 정하고 도전, 결과 보고서</li><li>컴플리트 기능 추가</li><li>조작 버튼 배치 정리, 조작법에 패치노트 탭 추가</li><li>모바일판: 화질은 그대로, 용량은 더 작게</li></ul>
 <h4>v.2</h4><ul><li>AUTO 배속 추가 (x1 · x5 · x10 · x50)</li><li>HYPER 모드 추가 (진동 · LED 강화)</li><li>소리 · 다크/라이트 · LED · 진동 아이콘 추가</li><li>조작법(?) 버튼 추가</li><li>영상의 안 쓰는 부분을 잘라 용량 축소</li><li>아이폰 홈 화면 앱에서 화면이 가려지던 문제 수정</li></ul>
 <h4>v.1</h4><ul><li>첫 공개판: 기기 화면과 PLAY · RECORD 창</li><li>회전율 설정, 회전수 · 당첨 기록과 그래프</li></ul>
 </div><div class="pane" data-p="2" hidden>
-<ul><li>소지자금 100k · 회전율 30 으로 파산할 때까지.</li><li>랭킹: 최대 수익 · 최대 일격 · 최장 생존. 기기마다 랭킹별 최고 기록 하나.</li><li>컴플리트: 하루 순증 99,999구슬을 넘으면 그날 종료.</li></ul>
+<ul><li>소지자금 100k · 회전율 29로 파산할 때까지.</li><li>랭킹: 최대 수익 · 최대 일격 · 최장 생존. 기기마다 랭킹별 최고 기록 하나.</li><li>컴플리트: 하루 순증 99,999구슬을 넘으면 그날 종료.</li></ul>
 </div><div class="pane" data-p="3" hidden>
 <ul><li><b>크롬 최신판</b>으로 열어 주세요. 대부분 이것으로 해결돼요.</li><li>크롬 설정 → 시스템 → <b>「가능한 경우 그래픽 가속 사용」</b>을 켜고 크롬을 다시 시작해 주세요.</li><li>엣지는 Microsoft Store 의 <b>「HEVC 비디오 확장」</b>이 있어야 나오는 경우가 있어요.</li><li>파이어폭스 등 다른 브라우저, 아주 오래된 PC 에서는 영상 형식(H.265)을 재생하지 못할 수 있어요.</li><li>그래도 안 나오면 휴대폰으로 열어 보세요. 최근 몇 년 사이의 아이폰 · 안드로이드는 대부분 재생돼요.</li></ul>
 </div><script>(()=>{const b=document.getElementById('helpBox'),T=b.querySelectorAll('.tabs button'),P=b.querySelectorAll('.pane');T.forEach(t=>t.onclick=()=>{T.forEach(x=>x.classList.toggle('on',x===t));P.forEach(p=>{p.hidden=p.dataset.p!==t.dataset.t});t.blur()})})();</script></div></div><style id="helpcss">
@@ -2822,7 +2823,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 <div id="rSetIn">
 <div class="seg" id="rMode" hidden><button type="button" data-v="ch">챌린지</button></div>
 <div id="rFree" hidden style="display:none"><input id="rFund" value="100"><input id="rGoal" value="200"><input id="rRate" value="30"><b id="rWp"></b></div>
-<div id="rCh"><div class="big"><small>소지자금 · 회전율</small><b>100k · 30</b></div></div>
+<div id="rCh"><div class="big"><small>소지자금 · 회전율</small><b>100k · 29</b></div></div>
 <div class="btns"><button id="rCancel">취소</button><button id="rStart" class="go">시작</button></div>
 </div>
 <div id="rSetOn" hidden>
@@ -2973,7 +2974,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  btn.onclick=()=>{btn.blur();openRank()};q('rCancel').onclick=()=>{q('rSet').hidden=true;openRank()};q('rBack').onclick=()=>{q('rSet').hidden=true};
  q('rSet').addEventListener('pointerdown',e=>{if(e.target===q('rSet'))q('rSet').hidden=true});
  q('rStart').onclick=()=>{if(!myNick()&&!q('rNick').value.trim())q('rNick').value=rndNick();if(!q('rNick').readOnly||!myNick())return saveNick(()=>q('rStart').click());const CH=true,nick=myNick();
-  const f=CH?100000:+q('rFund').value*1000,g=CH?1e12:+q('rGoal').value*1000,r=CH?30:Math.round(+q('rRate').value);
+  const f=CH?100000:+q('rFund').value*1000,g=CH?1e12:+q('rGoal').value*1000,r=CH?29:Math.round(+q('rRate').value);
   if(!(f>0&&g>f&&r>=5&&r<=60)){q('rWp').textContent='목표는 소지자금보다 커야 해요';return}
   const mid=busy||S.mode!=='normal'||!!curPlay;   /* 연출 도중에 시작: 그 연출을 끝내고(정산까지 마친 것으로 치고) 통상 화면에서 새로 시작 */
   auto=false;window.RQ=0;Object.assign(S,{spins:0,cur:0,hits:0,rushes:0,out:0,used:0,maxChain:0,hist:[],g:[[0,0]]});S._o=0;
