@@ -586,6 +586,8 @@ const REVIEW=[
  ['v498','(배포판) 실전모드 챌린지: 일반/챌린지 전환 · 닉네임(한글·영어·일본어 8자) · 100k·회전율30 고정 · 랭킹 창(수지 LIVE / 일격 / 생존) · 파산 시 영구 랭킹 등록 · 포기는 기록 안 됨',{url:'../999lite v.3/index.html'}],
  ['v499','(배포판) PC: 설정 창의 실전모드 버튼 제거 → 아이콘 줄 맨 앞 ¥ 버튼 · HYPER 설명 "진동 · LED 강화" · 손떨 커스텀 버튼을 제목과 같은 줄 오른쪽에',{url:'../999lite v.3/index.html'}],
  ['v500','(배포판) 챌린지 보완: 파산 기록은 서버에 닿을 때까지 보관 후 재전송 · 포기하면 실시간 랭킹에서 바로 빠짐 · 파산 결과 화면에 일격/생존 순위 표시 · 랭킹 창 20초마다 자동 갱신 · 일격/생존 탭에 내 최고 기록과 순위',{url:'../999lite v.3/index.html'}],
+ ['v518','연출 비중 조정(신뢰도는 실기 그대로): 카쿠자 약 8,000회전에 1번(전 13,000 · 실패도 그만큼 보임) · 카쿠자 예고 실패 약 15,000회전 · 병실 긴 도입 당첨의 30% → 8%(클라이맥스 야모리는 일반 예고 → 야모리가 주 경로) · 뒤늦은 역물 낙하 대당의 20% · 저지먼트 상대 출현 鯱 30 · ヤモリ 30 · 絢都 30 · クロナ 10 (クロナ 신뢰도 92%)',{url:'../999lite v.3/index.html'}],
+ ['v519','ST(RUSH) 당첨 영상: 기본 모드에서는 당첨의 20%만 선고지(리제 50 · 오메데토 50), 츠키야마 당첨 영상은 츠키야마 절규 모드에서만',{url:'../999lite v.3/index.html'}],
  ['v517','(배포판 · PC) 영상을 다 받은 기기는 \'영상 미리 받기\' 버튼을 띄우지 않음: 받기를 끝낸 목록(영상 수 + 갱신 번호)을 기억해 두고 같으면 확인 없이 숨김. 영상이 새로 바뀌면 다시 보임',{url:'../999lite v.3/index.html'}],
  ['v516','빌딩 분기(pre_building → 클라이맥스 야모리)를 드물게: 약 12,000회전에 1번 (전엔 일반 야모리와 같은 비중 + 긴 도입 당첨의 절반이 잘못 섞여 있었음). 신뢰도는 둘 다 실기 73% 그대로',{url:'../999lite v.3/index.html'}],
  ['v515','배틀 출현 빈도(희귀도) 조정 — 신뢰도는 실기 그대로: 西尾·月山·スクラッパー 각 약 900회전에 1번(셋 합쳐 약 300회전에 1번) · 클라이맥스 ヤモリ 약 2,000회전 · 어머니 약 10,000 · 카쿠자 약 13,000 · 아몬 약 27,000 · 전회전 약 66,000회전에 1번',{url:'../999lite v.3/index.html'}],
@@ -1923,7 +1925,7 @@ async function finishNormal(res,rushPre,quiet,rev){   // rev: 올빼미 부활�
  addHist(at+'회전','3000 (RUSH 실패)',false);
 }
 // 긴 도입 연출: 손떨 대신 30% 확률, 항상 클라이맥스 야모리 리치로 이어짐
-const PRE_LONG={src:'videos/pre_hospital.mp4',p:.30,alt:'videos/pre_hand2.mp4',altTo:0};let yLead=null;   // 병실(pre_hospital) → pre_yamori_body 처음부터 / 손떨 옵션2(pre_hand2) → pre_yamori_body 15.04초(꽃밭)부터
+const PRE_LONG={src:'videos/pre_hospital.mp4',p:.08,alt:'videos/pre_hand2.mp4',altTo:0};let yLead=null;   // 병실(pre_hospital) → pre_yamori_body 처음부터 / 손떨 옵션2(pre_hand2) → pre_yamori_body 15.04초(꽃밭)부터
 const FILM_RIZE=false;
 const LATE_B=0.10, LATE_J=0.3771;   // 배틀 꽝 1초 뒤 역물 낙하로 당첨(통상 당첨 중 비율) / judgement 성공 중 실패로 보였다가 계수 중 역전하는 비율 (일반 당첨의 RUSH 당첨 중 33% = 0.3771 × judge 까지 가는 87.5%)
 if(TUNE.consts.LATE&&TUNE.consts.LATE.j0===5&&TUNE.consts.LATE.j1===13)delete TUNE.consts.LATE;   // 옛 기본값이 저장돼 있으면 새 실측값으로
@@ -1931,8 +1933,8 @@ const LATE=Object.assign({j0:.7,j1:14.07},TUNE.consts.LATE);   // judge_tail_los
 const REVIVAL=0.06; // 당첨 중 부활 연출 비율(추정)
 // ── 실기 신뢰도(p-town)에 맞춘 통상 배틀 리치 ──  rel: 실기 신뢰도 / win: 당첨이 그 배틀로 오는 비중(실기 미공개 → 추정, 상대 비율)
 // 꽝일 때 각 배틀이 나오는 비율은 rel 이 맞도록 자동 계산. 부활(대당의 6%)·뒤늦은 역물 낙하(대당의 5%)는 서로 따로 뽑음(둘 다 실기 미공개 → 추정)
-const BREL={nishio:.18,tsukiyama:.13,scrapper:.12,yamori:.73,yamori_bld:.73,kakuza:.81,mother:.51,amon:.92},BWIN={nishio:.200,tsukiyama:.144,scrapper:.133,mother:.050,kakuza:.060,yamori:.035,yamori_bld:.061,amon:.040};   /* 체감: 통상 배틀(西尾·月山·スクラッパー)은 흔하게(셋 합쳐 약 300회전에 1번), 인간(어머니·아몬)·카쿠자·빌딩 분기는 드물게, 전회전은 아주 드물게. 긴 도입(병실)은 항상 일반 야모리 */
-const REV_ALL=.06,LATE_ALL=.05,KFAIL_LOSE=.03,B_HAND_WIN=.54,HAND_REL_ALL=.72;
+const BREL={nishio:.18,tsukiyama:.13,scrapper:.12,yamori:.73,yamori_bld:.73,kakuza:.81,mother:.51,amon:.92},BWIN={nishio:.200,tsukiyama:.144,scrapper:.133,mother:.051,kakuza:.101,yamori:.203,yamori_bld:.061,amon:.045};   /* 체감: 통상 배틀(西尾·月山·スクラッパー)은 흔하게(셋 합쳐 약 300회전에 1번), 인간(어머니·아몬)·카쿠자·빌딩 분기는 드물게, 전회전은 아주 드물게. 긴 도입(병실)은 항상 일반 야모리 */
+const REV_ALL=.06,LATE_ALL=.20,KFAIL_LOSE=.0667,B_HAND_WIN=.54,HAND_REL_ALL=.72;
 const ZEN={src:'videos/zenkaiten.mp4',p:.03};   // 전회전 출현: 7500+RUSH 당첨의 3% (사용자 지정)
 const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182,d:3.3},TUNE.consts.B75),DIRECT_7500=0.125,DIRECT_REV=1;   // 부활 연출 뒤에는 항상 3000 → 즉시 7500 (그래서 부활은 7500+RUSH 당첨에서만 나옴)
 const RVS=['videos/revival_fukurou.mp4','videos/revival_rize_3.mp4'];// 부활
@@ -1947,7 +1949,7 @@ async function play7500(base,gain){const b75f=B75FROM;B75FROM=undefined;
  S.out=base+gain;render();return p;
 }
 // judgement: 상대별 본체(결과 직전까지) + 공통 결말(성공/실패). 본체만 보고는 결과를 알 수 없어요.
-const JB=[{k:'shachi',body:'videos/judge_shachi_body.mp4',pre:'videos/judge_ready.mp4',preFrom:4.2,rel:.25,w:.15},{k:'yamori',body:'videos/judge_yamori_body.mp4',pre:'videos/judge_ready.mp4',rel:.40,w:.30},{k:'ayato',body:'videos/judge_ayato_body.mp4',pre:'videos/judge_ready.mp4',rel:.75,w:.30},{k:'shiro',body:'videos/judge_shiro_body.mp4',pre:'videos/judge_ready.mp4',rel:1,w:.25},
+const JB=[{k:'shachi',body:'videos/judge_shachi_body.mp4',pre:'videos/judge_ready.mp4',preFrom:4.2,rel:.25,w:.30},{k:'yamori',body:'videos/judge_yamori_body.mp4',pre:'videos/judge_ready.mp4',rel:.40,w:.30},{k:'ayato',body:'videos/judge_ayato_body.mp4',pre:'videos/judge_ready.mp4',rel:.75,w:.30},{k:'shiro',body:'videos/judge_shiro_body.mp4',pre:'videos/judge_ready.mp4',rel:.92,w:.10},
  {k:'break',body:'videos/judge_break_body.mp4',win:'videos/judge_break_win.mp4',loseFrom:.63,rel:.45,w:.30}];
 // 캐릭터 본편은 자기 '7500 JUDGEMENT' 장면까지 담고 있고, 공용 judge_ready 는 7.5초 지점(마지막 버튼 직전)부터 씀. preFrom: 원본이 그 전에 끝나는 캐릭터(샤치·아야토)는 모자란 만큼 judge_ready 를 앞에서부터
 const JSELC='videos/judge_select.mp4';   // 모드 선택 ~ 캐릭터 룰렛의 버튼까지(공용)
@@ -2034,7 +2036,7 @@ async function enterRush0(skipIntro){
 }
 // ── 영상 ST: 5회 전부 꽝인 풀영상을 틀고, 각 회전 시작점(4·3·2·1·LAST)에서 1/7.7 추첨 → 당첨이면 그 자리에서 고지 영상으로 전환 ──
 const ST=Object.assign({b1:.55,b2:20.15,b3:32.45,b4:105.7,b5:117.75,end:129.7},TUNE.consts.ST);   // st_full 안의 회전 시작 시각(초)
-const STV={full:'videos/st_full.mp4',wins:[{k:'rize',src:'videos/st_win_rize.mp4',intro:false,w:.5},{k:'tsukiyama',src:'videos/st_win_tsukiyama.mp4',intro:false,w:.2},{k:'omedetou',src:'videos/st_win_omedetou.mp4',intro:false,w:.3,any:true}]};
+const STV={full:'videos/st_full.mp4',wins:[{k:'rize',src:'videos/st_win_rize.mp4',intro:false,w:.5},{k:'tsukiyama',src:'videos/st_win_tsukiyama.mp4',intro:false,w:0},{k:'omedetou',src:'videos/st_win_omedetou.mp4',intro:false,w:.5,any:true}]};
 // ── ST 조각 조립 (GhoulSim): 라이브 영상에서 자른 조각을 회전 단위로 이어 붙임. 조각이 없으면 예전 방식(st_full 한 편)으로 돌아감 ──
 //  회전 = [리치 없는 꽝] 또는 [리치 앞부분 → eye → 전투] 또는 [특별 연출]. 카운트 숫자가 영상에 들어 있어서 조각은 찍힌 카운트에서만 씀
 const STP={F:{"0": ["st0_boku_tear_fail", "st0_crow_fail", "st0_crow_amore_fail", "st0_flower_sign_fail", "st0_flower_tear_fail", "st0_purple_sign_fail", "st0_shoot_fail", "st0_sign_fail", "st0_smile_fail", "st0_tear_fail", "st0_news_fail"], "1": ["st1_crow_fail", "st1_crow_amore_fail", "st1_news_fail", "st1_shoot_fail", "st1_sign_fail", "st1_tear_fail", "st1_tokyo_green_fail", "st4_tokyo_fail"]   /* st4_tokyo_fail: 이름은 4 지만 영상에 찍힌 카운트는 1 → 카운트 1 에서만 씀 */, "2": ["st2_boku_sign_fail", "st2_crow_fail", "st2_crow_amore_fail", "st2_news_fail", "st2_purple_wink_fail", "st2_shoot_fail", "st2_smile_fail", "st2_tokyo_fail"], "3": ["st3_boku_tear_fail", "st3_news_fail", "st3_shoot_fail", "st3_sign_fail", "st3_smile_fail", "st3_tear_fail", "st3_tokyo_fail"], "4": ["st4_boku_sign_fail", "st4_boku_wink_fail", "st4_crow_fail", "st4_flower_tear_fail", "st4_purple_crow_fail", "st4_purple_shoot_fail", "st4_purple_sign_fail", "st4_shoot_fail", "st4_smile_fail", "st4_tear_fail", "st4_wink_fail"]},
@@ -2097,7 +2099,7 @@ async function stPrep(){
   if(i!==hit){sp.push({plan:stPlan(c,false,fL[i])});continue}
   if(window.STZOK&&(fW==='zen'||(!fW&&Math.random()<STP.ZEN))){sp.push({plan:stPlan(c,true,'zen')});break}   // ST 전회전(eye 분기 → 전회전 → 777): ST 당첨의 3%
   const mk={totsu:'omedetou',rize:'rize',tsuki:'tsukiyama'}[window.STMODE||'def'],mw=mk&&wins.find(x=>x.k===mk);   // ST 모드(실기의 RUSH 연출 모드): 고른 모드의 일발고지만 나오고 비중이 커짐. 기본은 세 가지가 섞여 나옴
-  const old=wins.length&&(fW?wins.find(x=>x.k===fW):(mk?(mw&&Math.random()<.9?mw:null):(Math.random()<.35?wpick(wins,x=>x.w):null)));   // 당첨 회전: 예전 당첨 영상(리제·츠키야마·오메데토) 또는 조각으로 만든 리치 당첨
+  const old=wins.length&&(fW?wins.find(x=>x.k===fW):(mk?(mw&&Math.random()<.9?mw:null):(Math.random()<.20?wpick(wins.filter(x=>x.w>0),x=>x.w):null)));   // 당첨 회전: 예전 당첨 영상(리제·츠키야마·오메데토) 또는 조각으로 만든 리치 당첨
   if(old){const Fc=STP.F[c]||[];sp.push({old,f:(old.any||old.k==='tsukiyama')&&Fc.length?Fc[Math.floor(Math.random()*Fc.length)]:null,d:3+Math.random()*6})}else sp.push({plan:stPlan(c,true,fW)});break}
  const first=x=>x.plan?{src:x.plan[0].src||stV(x.plan[0].n),from:x.plan[0].from||0}:(x.f?{src:stV(x.f),from:0}:x.old.src);
  for(let i=0;i+1<sp.length;i++)if(sp[i].plan)sp[i].plan[sp[i].plan.length-1].next=first(sp[i+1]);
@@ -2253,7 +2255,7 @@ window.TKPRESS=()=>TKB.press();
   if(show){const s=String(TKB.n);if(nm.textContent!==s)nm.textContent=s;nm.classList.toggle('pop',now-(TKB.pop||0)<90)}},33)}
 // ST 도중에 모드를 바꾸면: 아직 오지 않은 당첨 회전의 고지 방식을 새 모드로 다시 정함 (당첨 여부·카운트는 그대로)
 window.stRemode=async()=>{const L=window.stLive;if(!L||S.mode!=='rush')return false;const P=L.P,hi=P.hit;if(hi<0||hi<=L.i)return false;const wins=[];for(const w of STV.wins)if(await probe(w.src))wins.push(w);
- const c=P.N-1-hi,mk={totsu:'omedetou',rize:'rize',tsuki:'tsukiyama'}[window.STMODE||'def'],mw=mk&&wins.find(x=>x.k===mk),old=wins.length&&(mk?(mw&&Math.random()<.9?mw:null):(Math.random()<.35?wpick(wins,x=>x.w):null));
+ const c=P.N-1-hi,mk={totsu:'omedetou',rize:'rize',tsuki:'tsukiyama'}[window.STMODE||'def'],mw=mk&&wins.find(x=>x.k===mk),old=wins.length&&(mk?(mw&&Math.random()<.9?mw:null):(Math.random()<.20?wpick(wins.filter(x=>x.w>0),x=>x.w):null));
  if(old){const Fc=STP.F[c]||[];P.sp[hi]={old,f:(old.any||old.k==='tsukiyama')&&Fc.length?Fc[Math.floor(Math.random()*Fc.length)]:null,d:3+Math.random()*6}}else P.sp[hi]={plan:stPlan(c,true)};
  const first=x=>x.plan?{src:x.plan[0].src||stV(x.plan[0].n),from:x.plan[0].from||0}:(x.f?{src:stV(x.f),from:0}:x.old.src),pv=P.sp[hi-1];if(hi-1>L.i&&pv&&pv.plan)pv.plan[pv.plan.length-1].next=first(P.sp[hi]);return true};
 // 앞 영상(rush_in_st·st_continue)을 틀기 전에 부름: 다음 ST 가 무엇으로 시작할지 정하고 그 영상을 돌려줌(앞 영상이 도는 동안 미리 준비됨). ok = 앞 영상에 카운트 5 화면이 들어 있음
@@ -2293,7 +2295,7 @@ async function stVideo(){
  let hit=-1;for(let i=0;i<B.length;i++)if((forceWin&&i===0)||Math.random()<SPEC.rushP){hit=i;break}
  const fHit=take('stHit'),fW=take('stWin');if(fHit!==undefined)hit=fHit;
  if(forceWin){forceWin=false;$('bForce').classList.remove('on')}
- const w=hit>=0&&wins.length?((fW&&wins.find(x=>x.k===fW))||wpick(wins,x=>x.w)):null;let to=hit>=0?B[hit]:ST.end;
+ const w=hit>=0&&wins.length?((fW&&wins.find(x=>x.k===fW))||wpick(wins.filter(x=>x.w>0),x=>x.w)):null;let to=hit>=0?B[hit]:ST.end;
  // 오메데토는 회전 시작점이 아니라 그 회전의 연출 도중 아무 때나 끼어듦 (긴 회전일수록 폭이 넓음)
  if(w&&w.any){const a=B[hit]+1.5,e=(B[hit+1]||ST.end)-1.5;if(e>a)to=+(a+Math.random()*(e-a)).toFixed(2)}
  S.st=SPEC.st;render();stBgm(false);
