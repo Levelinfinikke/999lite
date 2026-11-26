@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>이음매 시험 (MSE)</title>
+<style>
+html,body{margin:0;background:#111;color:#ddd;font:14px/1.45 system-ui,-apple-system,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#wrap{max-width:720px;margin:0 auto;padding:8px}
+video{width:100%;background:#000;display:block;aspect-ratio:926/720}
+.row{display:flex;gap:6px;margin:8px 0;flex-wrap:wrap}
+button{flex:1 1 30%;min-height:52px;font-size:15px;border:0;border-radius:8px;background:#2c2c2c;color:#eee;touch-action:manipulation}
+button:active{background:#555}button:disabled{opacity:.4}
+#go{background:#8a1c1c;flex-basis:100%}
+#st{white-space:pre-wrap;background:#1b1b1b;border-radius:8px;padding:8px;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace}
+#log{white-space:pre-wrap;background:#1b1b1b;border-radius:8px;padding:8px;margin-top:8px;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;max-height:42vh;overflow:auto;-webkit-user-select:text;user-select:text}
+.bad{color:#ff7a7a}.ok{color:#8fd18f}
+</style></head><body><div id="wrap">
+<video id="v" playsinline webkit-playsinline preload="auto"></video>
+<div class="row"><button id="go" disabled>영상 받는 중…</button></div>
+<div class="row"><button id="sk" disabled>SKIP</button><button id="sk10" disabled>SKIP 연타 ×10</button><button id="sw" disabled>다음 조각 바꾸기</button></div>
+<div id="st"></div><div id="log"></div>
+</div>
+<script>
+'use strict';
+// 조각 이름과 프레임 수(30fps). 모든 조각은 같은 규격(H.264 High 926x720 30fps, AAC 48k)의 조각형 MP4
+const P=[['rush_in_st',432],['st0_tear_fail',356],['st4_wink_fail',516],['st_continue',434],['uw_lose',352],['direct7500',302],['yokoku_hand',326],['rush_end',150]];
+const MIME='video/mp4; codecs="avc1.64001f,mp4a.40.2"',FPS=30,TAIL=2;
+const $=id=>document.getElementById(id),v=$('v'),logEl=$('log');
+const MS=window.ManagedMediaSource||window.MediaSource,KIND=window.ManagedMediaSource?'ManagedMediaSource':(window.MediaSource?'MediaSource':'없음');
+const log=(s,c)=>{const d=document.createElement('div');if(c)d.className=c;d.textContent=s;logEl.prepend(d)};
+const DATA=[];let ms,sb,Q=[],ops=Promise.resolve(),started=false;
+const ST={seams:0,seamMax:0,seamBad:0,skips:0,skipMax:0,skipSum:0,wait:0,evict:0};
+addEventListener('error',e=>log('오류: '+e.message,'bad'));addEventListener('unhandledrejection',e=>log('오류: '+(e.reason&&e.reason.message||e.reason),'bad'));
+
+// 1) 조각 전부 미리 받기 (본편이라면 이미 저장소에 받아 둔 것을 읽는 단계)
+(async()=>{
+  if(!MS){$('go').textContent='이 브라우저는 MSE를 지원하지 않아요';log('MediaSource / ManagedMediaSource 없음 (아이폰은 iOS 17.1 이상 필요)','bad');return}
+  if(!MS.isTypeSupported(MIME)){$('go').textContent='이 규격을 재생할 수 없어요';log(KIND+' 가 '+MIME+' 를 지원하지 않음','bad');return}
+  log('방식: '+KIND);let got=0;
+  await Promise.all(P.map(async(p,i)=>{const r=await fetch(p[0]+'.mp4');if(!r.ok)throw new Error(p[0]+'.mp4 '+r.status);DATA[i]=await r.arrayBuffer();$('go').textContent='영상 받는 중… '+(++got)+'/'+P.length}));
+  $('go').textContent='시작';$('go').disabled=false;
+})();
+
+const op=f=>ops=ops.then(f).catch(e=>log('버퍼 오류: '+(e&&e.message||e),'bad'));
+const done=()=>new Promise((res,rej)=>{if(!sb.updating)return res();sb.addEventListener('updateend',res,{once:true});sb.addEventListener('error',()=>rej(new Error('append error')),{once:true})});
+const tailEnd=()=>Q.length?Q[Q.length-1].end:0;
+const pick=not=>{let i;do{i=Math.floor(Math.random()*P.length)}while(i===not);return i};
+function append(i){              // 조각 i를 지금까지의 끝에 정확히 이어 붙임
+  const start=tailEnd(),it={i,name:P[i][0],start,end:start+P[i][1]/FPS};Q.push(it);
+  op(async()=>{await done();sb.timestampOffset=it.start;
+    try{sb.appendBuffer(DATA[i])}catch(e){             // 버퍼 가득: 지난 부분을 지우고 한 번 더
+      if(e.name!=='QuotaExceededError')throw e;const c=cur();sb.remove(0,Math.max(0,(c?c.start:v.currentTime)-.5));await done();sb.appendBuffer(DATA[i])}
+    await done()});
+  return it;
+}
+const cur=()=>{const t=v.currentTime+.001;for(const q of Q)if(t>=q.start&&t<q.end)return q;return Q[Q.length-1]};
+const nextOf=q=>Q[Q.indexOf(q)+1];
+let lastCur=null;
+function tick(){                 // 지금 조각 뒤에 항상 한 조각을 붙여 둠 + 지난 조각 정리
+  const c=cur();if(!c)return;
+  if(!nextOf(c))append(pick(c.i));
+  if(c!==lastCur){lastCur=c;const k=Q.indexOf(c);if(k>1){const cut=Q[k-1].start;Q.splice(0,k-1);op(async()=>{await done();sb.remove(0,cut);await done()})}}
+}
+
+// 측정: 이음매 앞뒤 프레임 간격, SKIP 반응 시간
+let pf=0,pm=0,skipAt=0,skipFrom=0,quiet=0;
+function onFrame(now,m){
+  const t=m.mediaTime;
+  if(skipAt&&Math.abs(t-skipFrom)>.2){const d=now-skipAt;skipAt=0;ST.skips++;ST.skipSum+=d;ST.skipMax=Math.max(ST.skipMax,d);quiet=now+400;log('SKIP 반응 '+d.toFixed(0)+'ms',d>250?'bad':'')}
+  else if(pf&&now>quiet&&!v.paused&&!v.seeking){
+    const gap=now-pf;
+    for(const q of Q)if(q.start>0&&pm<q.start-1e-3&&t>=q.start-1e-3&&t-pm<.5){const a=Q[Q.indexOf(q)-1];ST.seams++;ST.seamMax=Math.max(ST.seamMax,gap);const bad=gap>70;if(bad)ST.seamBad++;
+      log('이음매 '+(a?a.name:'?')+' → '+q.name+' : 프레임 간격 '+gap.toFixed(0)+'ms'+(bad?'  ← 끊김':''),bad?'bad':'ok')}
+  }
+  pf=now;pm=t;v.requestVideoFrameCallback(onFrame);
+}
+function skip(){                 // 본편과 같은 규칙: 조각 끝 2초 전으로. 이미 끝 2초 안이면 다음 조각의 끝 2초 전으로
+  const c=cur();if(!c)return;let to=c.end-TAIL;
+  if(v.currentTime>=to-.05){const n=nextOf(c);if(!n)return;to=n.end-TAIL;if(!nextOf(n))append(pick(n.i))}
+  skipFrom=v.currentTime;skipAt=performance.now();v.currentTime=to;tick();
+}
+function swap(){                 // 아직 재생되지 않은 다음 조각을 다른 조각으로 교체 (분기를 늦게 바꾸는 경우)
+  const c=cur(),n=nextOf(c);if(!c||!n||v.currentTime>c.end-.5){log('전환 0.5초 전부터는 바꾸지 않아요');return}
+  Q.length=Q.indexOf(c)+1;op(async()=>{await done();sb.remove(c.end,Infinity);await done()});
+  const it=append(pick(n.i));log('다음 조각 교체: '+n.name+' → '+it.name);
+}
+
+$('go').onclick=()=>{
+  if(started)return;started=true;$('go').disabled=true;$('go').textContent='재생 중';
+  ms=new MS();v.disableRemotePlayback=true;v.src=URL.createObjectURL(ms);
+  ms.addEventListener('sourceopen',()=>{sb=ms.addSourceBuffer(MIME);sb.mode='segments';
+    sb.addEventListener('bufferedchange',e=>{if(e.removedRanges&&e.removedRanges.length){const c=cur(),r=e.removedRanges;for(let k=0;k<r.length;k++)if(c&&r.end(k)>v.currentTime+.05){ST.evict++;log('브라우저가 앞쪽 버퍼를 비움 '+r.start(k).toFixed(1)+'~'+r.end(k).toFixed(1),'bad')}}});
+    append(0);tick();['sk','sk10','sw'].forEach(id=>$(id).disabled=false)},{once:true});
+  v.play().catch(e=>log('재생 시작 실패: '+e.message,'bad'));
+  if(v.requestVideoFrameCallback)v.requestVideoFrameCallback(onFrame);else log('프레임 측정 불가(구형 브라우저). 눈과 귀로 확인해 주세요');
+};
+$('sk').onclick=skip;$('sw').onclick=swap;
+$('sk10').onclick=()=>{let n=0;const id=setInterval(()=>{skip();if(++n>=10)clearInterval(id)},250)};
+v.addEventListener('timeupdate',tick);
+v.addEventListener('waiting',()=>{if(performance.now()>quiet&&!v.seeking&&v.currentTime>.1){ST.wait++;log('버퍼 대기 발생 (t='+v.currentTime.toFixed(2)+')','bad')}});
+v.addEventListener('error',()=>log('영상 오류 '+(v.error&&(v.error.code+' '+v.error.message)),'bad'));
+setInterval(()=>{if(!started)return;const c=cur(),n=c&&nextOf(c),q=v.getVideoPlaybackQuality?v.getVideoPlaybackQuality():null;let b='';try{for(let k=0;k<v.buffered.length;k++)b+=v.buffered.start(k).toFixed(1)+'~'+v.buffered.end(k).toFixed(1)+' '}catch(e){}
+  $('st').textContent='지금: '+(c?c.name+'  '+(v.currentTime-c.start).toFixed(1)+' / '+(c.end-c.start).toFixed(1)+'s':'-')+'\n다음: '+(n?n.name:'-')+
+   '\n이음매 '+ST.seams+'회 · 최대 프레임 간격 '+ST.seamMax.toFixed(0)+'ms · 끊김 '+ST.seamBad+'회'+
+   '\nSKIP '+ST.skips+'회 · 평균 '+(ST.skips?ST.skipSum/ST.skips:0).toFixed(0)+'ms · 최대 '+ST.skipMax.toFixed(0)+'ms'+
+   '\n버퍼 대기 '+ST.wait+'회 · 버퍼 비움 '+ST.evict+'회 · 버린 프레임 '+(q?q.droppedVideoFrames:'?')+'\n버퍼: '+b},250);
+window.__ST=ST;window.__Q=()=>Q;
+</script></body></html>
