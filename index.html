@@ -586,6 +586,7 @@ const REVIEW=[
  ['v498','(배포판) 실전모드 챌린지: 일반/챌린지 전환 · 닉네임(한글·영어·일본어 8자) · 100k·회전율30 고정 · 랭킹 창(수지 LIVE / 일격 / 생존) · 파산 시 영구 랭킹 등록 · 포기는 기록 안 됨',{url:'../999lite v.3/index.html'}],
  ['v499','(배포판) PC: 설정 창의 실전모드 버튼 제거 → 아이콘 줄 맨 앞 ¥ 버튼 · HYPER 설명 "진동 · LED 강화" · 손떨 커스텀 버튼을 제목과 같은 줄 오른쪽에',{url:'../999lite v.3/index.html'}],
  ['v500','(배포판) 챌린지 보완: 파산 기록은 서버에 닿을 때까지 보관 후 재전송 · 포기하면 실시간 랭킹에서 바로 빠짐 · 파산 결과 화면에 일격/생존 순위 표시 · 랭킹 창 20초마다 자동 갱신 · 일격/생존 탭에 내 최고 기록과 순위',{url:'../999lite v.3/index.html'}],
+ ['v526','(배포판) 커스텀 창: 프리미엄 연출 업 설명을 "실기에 없는 옵션. 프리미엄 연출이 3배로 자주 나와요."로 줄임',{url:'../999lite v.3/index.html'}],
  ['v525','(배포판) 챌린지 고정 회전율 29 → 28 (파산 중간값 약 9,300회전, 상위 10% 약 9만 회전). 진행 중인 챌린지는 시작할 때의 회전율 그대로',{url:'../999lite v.3/index.html'}],
  ['v524','(배포판) 챌린지 고정 회전율 30 → 29 (파산 중간값 약 10,800회전, 상위 10% 약 14만 회전). 챌린지 창 "100k · 29" · 도움말 · 패치노트 반영. 이미 진행 중인 챌린지는 시작할 때의 회전율 그대로',{url:'../999lite v.3/index.html'}],
  ['v523','(배포판) 버그 수정: 서버의 1~30위 목록은 최대 1분 전 것이라 기록을 올린 직후 내 줄 · 순위가 늦게 반영되던 것 — 내 최신 기록을 목록에 끼워 넣어 바로 반영(랭킹 창 · 결과 카드) · 화면에 안 보이는 1위 배너가 챌린지 창을 열 때마다 서버에 묻던 것 제거',{url:'../999lite v.3/index.html'}],
@@ -2850,7 +2851,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 <p class="note">ON: 회전 도중 기계음과 함께 버튼·레버가 무지개로 빛나요. 나오면 7500 + RUSH 확정.</p>
 </div>
 <div class="row"><span>프리미엄 연출 업</span><div class="seg" data-k="prem"><button data-v="off">OFF</button><button data-v="on">ON</button></div></div>
-<p class="note">실기에 없는 옵션. 전회전 · 부활 · 아몬 · 빌딩 분기 · 카쿠자 · 어머니 · 데드리제 · 무지개 레버블이 3배로 자주 나와요.</p>
+<p class="note">실기에 없는 옵션. 프리미엄 연출이 3배로 자주 나와요.</p>
 <div class="row" style="display:none"><span>ST 모드</span><div class="seg" id="cusSt"><button data-v="def">기본</button><button data-v="totsu">돌격</button><button data-v="rize">리제 습격</button><button data-v="tsuki">츠키야마 절규</button></div></div>
 <p class="note" id="cusStNote" style="display:none"></p>
 <p class="note">어떤 커스텀도 당첨 확률은 바꾸지 않아요. 예고가 나오는 방식만 달라져요.</p>
