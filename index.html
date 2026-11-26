@@ -586,6 +586,7 @@ const REVIEW=[
  ['v498','(배포판) 실전모드 챌린지: 일반/챌린지 전환 · 닉네임(한글·영어·일본어 8자) · 100k·회전율30 고정 · 랭킹 창(수지 LIVE / 일격 / 생존) · 파산 시 영구 랭킹 등록 · 포기는 기록 안 됨',{url:'../999lite v.3/index.html'}],
  ['v499','(배포판) PC: 설정 창의 실전모드 버튼 제거 → 아이콘 줄 맨 앞 ¥ 버튼 · HYPER 설명 "진동 · LED 강화" · 손떨 커스텀 버튼을 제목과 같은 줄 오른쪽에',{url:'../999lite v.3/index.html'}],
  ['v500','(배포판) 챌린지 보완: 파산 기록은 서버에 닿을 때까지 보관 후 재전송 · 포기하면 실시간 랭킹에서 바로 빠짐 · 파산 결과 화면에 일격/생존 순위 표시 · 랭킹 창 20초마다 자동 갱신 · 일격/생존 탭에 내 최고 기록과 순위',{url:'../999lite v.3/index.html'}],
+ ['v521','(배포판) 커스텀 추가: 프리미엄 연출 업(실기에 없는 옵션) — 켜면 전회전(통상 · ST) · 부활(올빼미 · 리제) · 아몬 · 빌딩 분기 · 무지개 보류 · 무지개 레버블이 3배. 당첨 확률과 각 연출의 신뢰도는 그대로',{url:'../999lite v.3/index.html'}],
  ['v520','뒤늦은 역물 낙하: 꽝 영상 뒤 1~2초 안에 낙하 → 당첨. 3000·7500 어느 당첨에서나(대당의 20%, 확정 연출 아님). 7500+RUSH 확정은 부활(올빼미·리제)뿐 · 니시오 배틀 안 역전 추가(꽝 결말 → 바로 승리 결말, 니시오에서 뒤늦은 낙하가 뽑히면 절반이 이걸로) · 레버블(커스텀 OFF) 당첨의 16% → 5% (신뢰도는 그대로)',{url:'../999lite v.3/index.html'}],
  ['v518','연출 비중 조정(신뢰도는 실기 그대로): 카쿠자 약 8,000회전에 1번(전 13,000 · 실패도 그만큼 보임) · 카쿠자 예고 실패 약 15,000회전 · 병실 긴 도입 당첨의 30% → 8%(클라이맥스 야모리는 일반 예고 → 야모리가 주 경로) · 뒤늦은 역물 낙하 대당의 20% · 저지먼트 상대 출현 鯱 30 · ヤモリ 30 · 絢都 30 · クロナ 10 (クロナ 신뢰도 92%)',{url:'../999lite v.3/index.html'}],
  ['v519','ST(RUSH) 당첨 영상: 기본 모드에서는 당첨의 20%만 선고지(리제 50 · 오메데토 50), 츠키야마 당첨 영상은 츠키야마 절규 모드에서만',{url:'../999lite v.3/index.html'}],
@@ -1781,16 +1782,16 @@ async function pickBattle(tier,vwin,fB,fPre,rvOK){const av=[];for(const k of Obj
  else if(BTL[b].human){const st=[];for(const p of PRES)if(SEG[p.n+'_eye']&&await segsOK([p.n]))st.push(p);const sp=(fPre&&SEG[fPre+'_eye'])?{n:fPre}:st[Math.floor(Math.random()*st.length)];lead=(sp?[sp.n+'_eye']:[]).concat(['pre_street_human_4'])}
  return {b,tier,pre:lead,list:T[vwin?'win':'lose'],num,rv:vwin&&!!T.rv,bld:!!BTL[b].bld}}
 /* 당첨 중 각 배틀이 차지하는 비율(대당 기준): 전회전 · 긴 도입(항상 클라이맥스 야모리) 몫을 빼고 BWIN 비중대로 */
-function bWinFrac(){const fZ=SPEC.rushIn*ZEN.p,fLR=LATE_ALL+REV_ALL,fL=(1-fZ-fLR)*PRE_LONG.p,fB=1-fZ-fL,S=Object.values(BWIN).reduce((a,b)=>a+b,0),o={};for(const k in BWIN)o[k]=fB*BWIN[k]/S;o.yamori+=fL;return o}
+function bWinFrac(){const fZ=SPEC.rushIn*zenP(),fLR=LATE_ALL+revAll(),fL=(1-fZ-fLR)*PRE_LONG.p,fB=1-fZ-fL,S=Object.keys(BWIN).reduce((a,k)=>a+bw(k),0),o={};for(const k in BWIN)o[k]=fB*bw(k)/S;o.yamori+=fL;return o}
 const bLoseRate=k=>{const f=bWinFrac()[k]||0,r=BREL[k];return r>=1?0:f*(1-r)/r};   /* 꽝 회전 하나당(÷대당 확률) 그 배틀이 나오는 비율 */
-const bHandLose=()=>{const fZ=SPEC.rushIn*ZEN.p,fL=(1-fZ-LATE_ALL-REV_ALL)*PRE_LONG.p,fB=1-fZ-fL,hw=fL+fB*B_HAND_WIN,ls=Object.keys(BREL).reduce((a,k)=>a+bLoseRate(k),0);return Math.max(0,Math.min(1,hw*(1-HAND_REL_ALL)/HAND_REL_ALL/ls))};
+const bHandLose=()=>{const fZ=SPEC.rushIn*zenP(),fL=(1-fZ-LATE_ALL-revAll())*PRE_LONG.p,fB=1-fZ-fL,hw=fL+fB*B_HAND_WIN,ls=Object.keys(BREL).reduce((a,k)=>a+bLoseRate(k),0);return Math.max(0,Math.min(1,hw*(1-HAND_REL_ALL)/HAND_REL_ALL/ls))};
 const bHas=async(k,t,w)=>{const T=BTL[k]&&BTL[k][t],l=T&&T[w];return !!l&&await segsOK(l.concat(BTL[k].pre||[],BTL[k].human?['pre_street_human_4']:[],BTL[k].bld?['pre_street_weak']:[]))};
 async function loseBattle(pHit){let r=Math.random()/pHit*(1-pHit);
  for(const k of Object.keys(BREL)){r-=bLoseRate(k);if(r<0){const w=await bHas(k,'weak','lose'),s=await bHas(k,'strong','lose');if(!w&&!s)return null;return {b:k,tier:w&&(!s||Math.random()<.7)?'weak':'strong'}}}
  r-=KFAIL_LOSE;if(r<0&&await bHas('kakuza_fail','weak','lose'))return {b:'kakuza_fail',tier:'weak'};return null}
 async function winBattle(rev,late){const lk=rev||late;const av=[];for(const k of Object.keys(BWIN)){const nr=late&&BTL[k].weak&&BTL[k].weak.rvl&&await segsOK(BTL[k].weak.rvl);const sw=await bHas(k,'strong','win'),ww=await bHas(k,'weak','win')&&!(BTL[k].weak&&BTL[k].weak.rv),wr=BTL[k].weak&&BTL[k].weak.rv&&await bHas(k,'weak','win'),sl=await bHas(k,'strong','lose'),wl=await bHas(k,'weak','lose');
   if(lk?(sl||wl||(rev&&wr)):(sw||ww))av.push({k,sw,ww,wr,sl,wl,nr})}
- if(!av.length)return null;let t=Math.random()*av.reduce((a,x)=>a+BWIN[x.k],0),c=av[av.length-1];for(const x of av){t-=BWIN[x.k];if(t<0){c=x;break}}
+ if(!av.length)return null;let t=Math.random()*av.reduce((a,x)=>a+bw(x.k),0),c=av[av.length-1];for(const x of av){t-=bw(x.k);if(t<0){c=x;break}}
  if(lk){if(c.nr&&Math.random()<.5)return {b:c.k,tier:'weak',lateIn:true};if(rev&&c.wr&&(!(c.sl||c.wl)||Math.random()<.5))return {b:c.k,tier:'weak',rvIn:true};return {b:c.k,tier:c.wl&&(!c.sl||Math.random()<.5)?'weak':'strong'}}
  return {b:c.k,tier:c.ww&&(!c.sw||Math.random()<.3)?'weak':'strong'}}
 async function spinNormal(){LED.sw();
@@ -1799,12 +1800,12 @@ async function spinNormal(){LED.sw();
  S.spins++;S.cur++;S.used+=spinCost();render();   // 회전마다 바로 차감하고 그래프에 반영
  if(fast&&res==='charge')return finishNormal(res,false);   // SKIP 으로 온 차지: 통상 화면을 거치지 않고 바로 차지 연출
  // 예고 추첨
- let holdEv=win?wpick(HOLD,x=>x[2]):chooseEvent(HOLD.slice(1),false,pHit,1,2);{const pm=(window.CUS&&window.CUS.pre)||'off',R={osu:.05,chance:.35,hot:.91}[pm];if(pm==='none')holdEv=null;else if(R&&!win){const pl=pHit*.7*(1-R)/(R*(1-pHit)),C=HOLD.filter(x=>x[0]&&x[1]<1);holdEv=Math.random()<pl?wpick(C,x=>x[2]):null}}   /* 선독(사전 예고) 커스텀 — 실기 신뢰도: 오스스메 약 5% · 찬스 약 35% · 열 약 91%, 없음 = 안 나옴. 꽝에서 나오는 비율을 그 신뢰도가 되게 맞춤 */
+ let holdEv=win?wpick(HOLD,pmw):chooseEvent(HOLD.slice(1),false,pHit,1,2);{const pm=(window.CUS&&window.CUS.pre)||'off',R={osu:.05,chance:.35,hot:.91}[pm];if(pm==='none')holdEv=null;else if(R&&!win){const pl=pHit*.7*(1-R)/(R*(1-pHit)),C=HOLD.filter(x=>x[0]&&x[1]<1);holdEv=Math.random()<pl?wpick(C,x=>x[2]):null}}   /* 선독(사전 예고) 커스텀 — 실기 신뢰도: 오스스메 약 5% · 찬스 약 35% · 열 약 91%, 없음 = 안 나옴. 꽝에서 나오는 비율을 그 신뢰도가 되게 맞춤 */
  let holdColor=holdEv?holdEv[0]:'';
  const fRp=take('rushPre');let rushPre=win&&(fRp!==undefined?fRp:(!!window.TMP_BREAKWIN||Math.random()<SPEC.rushIn)); // 대당 시 7500+RUSH 여부는 미리 결정 (연출에 반영)
  if(holdColor==='rainbow'&&!rushPre)holdColor='gold';
- const fZen=take('zen'),zen=win&&rushPre&&!NOCLIP()&&(fZen!==undefined?!!fZen:Math.random()<ZEN.p)&&await probe(ZEN.src);   // 전회전: 7500+RUSH 당첨 중 일부. 손떨 없이 단독으로 → 3000 → 즉시 7500
- let lever=win?(Math.random()<.05?wpick(LEVER,x=>x[2]):null):chooseEvent(LEVER,false,pHit,1,2);if(lever&&lever[0]==='rainbow'&&!rushPre)lever=LEVER[1];if(window.CUS&&window.CUS.lev==='on')lever=null;   // 레버블(커스텀 OFF): 흰색 약 75% · 빨강 당첨 농후. 커스텀 ON 이면 그쪽 추첨(흰색 약 95%)을 씀
+ const fZen=take('zen'),zen=win&&rushPre&&!NOCLIP()&&(fZen!==undefined?!!fZen:Math.random()<zenP())&&await probe(ZEN.src);   // 전회전: 7500+RUSH 당첨 중 일부. 손떨 없이 단독으로 → 3000 → 즉시 7500
+ let lever=win?(Math.random()<.05?wpick(LEVER,pmw):null):chooseEvent(LEVER,false,pHit,1,2);if(lever&&lever[0]==='rainbow'&&!rushPre)lever=LEVER[1];if(window.CUS&&window.CUS.lev==='on')lever=null;   // 레버블(커스텀 OFF): 흰색 약 75% · 빨강 당첨 농후. 커스텀 ON 이면 그쪽 추첨(흰색 약 95%)을 씀
  const chn=(window.CUS&&window.CUS.chance)||'off',custom=chn==='ex'?'ex':chn==='osu'?'25':$('selCustom').value;   // 찬스 암시 커스텀이 켜져 있으면 손 낙하의 신뢰도는 그 설정을 따름(오스스메 약 25% · EX = RUSH 당첨 농후)
  let hand=win?Math.random()<HAND_WIN_SHARE:Math.random()<loseRate(pHit,HAND_WIN_SHARE,HAND_REL);const fHand=take('hand');if(fHand!==undefined)hand=fHand;
  let reachEv=win?wpick(N_REACH,x=>x[3]):chooseEvent(N_REACH,false,pHit);
@@ -1817,11 +1818,11 @@ async function spinNormal(){LED.sw();
  const NF=await newFlowOK();let tier=null;
  let NB=null;if(NF&&!fTier&&!fReach){if(win)tier='strong';else{tier=null;reachEv=null;NB=await loseBattle(pHit);if(NB)tier=NB.tier}}
  else if(NF){if(win)tier=fTier||(Math.random()<TIER_WIN_STRONG?'strong':'weak');else{const lr=loseTierRate(pHit),r=Math.random();tier=fTier||(fReach?'weak':r<lr.strong?'strong':r<lr.strong+lr.weak?'weak':null);reachEv=null}}
- const pLR=SPEC.rushIn*(1-ZEN.p),pLT=LATE_ALL/(1-SPEC.rushIn*ZEN.p);let late=win&&!NOCLIP()&&(fLate!==undefined?fLate:Math.random()<pLT);   /* 뒤늦은 역물 낙하: 3000·7500 어느 당첨에서나(확정 연출 아님) */
+ const pLR=SPEC.rushIn*(1-zenP()),pLT=LATE_ALL/(1-SPEC.rushIn*zenP());let late=win&&!NOCLIP()&&(fLate!==undefined?fLate:Math.random()<pLT);   /* 뒤늦은 역물 낙하: 3000·7500 어느 당첨에서나(확정 연출 아님) */
  if(late&&!NF&&!(fReach&&await reachOK(fReach,false))){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);if(av.length)reachEv=av[Math.floor(Math.random()*av.length)];else late=false}
  // 꽝 뒤의 부활은 항상 올빼미 부활 영상으로 (코드로 만든 역물 낙하는 쓰지 않음). 뒤늦은 당첨으로 뽑힌 경우도 여기에 합침
  if(win&&fRev)rushPre=true;   // 부활(올빼미·리제)만 7500+RUSH 확정   // 부활·뒤늦은 당첨은 7500+RUSH 당첨에서만 (비율은 전체 당첨 기준 그대로가 되게 보정)
- const RVc=win&&rushPre&&!NOCLIP()?await pickRV(fRev):'';let rev=!!RVc&&!late&&(fRev!==undefined?!!fRev:Math.random()<REV_ALL/(pLR*(1-pLT)));
+ const RVc=win&&rushPre&&!NOCLIP()?await pickRV(fRev):'';let rev=!!RVc&&!late&&(fRev!==undefined?!!fRev:Math.random()<Math.min(1,revAll()/(pLR*(1-pLT))));
  // 긴 도입(병실 → 리제)은 항상 클라이맥스 야모리로 이어짐
  const long=win&&!late&&!rev&&!NOCLIP()&&!(NF&&(fTier||fReach))&&(fIntro?(fIntro==='long'||fIntro==='long2'):Math.random()<PRE_LONG.p)&&await probe(PRE_LONG.src)&&await segsOK(BTL.yamori.strong.win);
  if(long)reachEv=N_REACH.find(x=>x[0]==='climax_yamori');
@@ -1935,6 +1936,8 @@ const REVIVAL=0.06; // 당첨 중 부활 연출 비율(추정)
 // ── 실기 신뢰도(p-town)에 맞춘 통상 배틀 리치 ──  rel: 실기 신뢰도 / win: 당첨이 그 배틀로 오는 비중(실기 미공개 → 추정, 상대 비율)
 // 꽝일 때 각 배틀이 나오는 비율은 rel 이 맞도록 자동 계산. 부활(대당의 6%)·뒤늦은 역물 낙하(대당의 5%)는 서로 따로 뽑음(둘 다 실기 미공개 → 추정)
 const BREL={nishio:.18,tsukiyama:.13,scrapper:.12,yamori:.73,yamori_bld:.73,kakuza:.81,mother:.51,amon:.92},BWIN={nishio:.200,tsukiyama:.144,scrapper:.133,mother:.051,kakuza:.101,yamori:.203,yamori_bld:.061,amon:.045};   /* 체감: 통상 배틀(西尾·月山·スクラッパー)은 흔하게(셋 합쳐 약 300회전에 1번), 인간(어머니·아몬)·카쿠자·빌딩 분기는 드물게, 전회전은 아주 드물게. 긴 도입(병실)은 항상 일반 야모리 */
+/* 프리미엄 연출 업(실기에 없는 커스텀): 켜면 전회전(통상·ST) · 부활 · 아몬 · 빌딩 분기 · 무지개 보류/레버블이 3배로. 당첨 확률·신뢰도는 그대로(다른 당첨 연출 비중이 그만큼 줄어듦) */
+const PM=()=>window.CUS&&window.CUS.prem==='on'?3:1,PREM_B={amon:1,yamori_bld:1},bw=k=>BWIN[k]*(PREM_B[k]?PM():1),zenP=()=>Math.min(.2,ZEN.p*PM()),revAll=()=>REV_ALL*PM(),pmw=x=>x[2]*(x[0]==='rainbow'?PM():1);
 const REV_ALL=.06,LATE_ALL=.20,KFAIL_LOSE=.0667,B_HAND_WIN=.54,HAND_REL_ALL=.72;
 const ZEN={src:'videos/zenkaiten.mp4',p:.03};   // 전회전 출현: 7500+RUSH 당첨의 3% (사용자 지정)
 const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182,d:3.3},TUNE.consts.B75),DIRECT_7500=0.125,DIRECT_REV=1;   // 부활 연출 뒤에는 항상 3000 → 즉시 7500 (그래서 부활은 7500+RUSH 당첨에서만 나옴)
@@ -2098,7 +2101,7 @@ async function stPrep(){
  const sp=[];
  for(let i=0;i<N;i++){const c=N-1-i;
   if(i!==hit){sp.push({plan:stPlan(c,false,fL[i])});continue}
-  if(window.STZOK&&(fW==='zen'||(!fW&&Math.random()<STP.ZEN))){sp.push({plan:stPlan(c,true,'zen')});break}   // ST 전회전(eye 분기 → 전회전 → 777): ST 당첨의 3%
+  if(window.STZOK&&(fW==='zen'||(!fW&&Math.random()<Math.min(.2,STP.ZEN*PM())))){sp.push({plan:stPlan(c,true,'zen')});break}   // ST 전회전(eye 분기 → 전회전 → 777): ST 당첨의 3%
   const mk={totsu:'omedetou',rize:'rize',tsuki:'tsukiyama'}[window.STMODE||'def'],mw=mk&&wins.find(x=>x.k===mk);   // ST 모드(실기의 RUSH 연출 모드): 고른 모드의 일발고지만 나오고 비중이 커짐. 기본은 세 가지가 섞여 나옴
   const old=wins.length&&(fW?wins.find(x=>x.k===fW):(mk?(mw&&Math.random()<.9?mw:null):(Math.random()<.20?wpick(wins.filter(x=>x.w>0),x=>x.w):null)));   // 당첨 회전: 예전 당첨 영상(리제·츠키야마·오메데토) 또는 조각으로 만든 리치 당첨
   if(old){const Fc=STP.F[c]||[];sp.push({old,f:(old.any||old.k==='tsukiyama')&&Fc.length?Fc[Math.floor(Math.random()*Fc.length)]:null,d:3+Math.random()*6})}else sp.push({plan:stPlan(c,true,fW)});break}
@@ -2106,7 +2109,7 @@ async function stPrep(){
  for(let i=0;i+1<sp.length;i++)if(sp[i].plan)sp[i].plan[sp[i].plan.length-1].next=first(sp[i+1]);
  return window.stPre={N,hit,sp,first:first(sp[0]),at:performance.now()}}
 // ── 커스텀(실기의 게임성 커스터마이즈): 입상 구울화 · 레버블 업 · 임팩트 플래시. 회전 시작 때 예고만 더하고 추첨 결과는 바꾸지 않음 ──
-{const CU={logo:'off',lev:'off',imp:'off',pre:'off',chance:'off'};window.CUS=CU;for(const k in CU){try{const v=localStorage.getItem('g999C_'+k);if(v)CU[k]=v}catch(e){}}
+{const CU={logo:'off',lev:'off',imp:'off',pre:'off',chance:'off',prem:'off'};window.CUS=CU;for(const k in CU){try{const v=localStorage.getItem('g999C_'+k);if(v)CU[k]=v}catch(e){}}
  window.cusSet=(k,v)=>{CU[k]=v;try{localStorage.setItem('g999C_'+k,v)}catch(e){}const s={logo:'selLogo',lev:'selLev',imp:'selImp',pre:'selPre',chance:'selChance'}[k];if(s&&$(s))$(s).value=v;
   if(v!=='off'){if(k==='lev'&&CU.imp!=='off')window.cusSet('imp','off');if(k==='imp'&&CU.lev!=='off')window.cusSet('lev','off');if(k==='chance'||k==='logo'){window.handSet('def');const o=k==='chance'?'logo':'chance';if(CU[o]!=='off')window.cusSet(o,'off')}}   /* 같이 못 쓰는 조합: 레버블 ↔ 임팩트 플래시 / 찬스 암시 ↔ 입상 구울화 ↔ 손떨 */
   if(window.CUS_UI)try{window.CUS_UI()}catch(e){}};
@@ -2155,7 +2158,7 @@ async function stPrep(){
  // RUSH 중(ST 회전 · 추가 3000 판정)과 7500 JUDGEMENT(모드 1 · 2)의 레버블 · 임팩트 플래시. 뜻과 발생률은 통상과 같음. 발동은 역물 낙하(꽝·실패는 그 회전의 끝) 5초 전까지: 5초에 가까운 쪽이 많음
  window.cusRush=(win,eta,kind)=>{try{if(speed>=20||!eta)return;const F=window.CUSFORCE2;window.CUSFORCE2=null;const pw=kind==='uw'?SPEC.loop:kind==='judge'?SPEC.rushIn:SPEC.rushP,od=pw/(1-pw);let tier='';
    if(F&&F.lev)tier=F.lev;else if(CU.lev==='on'){if(win){if(Math.random()<.5)tier=Math.random()<.1?'rb':(Math.random()<.34?'r':'w')}else if(Math.random()<od*.3135*(5/95))tier='w'}   /* ON: 당첨의 50%, 흰색 신뢰도 약 95% */
-   else if(!F){if(win){if(Math.random()<.16){const l=wpick(LEVER,x=>x[2]);tier={white:'w',red:'r',rainbow:'rb'}[l[0]]||''}}else if(Math.random()<od*.1*(25/75))tier='w'}   /* OFF: 당첨의 16%, 흰색 신뢰도 약 75% */
+   else if(!F){if(win){if(Math.random()<.16){const l=wpick(LEVER,pmw);tier={white:'w',red:'r',rainbow:'rb'}[l[0]]||''}}else if(Math.random()<od*.1*(25/75))tier='w'}   /* OFF: 당첨의 16%, 흰색 신뢰도 약 75% */
    const imp=F?!!F.imp:(win&&CU.lev!=='on'&&Math.random()<(CU.imp==='on'?.5:.1));if(!tier&&!imp)return;
    const MIN=5,h0=S.hits,m0=S.mode,R=F&&F.now?1e9:MIN+15*Math.pow(Math.random(),2),t0=performance.now();let seen=false;
    /* 버튼 기준(JUDGEMENT): 버튼 조작 시점 최대 BMAX초 전 ~ 버튼 직전 사이에 고르게 발동 (실기 영상 judge_shiro_body 의 임팩트 플래시 소리가 버튼 약 8초 전) */
@@ -2842,6 +2845,8 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 <div class="row"><span>임팩트 플래시</span><div class="seg" data-k="imp"><button data-v="off">OFF</button><button data-v="on">ON</button></div></div>
 <p class="note">ON: 회전 도중 기계음과 함께 버튼·레버가 무지개로 빛나요. 나오면 7500 + RUSH 확정.</p>
 </div>
+<div class="row"><span>프리미엄 연출 업</span><div class="seg" data-k="prem"><button data-v="off">OFF</button><button data-v="on">ON</button></div></div>
+<p class="note">실기에 없는 옵션. 전회전 · 부활 · 아몬 · 빌딩 분기 · 무지개 보류 · 무지개 레버블이 3배로 자주 나와요.</p>
 <div class="row" style="display:none"><span>ST 모드</span><div class="seg" id="cusSt"><button data-v="def">기본</button><button data-v="totsu">돌격</button><button data-v="rize">리제 습격</button><button data-v="tsuki">츠키야마 절규</button></div></div>
 <p class="note" id="cusStNote" style="display:none"></p>
 <p class="note">어떤 커스텀도 당첨 확률은 바꾸지 않아요. 예고가 나오는 방식만 달라져요.</p>
