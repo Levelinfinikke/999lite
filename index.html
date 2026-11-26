@@ -10,7 +10,7 @@ window.VBASE="https://pub-8c9947559127422da866e6c25b1c8792.r2.dev/";window.VDIR=
  const d=Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,"src");Object.defineProperty(HTMLMediaElement.prototype,"src",{configurable:true,get(){return d.get.call(this)},set(v){d.set.call(this,typeof v==="string"&&/^videos\/[^\/]+\.mp4/.test(v)?B+window.VDIR+v.slice(7):v)}})})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="theme-color" content="#050506">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#050506">
 <title>999 v.3</title>
 <meta name="application-name" content="999 v.3"><meta name="apple-mobile-web-app-title" content="999 v.3">
 <style>
@@ -313,6 +313,8 @@ body{box-sizing:border-box;padding-top:env(safe-area-inset-top)!important}
 #cab{width:min(calc(100vw - var(--ww)),calc((100vh - env(safe-area-inset-top)) * var(--ar)))!important}
 @media (max-width:760px){#wcol{top:calc(4px + env(safe-area-inset-top))!important;max-height:calc(100vh - 8px - env(safe-area-inset-top))!important}}
 }
+#sbFix{display:none}
+@media (display-mode:standalone),(display-mode:fullscreen){#sbFix{display:block;position:fixed;top:0;left:0;right:0;height:11px;background:#050506;-webkit-background-clip:text;background-clip:text;color:transparent;z-index:2147483647;pointer-events:none}}
 </style>
 <style>#wcol #wAuto{letter-spacing:.04em;font-size:13px;padding:0 2px}#wcol #wSkip{height:44px}#dl button.go{flex:none}#dlNote{margin:0;padding-left:20px;text-align:left;font-size:13px;line-height:1.75;color:#d8cfd2;max-width:min(420px,84vw)}#dlNote[hidden]{display:none}#wPay{right:23.3%!important;bottom:41.55%!important;align-items:baseline!important;gap:.4cqw!important;padding:.75cqw .9cqw .55cqw 1cqw!important;background:rgba(4,2,3,.86)!important;border-radius:.5cqw}#wPay b{font-size:7.4cqw!important}#wPay i{font-size:2.4cqw!important;padding:0!important}#wPay:not(.fold) u{display:none}#wPay.fold{padding:.5cqw .9cqw!important}#wPay.fold u{font-size:1.5cqw!important;margin:0!important}.wg{border-color:#7a1422!important;background:linear-gradient(180deg,rgba(28,9,13,.9),rgba(9,4,6,.9))!important}.wg::before{background:linear-gradient(90deg,#8a0b15,#ff2d40,#8a0b15)!important}.wg .hd{color:#f0a3ad!important}.wg .hd i{color:#a8868b!important}.wg.drag{box-shadow:0 0 0 1px #ff5364,0 8px 30px rgba(0,0,0,.6)!important}#wcol button,#wcol label{background-color:#201115;border-color:#4d2830}#wcol button:hover{border-color:#ff5364;background-color:#2c161b}#wcol label{color:#c9a9ae}#wcol #inCost{background:#0a0506;border-color:#4d2830}#wcol #wReset{border-color:#3a1c22!important;color:#a8868b!important;background:transparent!important}#wcol #wHelp{color:#f0a3ad!important}#helpBox .hb{border-color:#7a1422!important;background:linear-gradient(180deg,#1c090d,#090406)!important}#helpBox h3{color:#f0a3ad!important}#helpBox h4{color:#ff5364!important}#helpBox td{border-top-color:#3a1c22!important}#helpX{background:#201115!important;border-color:#4d2830!important}#helpBox .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 36px 10px 0}#helpBox .tabs button{flex:1 1 auto;padding:0 8px;white-space:nowrap;height:30px;clip-path:none;border-radius:3px;background:#201115;border:1px solid #4d2830;color:#a8868b;font-weight:700;font-size:13px;letter-spacing:.08em;cursor:pointer}#helpBox .tabs button.on{background:linear-gradient(180deg,#e01b2c,#8a0b15);border-color:#ff5364;color:#fff}#helpBox .pane[hidden]{display:none}#helpBox ul{margin:0 0 4px;padding-left:18px}#helpBox li{margin:3px 0}</style>
 <style>html.flip180 body{transform:rotate(180deg);transform-origin:50% 50%}
@@ -331,7 +333,7 @@ html:not(.lightm):not(#x),html:not(.lightm):not(#x) body{background-color:#02020
  const gb=Element.prototype.getBoundingClientRect;Element.prototype.getBoundingClientRect=function(){const r=gb.call(this);return on()?new DOMRect(innerWidth-r.right,innerHeight-r.bottom,r.width,r.height):r};
 })();</script>
 </head>
-<body>
+<body><div id="sbFix" aria-hidden="true"></div>
 <div id="layout">
   <div id="panel" class="side">
     <div class="brand"><b>喰種 <i>SIM</i></b><span>999 · 超デカ超一撃</span></div>
@@ -527,6 +529,8 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
+ ['v478','LED 가 흰색에서 안 바뀌던 문제: 이어 붙이기 재생(serve_ghoulsim 으로 연 GhoulSim · 배포판)에서는 한 재생기에 여러 영상이 이어져 있는데, LED · 진동 표를 재생기 전체 시각으로 찾아서 두 번째 영상부터 표를 못 찾았음. 지금 영상의 시작부터 재서 찾도록 고침 — serve_ghoulsim 으로 열고 아무 연출이나 이어서 볼 때 LED 색 · 진동',{e:'RUSH 돌입 → ST 5회'}],
+ ['v477','(배포판 · 아이폰 홈 화면 앱) 화면 맨 위가 뿌옇게 덮이던 문제: iOS 27 이 상태 표시줄 밑에 그리는 유리 효과 때문. 상태 표시줄을 불투명(검정)으로 바꿔 효과가 안 생기게 함 — 홈 화면 아이콘을 지우고 다시 추가한 뒤 확인',{url:'../999lite v.3/index.html'}],
  ['v476','화면 아래 안내 문구 전부 없앰: 「Space: 정산 건너뛰기」 · 「PUSH ▶ 화면 클릭 · Space · SKIP」 · JUDGEMENT 「모드 선택: 화면 왼쪽 · 오른쪽 …」. ST 모드를 바꿀 때 위에 뜨던 「MODE · 돌격」 같은 안내도 없앰 (모드는 왼쪽 아래 배지 그림으로만 바뀜) — 정산 · PUSH · 모드 선택 · ST 중 레버',{e:'RUSH 돌입 → ST 5회'}],
  ['v475','999 v.3 를 없애므로 예전 실전모드 검수 항목(v444 · v446 · v453 · v464 등)의 링크가 999lite v.3 을 열도록 바꿈 — 이 링크로 실전모드가 열리는지',{url:'../999lite v.3/index.html?rv=real_win'}],
  ['v474','LED 색 복구: v473 에서 무지개 색이 납작하게(단색 덩어리) 보이던 문제 고침 — 예전처럼 LED 알갱이가 보이는 무지개',rvClip('bonus','range',4,11)],
@@ -1271,7 +1275,7 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
   PART[n].forEach((i,k)=>{const e=dimEls[i],mv=!!partEls[i].style.transform;if(e){const v=mv?0:d;if(Math.abs(v-(e._l==null?-1:e._l))>.004){e._l=v;e.style.transition='none';e.style.opacity=v.toFixed(3)}}
    const t=tn[k],tv=mv?0:to;t.col('hsl('+hue+',100%,58%)');if(Math.abs(tv-(t._l||0))>.004){t._l=tv;t.style.opacity=tv.toFixed(3)}})}
  // LED 표는 원본 클립의 파일 시각 기준 → 지금 재생 중인 파일(웹용은 앞이 잘려 있음)의 시각을 원본 시각으로 바꿈
- const ledT=(n,v)=>{const c=(typeof CLIPS!=='undefined'&&CLIPS[n])||{},o=window.LEDIN&&LEDIN[n];return v.currentTime-(c.in||0)+(o!=null?o:(c.in||0))};
+ const ledT=(n,v,g)=>{const c=(typeof CLIPS!=='undefined'&&CLIPS[n])||{},o=window.LEDIN&&LEDIN[n],r=g&&g.base!=null?v.currentTime-g.base:v.currentTime-(c.in||0);return r+(o!=null?o:(c.in||0))};   /* g = 지금 재생 중인 영상의 위치 정보. 이어 붙이기 재생(MSE)은 한 재생기에 여러 영상이 이어져 있어서 재생기 시각이 아니라 그 영상의 시작(g.base)부터 잼 */
  const dec=(s,i)=>{const q=(BI[s[i*2]]<<6)|BI[s[i*2+1]];return [(q>>8)/15,((q>>3)&31)*11.25,(q&7)/7]};
  // 빛의 회전 (실기 60프레임 영상 실측). 경로: 왼쪽 기둥 아래→위 → 중앙 상단 왼→오 → 오른쪽 기둥 위→아래 (시계 방향), 경로 위치 s = 0~1
  //  종류 2 무지개: 전부 켜진 채 6색(하늘→초록→노랑→빨강→자홍→파랑)이 0.7초에 한 바퀴. 색이 바뀌는 경계가 경로를 0.36초에 훑고 지나감
@@ -1318,24 +1322,24 @@ const LED=(()=>{const Zs={},names=Object.keys(LED_BOX).concat(['head','hand']);l
  let tkL=0;
  function tick(now){requestAnimationFrame(tick);if(now-tkL<30)return;tkL=now;   // LED 표가 초당 30칸이라 갱신도 30번이면 충분
   const t=now/1000,dt=Math.min(.1,t-pt);pt=t;let G,D=null,fi=0;
-  let Dc=null;if(curPlay&&window.LEDDATA){const d=LEDDATA[cname(curPlay.src)];if(d){fi=Math.floor(ledT(cname(curPlay.src),curPlay.v)*d.fps);if(fi>=0&&fi*2+1<d.z.left.length){D=d.z;Dc=d}}}
+  let Dc=null;if(curPlay&&window.LEDDATA){const d=LEDDATA[cname(curPlay.src)];if(d){fi=Math.floor(ledT(cname(curPlay.src),curPlay.v,curPlay.g)*d.fps);if(fi>=0&&fi*2+1<d.z.left.length){D=d.z;Dc=d}}}
   if(drop>0)G=.7+.3*drop*(Math.sin(t*40)>0?1:.35);
   else if(curPlay)G=.65;
   else G=.45;   // 표가 없는 화면은 흔들림 없이 일정하게
   kick*=Math.pow(.01,dt);if(kick<.01)kick=0;
-  vib(curPlay?vibTbl(cname(curPlay.src)):null,curPlay?Math.floor(ledT(cname(curPlay.src),curPlay.v)*30):0);
+  vib(curPlay?vibTbl(cname(curPlay.src)):null,curPlay?Math.floor(ledT(cname(curPlay.src),curPlay.v,curPlay.g)*30):0);
   // 회전 구간인지: 표에 적힌 [시작프레임,끝프레임,종류(1 흰빛·표의 색 / 2 무지개)]
   let rot=0;RBF=null;if(D&&Dc.rot)for(const r of Dc.rot)if(fi>=r[0]&&fi<r[1]){rot=r[2];if(rot===5)RBF=(fi-r[0])/Math.max(1,r[1]-r[0]);break}if(window.CUSROT){if(performance.now()<window.CUSROT)rot=2;else window.CUSROT=0}const RT=rot===6?4:rot===7?2:rot,SWR=rot>=5;   // 종류 5: 777 이 내려오는 동안 무지개가 앞머리(맨 위 → 레버 아래)를 따라 같은 속도로 차오름 (RBF = 진행 0~1) / 6·7: 4·2 와 같고 버튼·레버도 무지개
   // 무지개 회전 속도: 화면이 초당 60번 갱신되면 원래 속도, 갱신이 느린 기기에서는 그만큼 천천히 돌리고 색 경계를 부드럽게 해서 끊겨 보이지 않게 함
   fdt+=(dt-fdt)*.05;const slow=Math.max(1,Math.min(3,fdt/.0185));edgeW=.012*(1+(slow-1)*2.5);if((RT===2||RT===4||RT===5)&&!(curPlay&&curPlay.v.paused))rbP+=dt/(RBT/12*slow);
   {const vt=curPlay?curPlay.v.currentTime:t;RBS=RT===4?((((vt*7.5)%1)+1)%1<.5?1:.22):1}   // 종류 4(프리미엄 역물 낙하): 무지개 회전 + 초당 7.5번 번쩍임
-  chase(RT===4||RT===5?2:RT,curPlay?ledT(cname(curPlay.src),curPlay.v):t,D,fi);
+  chase(RT===4||RT===5?2:RT,curPlay?ledT(cname(curPlay.src),curPlay.v,curPlay.g):t,D,fi);
   // 통상(실기 관찰): 기둥·중앙 상단·테두리는 스테이지 테마색으로 고정, 머리(흰색)·손(주황)·꽃(빨강)은 변화 없이 켜짐, 스위치+레버만 회전 시작 때 잠깐 점멸. 스테이지가 바뀔 때 기둥이 잠깐 꺼졌다 켜짐
   const cpN=curPlay?+(cname(curPlay.src).match(/^normal_(\d)/)||[])[1]||0:0;   // 조정 목록에서 통상 배경을 직접 재생할 때도 같은 규칙
   let NM=null;if(!D&&ov==null&&!drop&&(cpN||(!curPlay&&typeof S!=='undefined'&&S.mode==='normal'))){let th=null;
    if(cpN||(typeof bgCur!=='undefined'&&bgCur>=0&&bgList&&bgList[bgCur])){const k=cpN||+(bgList[bgCur].match(/normal_(\d)/)||[])[1];th=THEME[k]||null;if(k!==bgSeen){if(bgSeen)dipT=t;bgSeen=k}}
    // 버튼은 꺼짐. 레버도 평소 꺼져 있다가, 배경 영상에서 4번째 보류 구슬이 위에서 내려오는 순간(미리 찾아 둔 시각표 LEDSW)에만 0.5초간 빠르게 여러 번 반짝임. 시각표가 없으면 회전 시작에 반응
-   let hd=t-swT<.5?t-swT:-1;const ev=window.LEDSW&&bgSeen&&LEDSW['normal_'+bgSeen];if(ev){const ct=cpN?ledT('normal_'+cpN,curPlay.v):ledT('normal_'+bgSeen,BG);hd=-1;for(let i=0;i<ev.length&&ev[i]<=ct;i++)if(ct-ev[i]<.5)hd=ct-ev[i]}
+   let hd=t-swT<.5?t-swT:-1;const ev=window.LEDSW&&bgSeen&&LEDSW['normal_'+bgSeen];if(ev){const ct=cpN?ledT('normal_'+cpN,curPlay.v,curPlay.g):ledT('normal_'+bgSeen,BG);hd=-1;for(let i=0;i<ev.length&&ev[i]<=ct;i++)if(ct-ev[i]<.5)hd=ct-ev[i]}
    const f=Math.min(1,Math.abs(t-dipT-.7)/.7),lev=hd>=0&&Math.sin(hd*75)>0?[.85,0,0]:[.04,0,0],P=th?[.85*f,th[0],th[1]]:[.8*f,0,0];
    NM={left:P,right:P,top:P,border:[P[0]*.55,P[1],P[2]],head:[.95,0,0],hand:[.95,15,.75],flower:[.95,0,0],button:[.04,0,0],lever:lev}}
   for(const n of names){let L,hue=0,sat=0;
