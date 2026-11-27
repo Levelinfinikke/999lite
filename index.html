@@ -582,27 +582,23 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
- ['부활 이음매','니시오 → 올빼미 부활: 니시오 꽝 결말(battle_nishio_lose_4) 끝 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 니시오 → 올빼미'}],
- ['부활 이음매','니시오 → 리제 부활: 니시오 꽝 결말(battle_nishio_lose_4) 끝 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 니시오 → 리제'}],
- ['부활 이음매','츠키야마 strong → 올빼미 부활: 츠키야마 strong 꽝 결말 끝 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 츠키야마 strong → 올빼미'}],
- ['부활 이음매','츠키야마 strong → 리제 부활: 츠키야마 strong 꽝 결말 끝 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 츠키야마 strong → 리제'}],
- ['부활 이음매','츠키야마 weak → 올빼미 부활: 츠키야마 weak 꽝(battle_tsukiyama_weak_lose_2) 끝 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 츠키야마 weak → 올빼미'}],
- ['부활 이음매','츠키야마 weak → 리제 부활: 츠키야마 weak 꽝(battle_tsukiyama_weak_lose_2) 끝 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 츠키야마 weak → 리제'}],
- ['부활 이음매','스크래퍼 strong → 올빼미 부활: 스크래퍼 꽝(battle_scrapper_lose_4, 1.1초부터) 끝 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 스크래퍼 strong → 올빼미'}],
- ['부활 이음매','스크래퍼 strong → 리제 부활: 스크래퍼 꽝(battle_scrapper_lose_4, 1.1초부터) 끝 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 스크래퍼 strong → 리제'}],
- ['부활 이음매','스크래퍼 weak → 올빼미 부활: 스크래퍼 꽝(battle_scrapper_lose_4) 끝 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 스크래퍼 weak → 올빼미'}],
- ['부활 이음매','스크래퍼 weak → 리제 부활: 스크래퍼 꽝(battle_scrapper_lose_4) 끝 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 스크래퍼 weak → 리제'}],
- ['부활 이음매','클라이맥스 야모리 → 올빼미 부활: 야모리 꽝(climax_yamori_lose_2) — 끝 4.8초를 잘라 낸 지점 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 클라이맥스 야모리 → 올빼미'}],
- ['부활 이음매','클라이맥스 야모리 → 리제 부활: 야모리 꽝(climax_yamori_lose_2) — 끝 4.8초를 잘라 낸 지점 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 클라이맥스 야모리 → 리제'}],
- ['부활 이음매','빌딩 분기 야모리 → 올빼미 부활: 야모리 꽝(climax_yamori_lose_2) — 끝 4.8초를 잘라 낸 지점 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 빌딩 분기 야모리 → 올빼미'}],
- ['부활 이음매','빌딩 분기 야모리 → 리제 부활: 야모리 꽝(climax_yamori_lose_2) — 끝 4.8초를 잘라 낸 지점 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 빌딩 분기 야모리 → 리제'}],
- ['부활 이음매','카쿠자 → 올빼미 부활: 카쿠자 꽝 영상 7.9초 지점(끝까지 안 틂) → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 카쿠자 → 올빼미'}],
- ['부활 이음매','카쿠자 → 리제 부활: 카쿠자 꽝 영상 7.9초 지점(끝까지 안 틂) → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 카쿠자 → 리제'}],
- ['부활 이음매','카쿠자 예고 실패 → 올빼미 부활: 카쿠자 예고 실패(pre_kakuza_fail_1) — 끝 2초를 잘라 낸 지점 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 카쿠자 예고 실패 → 올빼미'}],
- ['부활 이음매','카쿠자 예고 실패 → 리제 부활: 카쿠자 예고 실패(pre_kakuza_fail_1) — 끝 2초를 잘라 낸 지점 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 카쿠자 예고 실패 → 리제'}],
- ['부활 이음매','어머니 → 올빼미 부활: 어머니 꽝(battle_mother_lose_4) — 끝 3.9초를 잘라 낸 지점 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 어머니 → 올빼미'}],
- ['부활 이음매','어머니 → 리제 부활: 어머니 꽝(battle_mother_lose_4) — 끝 3.9초를 잘라 낸 지점 → 바로 부활 영상. 끊김 · 멈칫 · 소리 겹침 · 너무 빨리 넘어가지 않는지',{e:'부활 이음매 ─ 어머니 → 리제'}],
- ['부활 이음매','스크래퍼 weak 당첨: 꽝 장면 → 스크래퍼 전용 부활(battle_scrapper_revival_2)',{e:'새 흐름 ─ 스크래퍼 weak 당첨(부활)'}]];   // 검수 목록: 사용자 요청으로 비움 · 더 이상 추가하지 않음
+ ['부활 이음매','니시오 꽝 끝 3초 → 올빼미 부활 앞 3초',rvSeam('battle_nishio_lose_4','revival_fukurou')],
+ ['부활 이음매','니시오 꽝 끝 3초 → 리제 부활 앞 3초',rvSeam('battle_nishio_lose_4','revival_rize_3')],
+ ['부활 이음매','츠키야마 strong 꽝 끝 3초 → 올빼미 부활 앞 3초',rvSeam('battle_tsukiyama_strong_lose_4','revival_fukurou')],
+ ['부활 이음매','츠키야마 strong 꽝 끝 3초 → 리제 부활 앞 3초',rvSeam('battle_tsukiyama_strong_lose_4','revival_rize_3')],
+ ['부활 이음매','츠키야마 weak 꽝 끝 3초 → 올빼미 부활 앞 3초',rvSeam('battle_tsukiyama_weak_lose_2','revival_fukurou')],
+ ['부활 이음매','츠키야마 weak 꽝 끝 3초 → 리제 부활 앞 3초',rvSeam('battle_tsukiyama_weak_lose_2','revival_rize_3')],
+ ['부활 이음매','스크래퍼 꽝 끝 3초 → 올빼미 부활 앞 3초',rvSeam('battle_scrapper_lose_4','revival_fukurou')],
+ ['부활 이음매','스크래퍼 꽝 끝 3초 → 리제 부활 앞 3초',rvSeam('battle_scrapper_lose_4','revival_rize_3')],
+ ['부활 이음매','클라이맥스 야모리 · 빌딩 분기 꽝 끝 3초 → 올빼미 부활 앞 3초',rvSeam('climax_yamori_lose_2','revival_fukurou')],
+ ['부활 이음매','클라이맥스 야모리 · 빌딩 분기 꽝 끝 3초 → 리제 부활 앞 3초',rvSeam('climax_yamori_lose_2','revival_rize_3')],
+ ['부활 이음매','카쿠자(7.9초에서 끊음) 꽝 끝 3초 → 올빼미 부활 앞 3초',rvSeam('battle_kakuza_lose_1','revival_fukurou',7.9)],
+ ['부활 이음매','카쿠자(7.9초에서 끊음) 꽝 끝 3초 → 리제 부활 앞 3초',rvSeam('battle_kakuza_lose_1','revival_rize_3',7.9)],
+ ['부활 이음매','카쿠자 예고 실패 꽝 끝 3초 → 올빼미 부활 앞 3초',rvSeam('pre_kakuza_fail_1','revival_fukurou')],
+ ['부활 이음매','카쿠자 예고 실패 꽝 끝 3초 → 리제 부활 앞 3초',rvSeam('pre_kakuza_fail_1','revival_rize_3')],
+ ['부활 이음매','어머니 꽝 끝 3초 → 올빼미 부활 앞 3초',rvSeam('battle_mother_lose_4','revival_fukurou')],
+ ['부활 이음매','어머니 꽝 끝 3초 → 리제 부활 앞 3초',rvSeam('battle_mother_lose_4','revival_rize_3')],
+ ['부활 이음매','스크래퍼 weak 당첨: 꽝(4.5초 근처에서 끊음) 앞 3초 → 스크래퍼 전용 부활 앞 3초',rvSeam('battle_scrapper_lose_4','battle_scrapper_revival_2',4.5)]];   // 검수 목록: 사용자 요청으로 비움 · 더 이상 추가하지 않음
 let RVW={};try{if(!localStorage.getItem('ghoulRvReset2')){localStorage.setItem('ghoulReview','{}');localStorage.setItem('ghoulRvReset2','1')}RVW=JSON.parse(localStorage.getItem('ghoulReview')||'{}')}catch(e){}   // 검토 목록을 새로 짬(v333): 예전 확인·문제·메모 기록은 한 번 비움
 const rvKey=x=>x[0]+'|'+x[1],rvSave=()=>{try{localStorage.setItem('ghoulReview',JSON.stringify(RVW))}catch(e){}};
 function rvPanel(){const f=TK.rvf||'todo',cnt={ok:0,ng:0};for(const x of REVIEW){const r=RVW[rvKey(x)];if(r&&r.s)cnt[r.s]++}
