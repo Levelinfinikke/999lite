@@ -851,7 +851,7 @@ function pressSkip(){if(auto){if(window.AUTODOWN)window.AUTODOWN();else{auto=fal
  if(busy&&!curPlay&&S.mode==='normal'&&!curEv){skipNext=true;return}   // AUTO 처럼 통상 회전이 계속 도는 중: 이 회전을 바로 끝내고 다음 당첨까지 넘김 (전에는 여기서 누른 SKIP 이 버려졌음)
  if(busy){pushReq=true;skipReq=true;skipAt=performance.now();skipIdle=!curPlay;return}
  if(S.mode!=='normal')return;let r=drawNormal(),n=0;while(r==='lose'&&n<200000&&!(window.RCAP&&window.RCAP())){S.spins++;S.cur++;S.used+=spinCost();n++;r=drawNormal()}
- if(r==='lose'){render();save();return}nextRes=r;skipFast=true;skipReq=false;pushReq=false;skipPend=true;render();
+ if(r==='lose'||r==null){render();save();return}nextRes=r;skipFast=true;skipReq=false;pushReq=false;skipPend=true;render();
  clearTimeout(loadT);loadT=setTimeout(()=>{if(skipPend)loadHint(true)},500);spin()}
 // 영상을 받아 오느라 늦어질 때(웹 주소로 열었을 때 등) 화면 아래에 안내
 function loadHint(on){let e=$('loadHint');if(!e){e=document.createElement('div');e.id='loadHint';e.textContent='영상 불러오는 중…';e.style.cssText='position:fixed;left:50%;bottom:56px;transform:translateX(-50%);z-index:140;padding:6px 16px;background:rgba(7,7,10,.85);border:1px solid #2b6fb0;color:#cfe6ff;font:600 13px system-ui,sans-serif;pointer-events:none;display:none';document.body.appendChild(e)}e.style.display=on?'block':'none'}
@@ -1273,7 +1273,9 @@ function addHist(t,d,rush){S.hist.unshift({t,d,rush});render();save()}
 function renderHolds(curColor){const H=$('holds');let html='<div class="hold cur '+(curColor?'h-'+curColor:'')+(curColor==='blink'?' blink':'')+'"></div>';for(let i=0;i<4;i++)html+='<div class="hold '+(i<S.holds.length?'':'empty')+'"></div>';H.innerHTML=html}
 
 // ═══════════ 추첨 ═══════════
+// window.OSRC: 챌린지(랭킹) 중에는 돈이 걸린 추첨 5가지를 서버가 정해 보냄(real_mod). normal()=꽝·대당·차지(받아 둔 결과가 없으면 null), rush()=7500 RUSH·차지 승격, stHit()=이번 ST 의 당첨 회전(0~4, 없으면 -1), uw()=추가 3000 성공 횟수(이 ST 당첨을 마침)
 function drawNormal(){
+ if(window.OSRC)return window.OSRC.normal();
  const r=Math.random(),pz=SPEC.zorome*mult,pc=SPEC.charge*mult;
  if(forceWin){forceWin=false;$('bForce').classList.remove('on');return 'zorome'}
  if(r<pz)return 'zorome'; if(r<pz+pc)return 'charge'; return 'lose';
@@ -1580,14 +1582,14 @@ async function winBattle(rev,late){const lk=rev||late;const av=[];for(const k of
  if(lk){if(late&&c.wr&&(!(c.sl||c.wl)||Math.random()<.5))return {b:c.k,tier:'weak',turnIn:true};   /* 스크래퍼 꽝 도중 → 전용 역전(battle_scrapper_revival_2)은 뒤늦은 역물 낙하의 한 형태(7500 확정 아님) */return {b:c.k,tier:c.wl&&(!c.sl||Math.random()<.5)?'weak':'strong'}}
  return {b:c.k,tier:c.ww&&(!c.sw||Math.random()<.3)?'weak':'strong'}}
 async function spinNormal(){LED.sw();
- const res=take('res')||nextRes||drawNormal(),win=res==='zorome',fast=skipFast;nextRes=null;skipFast=false;const pHit=SPEC.zorome*mult;curEv=res!=='lose';
+ const res=take('res')||nextRes||drawNormal(),win=res==='zorome',fast=skipFast;nextRes=null;skipFast=false;if(res==null){curEv=false;return}const pHit=SPEC.zorome*mult;curEv=res!=='lose';
  if(res!=='lose')slowOn();
  S.spins++;S.cur++;S.used+=spinCost();render();   // 회전마다 바로 차감하고 그래프에 반영
  if(fast&&res==='charge')return finishNormal(res,false);   // SKIP 으로 온 차지: 통상 화면을 거치지 않고 바로 차지 연출
  // 예고 추첨
  let holdEv=win?wpick(HOLD,pmw):chooseEvent(HOLD.slice(1),false,pHit,1,2);{const pm=(window.CUS&&window.CUS.pre)||'off',R={osu:.05,chance:.35,hot:.91}[pm];if(pm==='none')holdEv=null;else if(R&&!win){const pl=pHit*.7*(1-R)/(R*(1-pHit)),C=HOLD.filter(x=>x[0]&&x[1]<1);holdEv=Math.random()<pl?wpick(C,x=>x[2]):null}}   /* 선독(사전 예고) 커스텀 — 실기 신뢰도: 오스스메 약 5% · 찬스 약 35% · 열 약 91%, 없음 = 안 나옴. 꽝에서 나오는 비율을 그 신뢰도가 되게 맞춤 */
  let holdColor=holdEv?holdEv[0]:'';
- const fRp=take('rushPre');let rushPre=win&&(fRp!==undefined?fRp:(!!window.TMP_BREAKWIN||Math.random()<SPEC.rushIn)); // 대당 시 7500+RUSH 여부는 미리 결정 (연출에 반영)
+ const fRp=take('rushPre');let rushPre=win&&(fRp!==undefined?fRp:window.OSRC?window.OSRC.rush():(!!window.TMP_BREAKWIN||Math.random()<SPEC.rushIn)); // 대당 시 7500+RUSH 여부는 미리 결정 (연출에 반영)
  if(holdColor==='rainbow'&&!rushPre)holdColor='gold';
  const fZen=take('zen'),zen=win&&rushPre&&!NOCLIP()&&(fZen!==undefined?!!fZen:Math.random()<zenP())&&await probe(ZEN.src);   // 전회전: 7500+RUSH 당첨 중 일부. 손떨 없이 단독으로 → 3000 → 즉시 7500
  let lever=win?(Math.random()<.02?wpick(LEVER,pmw):null):chooseEvent(LEVER,false,pHit,1,2);if(lever&&lever[0]==='rainbow'&&!rushPre)lever=LEVER[1];if(window.CUS&&window.CUS.lev==='on')lever=null;   // 레버블(커스텀 OFF): 흰색 약 75% · 빨강 당첨 농후. 커스텀 ON 이면 그쪽 추첨(흰색 약 95%)을 씀
@@ -1690,7 +1692,7 @@ async function finishNormal(res,rushPre,quiet,rev){   // rev: 올빼미 부활�
  if(res==='lose'){render();save();return}
  S.hits++;const at=S.cur;S.cur=0;
  if(res==='charge'){
-  const up=Math.random()<SPEC.chargeUp,has75=up&&await probe(CLIP.bonus7500);
+  const up=window.OSRC?window.OSRC.rush():Math.random()<SPEC.chargeUp,has75=up&&await probe(CLIP.bonus7500);
   chargeSkip=!up;const pc=await playClip(CLIP.charge,{next:has75?CLIP.bonus7500:null});chargeSkip=false;
   if(!pc){fx('喰種チャージ','big t-red');await sleep(1200);clearFx()}
   S.out+=300;
@@ -1896,7 +1898,7 @@ let RIST=true;(async()=>{if(await probe('videos/rush_in_st.mp4')&&await probe('v
 // 다음 ST(최대 5회)의 영상 순서를 미리 정함: 회전이 바뀔 때·ST 가 시작될 때도 다음 영상을 미리 준비해 두려고(모바일에서 영상 사이 멈칫 줄이기)
 async function stPrep(){
  const N=SPEC.st,wins=[];for(const w of STV.wins)if(await probe(w.src))wins.push(w);
- let hit=-1;for(let i=0;i<N;i++)if((forceWin&&i===0)||Math.random()<SPEC.rushP){hit=i;break}
+ let hit=-1;if(window.OSRC)hit=window.OSRC.stHit();else for(let i=0;i<N;i++)if((forceWin&&i===0)||Math.random()<SPEC.rushP){hit=i;break}
  const fHit=take('stHit'),fW=take('stWin'),fL=take('stLose')||[];if(fHit!==undefined)hit=fHit;
  if(forceWin){forceWin=false;$('bForce').classList.remove('on')}
  const sp=[];
@@ -2098,7 +2100,7 @@ async function stPieces(){
  stBgm(false);S.st=0;render();await endRush();render();save()}
 async function stVideo(){
  const B=[ST.b1,ST.b2,ST.b3,ST.b4,ST.b5],wins=[];for(const w of STV.wins)if(await probe(w.src))wins.push(w);
- let hit=-1;for(let i=0;i<B.length;i++)if((forceWin&&i===0)||Math.random()<SPEC.rushP){hit=i;break}
+ let hit=-1;if(window.OSRC)hit=window.OSRC.stHit();else for(let i=0;i<B.length;i++)if((forceWin&&i===0)||Math.random()<SPEC.rushP){hit=i;break}
  const fHit=take('stHit'),fW=take('stWin');if(fHit!==undefined)hit=fHit;
  if(forceWin){forceWin=false;$('bForce').classList.remove('on')}
  const w=hit>=0&&wins.length?((fW&&wins.find(x=>x.k===fW))||wpick(wins.filter(x=>x.w>0),x=>x.w)):null;let to=hit>=0?B[hit]:ST.end;
@@ -2118,7 +2120,7 @@ async function stVideo(){
 }
 async function spinRush(){
  if(!NOCLIP()&&await probe(STV.full))return stAuto();
- S.spins++;const win=forceWin||Math.random()<SPEC.rushP;if(forceWin){forceWin=false;$('bForce').classList.remove('on')}
+ S.spins++;const win=window.OSRC?window.OSRC.stHit()===SPEC.st-S.st:(forceWin||Math.random()<SPEC.rushP);if(forceWin){forceWin=false;$('bForce').classList.remove('on')}
  S.st--;render();
  const ev=win?wpick(R_REACH,x=>x[3]):chooseEvent(R_REACH,false,SPEC.rushP);
  const holdEv=win?(Math.random()<.35?(Math.random()<.2?'rainbow':'red'):''):(Math.random()<loseRate(SPEC.rushP,.3,.9)?'red':'');
@@ -2169,7 +2171,7 @@ async function rushBonus(skipIntro){
  const fHy=take('hyper'),fUw=take('uw'),uwOnly=take('uwOnly');if(uwOnly)skipIntro=true;
  const real=!NOCLIP()&&await probe(UW.try)&&await probe(UW.lose);
  const rin=(window.stCont&&await probe('videos/st_continue.mp4'))?'videos/st_continue.mp4':CLIP.rush_in;   // ST 중 당첨 뒤에는 rush_in 대신 st_continue 로 다음 ST 를 엶
- let wins=0;if(real){if(fUw)wins=fUw.length;else while(Math.random()<SPEC.loop)wins++}            // 추가 3000 성공 횟수를 미리 정해 두고 영상을 끊김 없이 이어 붙임
+ const oW=window.OSRC?window.OSRC.uw():null;let wins=0;if(real){if(fUw)wins=fUw.length;else if(oW!=null)wins=oW;else while(Math.random()<SPEC.loop)wins++}            // 추가 3000 성공 횟수를 미리 정해 두고 영상을 끊김 없이 이어 붙임
  // HYPER 6000: 추가 3000 을 한 번 이상 성공하는 판의 일부를 '처음부터 6000' 연출로 보여 줌. 그 한 번은 6000 에 이미 포함된 것으로 치므로 지급 기댓값은 그대로
  const hyper=!uwOnly&&!NOCLIP()&&(fHy!==undefined?fHy:(wins>0&&Math.random()<HYPER6000*2))   /* 조각 당첨(도입을 이미 본 경우)에서도 HYPER 6000 이 나오게: 전체 ST 당첨의 약 5% */&&await probe('videos/st_hyper6000.mp4');if(hyper&&fHy===undefined)wins--;
  const eps=[];if(!hyper)for(const n of [2,3,4,6])if(await probe('videos/st_ep_'+n+'.mp4'))eps.push(n);
@@ -2180,7 +2182,7 @@ async function rushBonus(skipIntro){
  if(hyper){gain=6000;{const z=PAY.owed<=0;set(6000);if(z)PAY.pause=Math.max(PAY.pause,59)}await playClip('videos/st_hyper6000.mp4',{next:real?UW.try:null,skip:[[59,169]]})}   // 계수는 영상 59초부터(그 전은 대기)
  else if(ep){set(3000);await playClip(ep,{next:real?UW.try:null,skip:'all'})}
  set(gain);
- if(!real){while(Math.random()<SPEC.loop){await kumaxLoop();gain+=3000;set(gain)}}
+ if(!real){let k=oW||0;while(oW!=null?k-->0:Math.random()<SPEC.loop){await kumaxLoop();gain+=3000;set(gain)}}
  else for(let i=0;;i++){
   const win=i<wins,wc=win?await uwWinClip(gain+3000):'';
   // 성공은 2·1·LAST 어느 단계의 정적 끝에서든 떨어질 수 있음 (뒤로 갈수록 확률 큼). 실패는 항상 끝까지 감
@@ -2779,11 +2781,39 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
  const myNick=()=>{try{return localStorage.getItem('g999Nick')||''}catch(e){return ''}},nickT=()=>+lsJ('g999NickT',0)||0;
  const postJ=(path,o)=>fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o),keepalive:true}).then(r=>r.json()).catch(()=>null);
  /* 기록 보내기: 보낼 값을 보관(랭킹별 최댓값)했다가 서버가 받으면 지움 */
- const flushQ=x=>{const Q=lsJ('g999RkQ',null),n=myNick();if(!Q||!n)return Promise.resolve();return postJ('/rec',Object.assign({id:DEV,nick:n},Q,x||{})).then(d=>{if(d&&d.error==='run'&&R.rid){R.rid=null;saveR()}if(d&&(d.ok||d.error==='implausible')){const Z=lsJ('g999RkQ',null);if(Z&&(Z.cash||0)<=(Q.cash||0)&&Z.prof<=Q.prof&&Z.ichi<=Q.ichi&&Z.spins<=Q.spins)lsS('g999RkQ',null)}})};
- const rec=()=>{if(!R.on&&!R.last)return;const live=R.on&&R.ch?Math.round(funds()-R.fund0):null;if(live!=null&&live>(R.peak||0))R.peak=live;const o={cash:Math.max(0,Math.round(R.cash||0)),prof:Math.max(0,Math.round(R.peak||0)),ichi:R.ichi||0,spins:S.spins},Q=lsJ('g999RkQ',null)||{cash:0,prof:0,ichi:0,spins:0};lsS('g999RkQ',{cash:Math.max(Q.cash||0,o.cash),prof:Math.max(Q.prof,o.prof),ichi:Math.max(Q.ichi,o.ichi),spins:Math.max(Q.spins,o.spins)});R.lp=Date.now();R.lv=[o.prof,o.ichi,o.spins,live].join();saveR();const ex=Object.assign(live!=null?{live,lsp:S.spins}:{end:1,lsp:S.spins},R.ct?{ct:R.ct}:{});return (R.on&&R.ch&&!R.rid?startRun():Promise.resolve()).then(()=>{if(R.rid)ex.rid=R.rid;return flushQ(ex)})};
+ const flushQ=x=>{const Q=lsJ('g999RkQ',null),n=myNick();if(!Q||!n)return Promise.resolve();return postJ('/rec',Object.assign({id:DEV,nick:n},Q,x||{})).then(d=>{if(d&&d.error==='run'&&R.rid&&!R.sv){R.rid=null;saveR()}if(d&&(d.ok||d.error==='implausible'||d.error==='update')){const Z=lsJ('g999RkQ',null);if(Z&&(Z.cash||0)<=(Q.cash||0)&&Z.prof<=Q.prof&&Z.ichi<=Q.ichi&&Z.spins<=Q.spins)lsS('g999RkQ',null)}})};
+ const rec=()=>{if(R.sv)return R.on&&R.ch?svSync():Promise.resolve();if(!R.on&&!R.last)return;const live=R.on&&R.ch?Math.round(funds()-R.fund0):null;if(live!=null&&live>(R.peak||0))R.peak=live;const o={cash:Math.max(0,Math.round(R.cash||0)),prof:Math.max(0,Math.round(R.peak||0)),ichi:R.ichi||0,spins:S.spins},Q=lsJ('g999RkQ',null)||{cash:0,prof:0,ichi:0,spins:0};lsS('g999RkQ',{cash:Math.max(Q.cash||0,o.cash),prof:Math.max(Q.prof,o.prof),ichi:Math.max(Q.ichi,o.ichi),spins:Math.max(Q.spins,o.spins)});R.lp=Date.now();R.lv=[o.prof,o.ichi,o.spins,live].join();saveR();const ex=Object.assign(live!=null?{live,lsp:S.spins}:{end:1,lsp:S.spins},R.ct?{ct:R.ct}:{});return (R.on&&R.ch&&!R.rid?startRun():Promise.resolve()).then(()=>{if(R.rid)ex.rid=R.rid;return flushQ(ex)})};
  /* 판 번호: 챌린지를 시작할 때(또는 번호 없이 진행 중인 판이면 처음 기록을 보낼 때) 서버에서 받음. 기록은 이 번호로만 받아 줌 */
- const startRun=()=>{const n=myNick();if(!n)return Promise.resolve();return postJ('/start',{id:DEV,nick:n,lsp:S.spins}).then(d=>{if(d&&d.ok&&d.rid&&R.on){R.rid=d.rid;saveR()}})};   /* live = 진행 중인 판의 지금 수지(최고 익절 랭킹에 진행 중으로 보임), end = 판이 끝남 */
+ const startRun=()=>{const n=myNick();if(!n)return Promise.resolve();if(SV.st)return SV.st;const p=SV.st=postJ('/start',{id:DEV,nick:n,lsp:S.spins,sv:R.sv?1:0}).then(d=>{if(d&&d.ok&&d.rid&&R.on&&!R.rid){R.rid=d.rid;saveR()}}).finally(()=>{SV.st=null});return p};   /* live = 진행 중인 판의 지금 수지(최고 익절 랭킹에 진행 중으로 보임), end = 판이 끝남 */
  setTimeout(flushQ,4000);
+
+ /* ── 서버 지갑: 챌린지의 돈이 걸린 추첨(꽝·대당·차지, 7500 RUSH·차지 승격, ST 당첨 회전, 추가 3000 횟수)은 서버가 정함.
+    서버가 다음 50회분을 미리 보내 두고, 이 기기는 몇 회까지 돌렸는지(R.sp)만 알림. 정산은 서버가 돌린 회차까지로 함.
+    SKIP 은 '당첨까지'를 서버에 한 번 물어 그 꽝 구간을 바로 확정함. 새로고침하면 서버 값으로 돈·회전 수를 맞춤(못 본 RUSH 지급도 받음) ── */
+ const SV={q:null,pend:null,seq:0,got:0,cur:null,ri:0,fix:false,w:false,st:null,sv:0};
+ const svOn=()=>!!(R.on&&R.ch&&R.sv);
+ const svLeft=()=>SV.q?SV.q.end-(R.sp||0):0;
+ const svHit=()=>{const q=SV.q;if(!q)return false;for(const i of q.h.keys())if(i>=(R.sp||0)&&i<q.end)return true;return false};
+ const svSaveSoon=()=>{if(SV.sv)return;SV.sv=1;setTimeout(()=>{SV.sv=0;saveR()},0)};
+ const svFix=a=>{if(SV.fix||busy||S.mode!=='normal'||(R.sp||0)!==a.p)return;SV.fix=true;S.used=S.out-a.net;S.spins=a.sp;if(a.ic>(R.ichi||0))R.ichi=a.ic;saveR();save();render();paintBtn()};   // 새로고침 뒤 처음 받을 때: 서버 값으로 맞춤
+ const svGone=()=>{if(!R.on||BLOCK)return;toast('이 판은 다른 창이나 기기에서 새 판이 시작돼 끝났어요');finish('gone')};
+ const svSync=skip=>{if(!svOn())return Promise.resolve(null);if(!R.rid)return startRun().then(()=>R.rid&&svOn()?svSync(skip):null);if(SV.pend&&!skip)return SV.pend;
+  const n=++SV.seq,p=postJ('/draw',{id:DEV,nick:myNick()||R.nick,rid:R.rid,pos:R.sp||0,skip:skip?1:0}).then(d=>{
+   if(d&&(d.error==='run'||d.error==='ended')){svGone();return null}
+   if(!d||!d.ok||n<SV.got||!svOn())return d;SV.got=n;
+   const m=new Map();for(const x of d.h)m.set(x[0],x.slice(1));SV.q={from:d.from,end:d.from+d.n,h:m,bust:!!d.bust};
+   if((R.sp||0)<d.from){R.sp=d.from;SV.fix=false;saveR()}   // 서버가 이미 더 확정해 둠(SKIP 응답을 못 받은 경우 등)
+   svFix(d.a);return d}).finally(()=>{if(SV.pend===p)SV.pend=null});
+  if(!skip)SV.pend=p;return p};
+ const svEnd=quit=>{const o={id:DEV,nick:myNick()||R.nick,rid:R.rid,pos:R.sp||0,quit:quit?1:0};lsS('g999SvEnd',o);const go=()=>{const e=lsJ('g999SvEnd',null);if(!e||!e.rid)return;postJ('/end2',e).then(d=>{if(d&&(d.ok||d.error==='ended'||d.error==='run'))lsS('g999SvEnd',null)})};go();svEnd.go=go};
+ const svWait=async()=>{for(let k=0;k<200;k++){if(!svOn()||BLOCK)return 'off';if(svLeft()>0)return 'ok';if(SV.q&&SV.q.bust&&(R.sp||0)>=SV.q.end)return 'bust';if(k===2)toast('서버에 연결하는 중…');const d=await svSync();if(svLeft()>0)return 'ok';if(SV.q&&SV.q.bust&&(R.sp||0)>=SV.q.end)return 'bust';await new Promise(r=>setTimeout(r,d&&d.error==='slow'?800:1500))}return 'off'};
+ Object.defineProperty(window,'OSRC',{configurable:false,get:()=>svOn()?OS:null});
+ const OS={
+  normal(){const q=SV.q,i=R.sp||0;if(!q||i<q.from||i>=q.end)return null;R.sp=i+1;svSaveSoon();const x=q.h.get(i)||null;SV.cur=x;SV.ri=0;if(svLeft()<20&&!SV.pend)svSync();return x?(x[0]==='z'?'zorome':'charge'):'lose'},
+  rush(){return !!(SV.cur&&SV.cur[1])},
+  stHit(){const c=SV.cur&&SV.cur[2],r=c&&c[SV.ri];return r?r[0]:-1},
+  uw(){const c=SV.cur&&SV.cur[2],r=c&&c[SV.ri];SV.ri++;return r?r[1]:0}};
+ setTimeout(()=>{try{const e=lsJ('g999SvEnd',null);if(e&&e.rid){svEnd.go=null;postJ('/end2',e).then(d=>{if(d&&(d.ok||d.error==='ended'||d.error==='run'))lsS('g999SvEnd',null)})}}catch(e){}if(svOn())svSync()},1500);
  /* 챌린지 중에는 기록이 바뀌면 1분마다 올림 (화면을 보고 있을 때) */
  setInterval(()=>{if(R.on&&R.ch&&document.visibilityState==='visible'&&(R.lv!==[Math.max(0,Math.round(R.peak||0)),R.ichi||0,S.spins,Math.round(funds()-R.fund0)].join()||Date.now()-(R.lp||0)>110000))rec()},60000);   /* 바뀐 게 없어도 2분마다 한 번은 올려서 '진행 중' 표시가 꺼지지 않게 */
  let MODE='ch';if(R.on&&!R.ch){R={on:false};saveR()}
@@ -2866,7 +2896,7 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
   if(!(f>0&&g>f&&r>=5&&r<=60)){q('rWp').textContent='목표는 소지자금보다 커야 해요';return}
   const mid=busy||S.mode!=='normal'||!!curPlay;   /* 연출 도중에 시작: 그 연출을 끝내고(정산까지 마친 것으로 치고) 통상 화면에서 새로 시작 */
   auto=false;window.RQ=0;Object.assign(S,{spins:0,cur:0,hits:0,rushes:0,out:0,used:0,maxChain:0,hist:[],g:[[0,0]]});S._o=0;
-  R={on:true,fund0:f,goal:g,goal0:g,dbl:0,rate:r,day:1,dayS:0,dayNet0:0,days:[],comp:0,wp:CH?0:winProb(f,g,r,20000),t0:Date.now()};if(CH)Object.assign(R,{ch:1,nick,id:rid(),ichi:0,base:0,peak:0,lp:Date.now(),ct:{ns:0,nh:0,ss:0,sh:0}});setTimeout(()=>{try{startRun()}catch(e){}},0);
+  R={on:true,fund0:f,goal:g,goal0:g,dbl:0,rate:r,day:1,dayS:0,dayNet0:0,days:[],comp:0,wp:CH?0:winProb(f,g,r,20000),t0:Date.now()};if(CH)Object.assign(R,{ch:1,sv:1,sp:0,nick,id:rid(),ichi:0,base:0,peak:0,lp:Date.now(),ct:{ns:0,nh:0,ss:0,sh:0}});Object.assign(SV,{q:null,cur:null,ri:0,fix:true,got:SV.seq});setTimeout(()=>{try{startRun()}catch(e){}},0);
   if(mid){R.note=1;saveR();save();q('rSet').hidden=true;try{stopAll=true;stopReq=true}catch(e){}location.reload();return}
   saveR();lockRate();save();render();paintBtn();q('rSet').hidden=true;dayShow(1)};
  let quitArm=false;q('rQuit').onclick=()=>{if(!quitArm){quitArm=true;qPaint(q('rQuit'),1);return}if(busy||S.mode!=='normal'){q('rOnNote').textContent='연출이 끝난 뒤에 할 수 있어요.';return}q('rSet').hidden=true;finish('quit')};
@@ -2878,8 +2908,12 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
   if(R.floor!=null&&!R.asked&&funds()<=R.floor){R.asked=true;saveR();BLOCK=true;auto=false;window.RQ=0;paintBtn();q('rFloorT').innerHTML='자금이 이전 출발 지점 <b>'+yen(R.floor)+'</b>까지 떨어졌어요.<br>지금 '+yen(funds())+' · 목표 '+yen(R.goal)+'<br>여기서 그만둘까요?';q('rFloor').hidden=false;return}   /* 묻고 더블로 뒤 이전 출발 지점까지 떨어지면 한 번 물어봄 */
   if(S.spins-R.dayS>=DAYN)nextDay();paintBtn()}
  window.RCAP=()=>R.on&&(funds()<spinCost()*YEN*2||S.spins-R.dayS>=DAYN);
- const _sp=spin;spin=async function(){if(BLOCK||DAYB)return;const was=busy;const r=await _sp.apply(this,arguments);if(!was)check();return r};
- const _ps=pressSkip;pressSkip=function(){if(BLOCK||DAYB)return;if(R.on&&!busy&&!selHook&&S.mode==='normal'){check();if(BLOCK)return;if(window.RCAP())return spin()}const r=_ps.apply(this,arguments);if(!busy)check();return r};
+ const _sp=spin;spin=async function(){if(BLOCK||DAYB)return;const was=busy;
+  if(!was&&!selHook&&svOn()&&S.mode==='normal'&&!nextRes&&svLeft()<=0){if(SV.w)return;SV.w=true;let w;try{w=await svWait()}finally{SV.w=false}if(w==='bust'){if(R.on&&!BLOCK)finish('lose');return}if(w!=='ok'||busy||BLOCK)return}   /* 서버 결과를 다 썼으면 받아 올 때까지 기다림(보통은 미리 받아 둬서 기다리지 않음) */
+  const r=await _sp.apply(this,arguments);if(!was)check();return r};
+ const _ps=pressSkip;pressSkip=function(){if(BLOCK||DAYB)return;if(R.on&&!busy&&!selHook&&S.mode==='normal'){check();if(BLOCK)return;if(window.RCAP())return spin();
+   if(svOn()&&!svHit()){if(SV.w)return;SV.w=true;if(auto){auto=false;const b=q('bAuto');if(b)b.classList.remove('on')}const sk=async()=>{for(let k=0;k<4;k++){const d=await svSync(true);if(d&&(d.ok||d.error!=='slow'))return d;await new Promise(r=>setTimeout(r,900))}return null};sk().then(d=>{SV.w=false;if(!d||!d.ok){if(R.on&&!BLOCK)toast('서버에 연결하지 못했어요. 다시 눌러 주세요');return}if(!busy&&!BLOCK&&S.mode==='normal'){_ps();if(!busy){check();if(R.on&&!BLOCK&&!busy&&SV.q&&SV.q.bust&&svLeft()<=0)finish('lose')}}},()=>{SV.w=false});return}}   /* SKIP: 받아 둔 결과에 당첨이 없으면 '당첨까지'를 서버에 물음 */
+  const r=_ps.apply(this,arguments);if(!busy)check();return r};
  const _pb=pressBtn;pressBtn=function(){if(COMP){if(performance.now()-compAt>1500)compEnd();return}if(BLOCK||DAYB)return;return _pb.apply(this,arguments)};
  { const w=q('wReset'),o=w.onclick;w.onclick=function(){if(R.on){w.blur();toast('구울 챌린지 중');return}return o.apply(this,arguments)} }
  /* ── 그래프에 DAY 구분선 ── */
@@ -2949,7 +2983,7 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
  const dayOf=sp=>{let d=1;for(const s of R.days||[])if(sp>=s)d++;return d};
  function finish(kind){BLOCK=true;auto=false;window.RQ=0;const g=(S.g||[[0,0]]).slice(),end=funds();let mx=g[0],mn=g[0];for(const p of g){if(p[1]>mx[1])mx=p;if(p[1]<mn[1])mn=p}
   
-  if(R.ch)lsS('g999BestSp',Math.max(+lsJ('g999BestSp',0)||0,S.spins));let give=false;if(kind==='quit'&&R.ch){const c=Math.round(end-R.fund0),best=myBest();give=!(c>best);R.cash=give?0:c;if(c>(R.peak||0))R.peak=c;if(!give)lsS('g999Best',c)}else R.cash=0;R.on=false;R.last={kind,end};saveR();lockRate();paintBtn();
+  if(R.ch)lsS('g999BestSp',Math.max(+lsJ('g999BestSp',0)||0,S.spins));if(R.ch&&R.sv&&R.rid)svEnd(kind==='quit');let give=false;if(kind==='quit'&&R.ch){const c=Math.round(end-R.fund0),best=myBest();give=!(c>best);R.cash=give?0:c;if(c>(R.peak||0))R.peak=c;if(!give)lsS('g999Best',c)}else R.cash=0;R.on=false;R.last={kind,end};saveR();lockRate();paintBtn();
   const t=q('rTitle');t.className=kind==='win'?'win':'lose';t.textContent=kind==='win'?'목표 달성':kind==='lose'?'파산':kind==='stop'?'묻더 종료':kind==='quit'?(give?'포기':'익절 +'+yen(end-R.fund0)):'구울 챌린지 종료';if(kind==='quit')t.className=give?'lose':'win';if(kind==='stop')t.className=end>=R.fund0?'win':'lose';
   const pm=v=>(v>=0?'+':'−')+yen(Math.abs(v));
   q('rsC').innerHTML=kind==='quit'&&!give?'<span style="color:'+(end>=R.fund0?'#7fe0a8':'#ff8a9a')+'">'+(end>=R.fund0?'+':'−')+nf(Math.abs(Math.round(end-R.fund0)))+'</span>'+UY:'-';q('rsP').innerHTML=fmtK('prof',Math.max(0,R.peak||0));q('rsI').innerHTML=fmtK('ichi',R.ichi||0);q('rsS').innerHTML=fmtK('spins',S.spins);['rsCr','rsPr','rsIr','rsSr'].forEach(k=>q(k).textContent='');
