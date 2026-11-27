@@ -335,7 +335,7 @@ body{box-sizing:border-box;padding-top:env(safe-area-inset-top)!important}
 #mBar.vert #mIn button{width:42px!important;padding:0!important}
 #mIn button svg{height:14px;width:auto;display:block}
 #mIn button.on{color:#fff!important;background:rgba(57,194,255,.42)!important}
-#mBar #mIn #mYen,#mBar #mIn #mYen svg{color:#ffd76a!important}#mBar #mIn #mYen img.th{width:26px;height:auto;display:block}#mYen.sel{color:#ffd27a!important;background:rgba(255,190,60,.2)!important}#mAuto.sel{color:#ff3044!important;background:rgba(255,48,68,.18)!important}
+#mBar #mIn #mYen,#mBar #mIn #mYen svg{color:#ffd76a!important}#mBar #mIn #mYen img.th{width:26px;height:auto;display:block}*{scrollbar-width:none}*::-webkit-scrollbar{display:none;width:0;height:0}#mYen.sel{color:#ffd27a!important;background:rgba(255,190,60,.2)!important}#mAuto.sel{color:#ff3044!important;background:rgba(255,48,68,.18)!important}
 #mAutoX{font:800 9px/1 "Noto Sans KR","Malgun Gothic",system-ui,sans-serif;font-style:normal;letter-spacing:.02em;color:#ff5364}#mAutoX:empty{display:none}
 #mBar.vert #mAuto{flex-direction:column;gap:1px;height:auto!important;min-height:26px;padding:3px 0!important}
 #mIn #mFold{min-width:18px;padding:0 4px!important;background:rgba(255,255,255,.07)!important}
@@ -2934,7 +2934,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
   if(z<=1.001){z=1;X=Y=0}else{X=cl(X,-b.l,innerWidth-b.l-b.w*z);Y=cl(Y,-b.t,innerHeight-b.t-b.h*z)}
   if(!raf)raf=requestAnimationFrame(paint);clearTimeout(svT);svT=setTimeout(()=>{try{localStorage.setItem('g999Zoom2',JSON.stringify({z,x:X,y:Y}))}catch(e){}},400)};
  const at=(cx,cy,nz)=>{const b=base();nz=Math.max(1,Math.min(4,nz));const bx=(cx-b.l-X)/z,by=(cy-b.t-Y)/z;X=cx-b.l-bx*nz;Y=cy-b.t-by*nz;z=nz;put()};
- addEventListener('wheel',e=>{if(e.target.closest&&e.target.closest('#helpBox,#wcol,#tune,#dl'))return;e.preventDefault();at(e.clientX,e.clientY,z*Math.exp(-e.deltaY*.0015))},{passive:false});
+ addEventListener('wheel',e=>{if(e.target.closest&&e.target.closest('#helpBox,#wcol,#tune,#dl,.rbox,#mBar,#sFloat,#gFloat'))return;e.preventDefault();at(e.clientX,e.clientY,z*Math.exp(-e.deltaY*.0015))},{passive:false});
  /* 휴대폰: 브라우저 자체의 두 손가락 확대·두 번 두드려 확대를 막음(화면 전체가 같이 커지거나 창들이 작아 보이던 원인). 확대는 기기 그림에서만 */
  for(const k of ['gesturestart','gesturechange','gestureend'])document.addEventListener(k,e=>e.preventDefault(),{passive:false});
  document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
