@@ -1048,6 +1048,7 @@ async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!
   const levW=inPush&&LEVONLY[g.n];if(levW&&window.PUSHSRC!=='lever'){pushReq=false;skipReq=false}
   if(inPush!==pushShown){pushShown=inPush;$('pushHint').style.display=inPush&&!LEVONLY[g.n]?'block':'none'}
   if((NOBTN[g.n]||[]).some(w=>t>=w[0]&&t<w[1])){pushReq=false;skip5Req=false}
+  if(opt.hardns){skipReq=false;pushReq=false;skip5Req=false;if(seekReq>0)seekReq=0}   /* 부활로 이어지는 꽝 결말: SKIP·레버·화면·5초 앞 모두 막음 */
   if(opt.noskip)pushReq=false;   // 브레이크 모드: 화면 클릭(PUSH)은 불가, SKIP 버튼·Space 는 가능
   if(pushReq){pushReq=false;if(inPush){pw.done=true;skipReq=false;inputLock=performance.now()+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
   if(seekReq){const d=seekReq;seekReq=0;if(!levW){const to=d>0?Math.min(t+d,t1-g.base-1):Math.max(g.min||0,t+d);if(Math.abs(to-t)>.05){pws.forEach(w=>{if(w[0]>=to-.01)w.done=false});marks.forEach(m=>{if(m[0]>=to)m[2]=false});skipReq=pushReq=false;try{v.currentTime=g.base+to}catch(e){}return}}}   // → 5초 앞(끝나기 1초 전까지) / ← 5초 뒤(영상 처음까지). 되돌아간 구간의 PUSH 창은 다시 쓸 수 있게
@@ -1523,9 +1524,9 @@ const loseTierRate=pHit=>({strong:pHit*TIER_WIN_STRONG*(1-TIER_REL.strong)/TIER_
 const segsOK=async l=>{for(const n of l)if(!(await probe(segOf(n).src)))return false;return true};
 async function newFlowOK(){return !NOCLIP()&&await segsOK(['battle_nishio_strong','battle_nishio_weak_4','battle_nishio_lose_4'])}
 // 영상 순서 재생: 같은 파일에서 바로 이어지는 구간은 끊지 않고 한 번에 재생
-async function playChain(list,fin){const m=[];for(const n of list){const s=segNow(n),p=m[m.length-1];if(p&&p.src===s.src&&p.b!=null&&s.a!=null&&Math.abs(p.b-s.a)<.01)p.b=s.b;else m.push({src:s.src,a:s.a,b:s.b})}
+async function playChain(list,fin,hardLast){const m=[];for(const n of list){const s=segNow(n),p=m[m.length-1];if(p&&p.src===s.src&&p.b!=null&&s.a!=null&&Math.abs(p.b-s.a)<.01)p.b=s.b;else m.push({src:s.src,a:s.a,b:s.b})}
  const spec=s=>s.a?{src:s.src,from:s.a}:s.src;let ok=false;
- for(let i=0;i<m.length;i++){const s=m[i],o={next:i+1<m.length?spec(m[i+1]):(fin||null)};if(s.a)o.from=s.a;if(s.b!=null)o.to=s.b;ok=(await playClip(s.src,o))||ok}return ok}
+ for(let i=0;i<m.length;i++){const s=m[i],o={next:i+1<m.length?spec(m[i+1]):(fin||null)};if(hardLast&&i===m.length-1){o.noskip=true;o.hardns=true}if(s.a)o.from=s.a;if(s.b!=null)o.to=s.b;ok=(await playClip(s.src,o))||ok}return ok}
 // 배틀·예고 고르기. tier: 배틀의 강약, vwin: 영상에서 이기는지(부활·뒤늦은 당첨이면 꽝 영상을 봄)
 async function pickBattle(tier,vwin,fB,fPre,rvOK,noB){const av=[];for(const k of Object.keys(BTL)){if(noB&&noB.includes(k))continue;const l=BTL[k][tier]&&BTL[k][tier][vwin?'win':'lose'];if(l&&!(vwin&&BTL[k][tier].rv&&!rvOK&&k!==fB)&&await segsOK(l.concat(BTL[k].pre||[],BTL[k].pres?BTL[k].pres[0]:[],BTL[k].human?['pre_street_human_4']:[],BTL[k].bld?['pre_street_weak']:[])))av.push(k)}if(!av.length)return null;
  let b=fB&&av.includes(fB)?fB:av[Math.floor(Math.random()*av.length)];const pt=Math.random()<PRE_MATCH?tier:(tier==='strong'?'weak':'strong');
@@ -1619,7 +1620,7 @@ async function spinNormal(){LED.sw();
    if(preDrop==='rize')P.pre=P.pre.filter(x=>x!=='pre_rize_drop');if(fHand===undefined)hand=NB?Math.random()<(win?B_HAND_WIN:bHandLose()):Math.random()<(win?HAND_WIN[tier]:tier==='strong'?HAND_LOSE_STRONG:handLoseWeak());const RV=RVc,list=P.pre.concat(P.list),first=segOf(list[0]),fin=vwin?CLIP.bonus:rev?RV:null;
    if(list[0]==='pre_button'||list[0]==='pre_rize_drop'||preDrop)hand=false;   // pre_button 앞에는 손떨이 붙지 않음 / 손떨(pre_hand · pre_hand2)과 리제 낙하는 모두 첫 연출이라 서로 이어서 나오지 않음
    if(hand)await playClip('videos/pre_hand.mp4',{next:first.a?{src:first.src,from:first.a}:first.src});
-   await playChain(list,fin);$('reels').classList.remove('small');
+   await playChain(list,fin,rev);$('reels').classList.remove('small');   /* 부활이 붙는 꽝 결말은 SKIP 불가 */
    if(rev){await revPlay(RV);return finishNormal(res,rushPre,true,true)}
    if(late){clearTimeout(hideT);await sleep(1000+Math.random()*1000);const we=WIN_END[P.b];if(we&&await segsOK(we))await playChain(we,CLIP.bonus)}   /* 꽝 결말 뒤에는 손떨을 넣지 않음 */
    const tp=P.num.t||tenpai;stopSilent(0,tp);stopSilent(2,tp);stopSilent(1,win?tp:(P.num.mid||nx(tp)));
