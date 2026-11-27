@@ -1528,7 +1528,7 @@ async function newFlowOK(){return !NOCLIP()&&await segsOK(['battle_nishio_strong
 // 영상 순서 재생: 같은 파일에서 바로 이어지는 구간은 끊지 않고 한 번에 재생
 async function playChain(list,fin,hardLast){const m=[];for(const n of list){const s=segNow(n),p=m[m.length-1];if(p&&p.src===s.src&&p.b!=null&&s.a!=null&&Math.abs(p.b-s.a)<.01)p.b=s.b;else m.push({src:s.src,a:s.a,b:s.b})}
  const spec=s=>s.a?{src:s.src,from:s.a}:s.src;let ok=false;
- for(let i=0;i<m.length;i++){const s=m[i],o={next:i+1<m.length?spec(m[i+1]):(fin||null)};if(hardLast&&i===m.length-1)o.hardns=trueif(s.a)o.from=s.a;if(s.b!=null)o.to=s.b;ok=(await playClip(s.src,o))||ok}return ok}
+ for(let i=0;i<m.length;i++){const s=m[i],o={next:i+1<m.length?spec(m[i+1]):(fin||null)};if(hardLast&&i===m.length-1)o.hardns=true;if(s.a)o.from=s.a;if(s.b!=null)o.to=s.b;ok=(await playClip(s.src,o))||ok}return ok}
 // 배틀·예고 고르기. tier: 배틀의 강약, vwin: 영상에서 이기는지(부활·뒤늦은 당첨이면 꽝 영상을 봄)
 async function pickBattle(tier,vwin,fB,fPre,rvOK,noB){const av=[];for(const k of Object.keys(BTL)){if(noB&&noB.includes(k))continue;const l=BTL[k][tier]&&BTL[k][tier][vwin?'win':'lose'];if(l&&!(vwin&&BTL[k][tier].rv&&!rvOK&&k!==fB)&&await segsOK(l.concat(BTL[k].pre||[],BTL[k].pres?BTL[k].pres[0]:[],BTL[k].human?['pre_street_human_4']:[],BTL[k].bld?['pre_street_weak']:[])))av.push(k)}if(!av.length)return null;
  let b=fB&&av.includes(fB)?fB:av[Math.floor(Math.random()*av.length)];const pt=Math.random()<PRE_MATCH?tier:(tier==='strong'?'weak':'strong');
