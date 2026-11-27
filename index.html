@@ -2718,7 +2718,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  const rid=()=>{let s='';const a='abcdefghijklmnopqrstuvwxyz0123456789';const v=new Uint8Array(20);crypto.getRandomValues(v);for(const x of v)s+=a[x%36];return s};
  let DEV=lsJ('g999Dev','');if(!/^[a-z0-9]{12,32}$/.test(DEV)){DEV=rid();lsS('g999Dev',DEV)}
  let MYH='';try{crypto.subtle.digest('SHA-256',new TextEncoder().encode(DEV)).then(b=>{MYH=[...new Uint8Array(b)].slice(0,5).map(x=>x.toString(16).padStart(2,'0')).join('')})}catch(e){}
- const topOf=(d,k)=>{let a=(d[k]||[]).slice();const v=d.me&&d.me[k];if(MYH&&v>0){a=a.filter(r=>r.h!==MYH);a.push({n:d.me.nick,v,h:MYH});a.sort((x,y)=>y.v-x.v);a=a.slice(0,30)}return a};   /* 서버 목록은 최대 1분 전 것이라, 내 최신 기록을 끼워 넣어 순위를 바로 반영 */
+ const topOf=(d,k)=>{let a=(d[k]||[]).slice();const v=d.me&&d.me[k];if(MYH&&v>0){a=a.filter(r=>r.h!==MYH);a.push({n:d.me.nick,v,h:MYH});a.sort((x,y)=>y.v-x.v);a=a.slice(0,100)}return a};   /* 서버 목록은 최대 1분 전 것이라, 내 최신 기록을 끼워 넣어 순위를 바로 반영 */
  const myRank=(d,k)=>{const i=topOf(d,k).findIndex(r=>r.h===MYH);return i>=0?i+1:0};
  const myNick=()=>{try{return localStorage.getItem('g999Nick')||''}catch(e){return ''}},nickT=()=>+lsJ('g999NickT',0)||0;
  const postJ=(path,o)=>fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o),keepalive:true}).then(r=>r.json()).catch(()=>null);
@@ -2752,7 +2752,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
   if(P.children.length>1)P.insertBefore(P.children[1],P.children[0]);
   a.slice(3).forEach((r,k)=>{const li=el('li',r.h===MYH?'me':'');{const sp=el('span','');sp.innerHTML=fmt(r.v);li.append(el('i','',k+4),el('b','',r.n),sp)}L.appendChild(li)});
   if(!a.length)L.innerHTML='<p>-</p>';
-  const X=RD.me&&RD.me[RT];if(X){const k=myRank(RD,RT);M.innerHTML='<b>'+(RD.me.nick||'').replace(/[<&]/g,'')+'</b> · '+fmt(X)+' · '+(k?'<b>'+k+'위</b>':'<u>30위 밖</u>')}};
+  const X=RD.me&&RD.me[RT];if(X){const k=myRank(RD,RT);M.innerHTML='<b>'+(RD.me.nick||'').replace(/[<&]/g,'')+'</b> · '+fmt(X)+' · '+(k?'<b>'+k+'위</b>':'<u>100위 밖</u>')}};
  const loadRank=()=>{RD=null;paintRank();Promise.resolve(R.on&&R.ch?rec():0).then(()=>fetch(API+'/rank?id='+DEV,{cache:'no-store'})).then(r=>r.json()).then(d=>{RD=d;paintRank()}).catch(()=>{RD={err:1};paintRank()})};
  const openRank=()=>{q('rSet').hidden=true;q('rRank').hidden=false;rqArm=0;q('rRankQ').textContent='포기하기';q('rRankQ').classList.remove('arm');loadRank()};let rqArm=0;
  q('rRankQ').onclick=()=>{const b=q('rRankQ');b.blur();if(!R.on)return;if(!rqArm){rqArm=1;b.textContent='한 번 더 누르면 포기';b.classList.add('arm');return}if(busy||S.mode!=='normal'){b.textContent='연출 뒤에 가능';return}q('rRank').hidden=true;finish('quit')};window.openRank=openRank;addEventListener('keydown',e=>{if(e.key==='Escape'&&!q('rRank').hidden)q('rRank').hidden=true});
@@ -2762,7 +2762,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  /* 구울 랭킹 창: 피안화(꽃송이 · 꽃잎 · 꽃술)가 왼쪽 위에서 오른쪽 아래로 흩날림. 배경 아래쪽과 같은 붉은색이라 아래로 갈수록 배경 속으로 녹아 사라짐 (창이 열려 있을 때만 그림) */
  {const box=q('rRank'),hb=box.querySelector('.hb'),cv=document.createElement('canvas');cv.id='rkPet';hb.insertBefore(cv,hb.firstChild);{const im=document.createElement('img');im.id='rkLily';im.alt='';im.src='images/rk_lily.webp';im.decoding='async';hb.insertBefore(im,cv)}const g=cv.getContext('2d'),RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const RED='#c3292e',HI='#ef3a44',SH='#6e0b14';let P=[],raf=0,last=0,W=0,H=0,dpr=1;
-  const mk=init=>{const z=Math.random(),k=Math.random();return {x:init?Math.random()*1.1-.1:-.12+Math.random()*.5,y:init?Math.random()*1.1-.1:-.1-Math.random()*.15,z,s:.55+z*.75,vx:.035+Math.random()*.05,vy:.045+Math.random()*.045,a:Math.random()*6.283,va:(Math.random()-.5)*(k<.2?.8:2),sw:Math.random()*6.283,sf:.6+Math.random()*1.1,t:k<.2?2:k<.75?1:0,d:Math.random()<.5?1:-1,o:.55+z*.4}};   // t: 2 꽃송이 · 1 꽃잎 · 0 꽃술. z 가 클수록 가깝고 큼
+  const mk=init=>{const z=Math.random(),k=Math.random();return {x:init?Math.random()*1.1-.1:-.12+Math.random()*.5,y:init?Math.random()*1.1-.1:-.1-Math.random()*.15,z,s:.55+z*.75,vx:.035+Math.random()*.05,vy:.045+Math.random()*.045,a:Math.random()*6.283,va:(Math.random()-.5)*2,sw:Math.random()*6.283,sf:.6+Math.random()*1.1,t:k<.7?1:0,d:Math.random()<.5?1:-1,o:.55+z*.4}};   // t: 2 꽃송이 · 1 꽃잎 · 0 꽃술. z 가 클수록 가깝고 큼
   const fit=()=>{dpr=Math.min(2,devicePixelRatio||1);const w=hb.clientWidth,h=hb.scrollHeight;if(w!==W||h!==H){W=w;H=h;cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.height=h+'px'}};
   const ribbon=(L,w,curl,dir)=>{const n=26,A=[],B=[];let x=0,y=0,h=-Math.PI/2+dir*.12;const ds=L/n;for(let i=0;i<=n;i++){const u=i/n,e=u<.4?0:Math.pow((u-.4)/.6,1.5),ww=w*Math.pow(Math.sin(Math.PI*Math.min(.98,u*.98+.02)),.45)*(1-.5*u)+.2,nx=-Math.sin(h),ny=Math.cos(h);A.push([x+nx*ww,y+ny*ww]);B.push([x-nx*ww,y-ny*ww]);h+=dir*(.03+curl*2.6*e/n)+Math.sin(u*14)*.05;x+=Math.cos(h)*ds;y+=Math.sin(h)*ds}
    g.beginPath();g.moveTo(A[0][0],A[0][1]);for(let i=1;i<A.length;i++)g.lineTo(A[i][0],A[i][1]);for(let i=B.length-1;i>=0;i--)g.lineTo(B[i][0],B[i][1]);g.closePath()};   // 꽃잎: 물결치며 뻗다가 뒷부분이 리본처럼 뒤로 말림. 가운데가 넓고 끝으로 가늘어짐
@@ -2780,7 +2780,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  {const L=q('rRankL');let d=null;L.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0)return;d={y:e.clientY,t:L.scrollTop,id:e.pointerId,m:false}});addEventListener('pointermove',e=>{if(!d||e.pointerId!==d.id)return;const dy=e.clientY-d.y;if(!d.m&&Math.abs(dy)>4){d.m=true;L.classList.add('drag')}if(d.m){L.scrollTop=d.t-dy;e.preventDefault()}});const up=()=>{if(d&&d.m){L.classList.remove('drag');const c=ev=>{ev.stopPropagation();ev.preventDefault()};L.addEventListener('click',c,{capture:true,once:true});setTimeout(()=>L.removeEventListener('click',c,{capture:true}),0)}d=null};addEventListener('pointerup',up);addEventListener('pointercancel',up)}   /* 순위 목록을 마우스로 끌어서 스크롤 */
  q('rRankX').onclick=()=>{q('rRank').hidden=true};q('rRank').addEventListener('pointerdown',e=>{if(e.target===q('rRank'))q('rRank').hidden=true});
  /* 챌린지가 끝나면(파산 · 포기) 항상 등재 */
- const showRanks=()=>{fetch(API+'/rank?id='+DEV,{cache:'no-store'}).then(r=>r.json()).then(d=>{const m=d.me;if(!m)return;[['rsPr','prof'],['rsIr','ichi'],['rsSr','spins']].forEach(([e,k])=>{const n=myRank(d,k);q(e).textContent=m[k]?(n?n+'위':'30위 밖'):''})}).catch(()=>{})};
+ const showRanks=()=>{fetch(API+'/rank?id='+DEV,{cache:'no-store'}).then(r=>r.json()).then(d=>{const m=d.me;if(!m)return;[['rsPr','prof'],['rsIr','ichi'],['rsSr','spins']].forEach(([e,k])=>{const n=myRank(d,k);q(e).textContent=m[k]?(n?n+'위':'100위 밖'):''})}).catch(()=>{})};
  /* ── 설정 창 ── */
  let wpT=0;const calcWp=()=>{clearTimeout(wpT);wpT=setTimeout(()=>{const f=+q('rFund').value*1000,g=+q('rGoal').value*1000,r=+q('rRate').value;if(!(f>0&&g>f&&r>=5&&r<=60)){q('rWp').textContent='-';return}q('rWp').textContent=(winProb(f,g,r,6000)*100).toFixed(1)+'%'},150)};
  ['rFund','rGoal','rRate'].forEach(i=>q(i).addEventListener('input',()=>{fit(q(i));calcWp()}));
