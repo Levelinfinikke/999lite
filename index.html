@@ -3051,6 +3051,98 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
    nb.onclick=()=>{nb.blur();try{localStorage.setItem('g999Note',ON()?'0':'1')}catch(e){}paintN();if(ON())poll();else{Q=[];box.classList.remove('on')}}}}
  if(R.on){if(R.note)dayShow(R.note,true);setTimeout(()=>{try{render()}catch(e){}if(R.note){R.note='';saveR()}check()},600)}
 })();</script>
+<style>
+#admP{position:fixed;inset:0;z-index:2147483000;background:#07070a;color:#e8e8ee;font:13px/1.45 system-ui,-apple-system,'Malgun Gothic',sans-serif;display:flex;flex-direction:column}
+#admP[hidden]{display:none}
+#admP .hd{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid #2a2a33}
+#admP .hd b{font-size:16px;color:#ffd76a;margin-right:auto}
+#admP button{background:#23232b;color:#e8e8ee;border:1px solid #3a3a46;border-radius:7px;padding:5px 10px;font:inherit;cursor:pointer}
+#admP button:hover{border-color:#6a6a7a}
+#admP button.on{background:#3b2f12;border-color:#ffd76a;color:#ffd76a}
+#admP button.red{border-color:#a0303c;color:#ff8a9a}
+#admP button.arm{background:#a0303c;color:#fff}
+#admP button.grn{border-color:#2f8a55;color:#7fe0a8}
+#admP input{background:#15151b;color:#fff;border:1px solid #3a3a46;border-radius:7px;padding:6px 9px;font:inherit}
+#admP .tb{display:flex;gap:6px;padding:8px 14px;flex-wrap:wrap;border-bottom:1px solid #1d1d24}
+#admP .bd{flex:1;overflow:auto;padding:10px 14px 30px}
+#admP table{border-collapse:collapse;width:100%;font-size:12px}
+#admP th,#admP td{padding:5px 7px;border-bottom:1px solid #1f1f27;text-align:left;white-space:nowrap}
+#admP th{color:#9a9aa8;font-weight:600;position:sticky;top:-10px;background:#0b0b10}
+#admP td.n{text-align:right;font-variant-numeric:tabular-nums}
+#admP tr.x{cursor:pointer}#admP tr.x:hover td{background:#16161d}
+#admP tr.ban td{color:#777}#admP tr.ban td:first-child{text-decoration:line-through}
+#admP .tag{display:inline-block;padding:0 5px;border-radius:4px;font-size:11px;margin-left:4px}
+#admP .t-b{background:#5a1a22;color:#ffb3bd}#admP .t-l{background:#5a1416;color:#ff6b78}#admP .t-s{background:#14324a;color:#9fd3ff}
+#admP .card{display:inline-block;min-width:120px;margin:0 8px 8px 0;padding:10px 12px;border:1px solid #2a2a33;border-radius:9px;background:#111117}
+#admP .card i{display:block;font-style:normal;color:#9a9aa8;font-size:11px}#admP .card em{font-style:normal;font-size:20px;font-weight:700}
+#admP .det{margin:8px 0 14px;padding:12px;border:1px solid #3a3a46;border-radius:9px;background:#111117;white-space:normal}
+#admP .det .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+#admP .det label{display:inline-flex;gap:3px;align-items:center;margin-right:6px}
+#admP .msg{color:#ffd76a;margin:6px 0}
+#admP .lg{max-width:320px;margin:18vh auto 0;text-align:center}#admP .lg input{width:180px;text-align:center;font-size:18px;letter-spacing:4px}
+#admP .wd{display:inline-flex;gap:4px;align-items:center;margin:0 6px 6px 0;padding:3px 8px;border:1px solid #2a2a33;border-radius:12px}
+#admP .wd.b{color:#888}
+#admP input[type=checkbox]{appearance:auto;-webkit-appearance:checkbox;width:15px!important;height:15px!important;padding:0!important;margin:0;accent-color:#ff5364}
+#admP .det .row{justify-content:flex-start}#admP .det{position:sticky;left:0;max-width:calc(100vw - 50px);box-sizing:border-box}#admP th.n{text-align:right}
+#admP td.dt{max-width:340px;overflow:hidden;text-overflow:ellipsis;color:#aab}
+</style>
+<div id="admP" hidden></div>
+<script>(()=>{
+ /* ── 관리 페이지: 주소 끝에 #admin. 비밀번호는 서버에서 확인하고, 받은 열쇠(30일)를 이 기기에 둠 ── */
+ const API='https://g999rank.bomullee88.workers.dev',P=document.getElementById('admP'),K='g999Adm';
+ const tok=()=>{try{return localStorage.getItem(K)||''}catch(e){return ''}},setTok=v=>{try{v?localStorage.setItem(K,v):localStorage.removeItem(K)}catch(e){}};
+ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ const nf=v=>(+v||0).toLocaleString(),tm=t=>{if(!t)return '-';const d=new Date(+t),p=n=>String(n).padStart(2,'0');return p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())};
+ const ago=t=>{if(!t)return '-';const m=Math.round((Date.now()-t)/60000);return m<1?'방금':m<60?m+'분 전':m<1440?Math.floor(m/60)+'시간 전':Math.floor(m/1440)+'일 전'};
+ const post=(path,o)=>fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)}).then(r=>r.json()).catch(()=>({ok:false,error:'net'}));
+ const call=o=>post('/adm',Object.assign({t:tok()},o)).then(d=>{if(d&&d.error==='auth'){setTok('');login('열쇠가 만료됐어요. 다시 로그인해 주세요.')}return d});
+ let TAB='stats',BD=null,MSG=null;
+ const arm=(b,fn)=>{b.onclick=()=>{if(!b.classList.contains('arm')){const t=b.textContent;b.classList.add('arm');b.textContent='한 번 더 누르면 실행';b._t=setTimeout(()=>{b.classList.remove('arm');b.textContent=t},3000);return}clearTimeout(b._t);fn()}};
+ function login(note){P.innerHTML='<div class="lg"><b style="font-size:18px;color:#ffd76a">999 관리</b><p style="color:#9a9aa8">비밀번호를 입력하세요</p><input id="admPw" type="password" inputmode="numeric" autocomplete="current-password"><div style="margin-top:10px"><button id="admGo">들어가기</button> <button id="admX">닫기</button></div><p class="msg" id="admLm">'+esc(note||'')+'</p></div>';
+  const i=document.getElementById('admPw'),m=document.getElementById('admLm'),go=()=>{m.textContent='확인 중…';post('/adm/login',{pw:i.value}).then(d=>{if(d&&d.ok){setTok(d.t);shell()}else if(d&&d.error==='locked')m.textContent='여러 번 틀려서 잠겼어요. '+Math.ceil(d.wait/60000)+'분 뒤에 다시 해 주세요.';else if(d&&d.error==='pw')m.textContent='비밀번호가 틀렸어요'+(d.left>0?' (남은 기회 '+d.left+'번)':' (1시간 잠김)');else m.textContent='서버에 연결하지 못했어요'})};
+  document.getElementById('admGo').onclick=go;i.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')go()});document.getElementById('admX').onclick=close;setTimeout(()=>i.focus(),50)}
+ function shell(){P.innerHTML='<div class="hd"><b>999 관리</b><button id="admRf">새로고침</button><button id="admLo">로그아웃</button><button id="admCl">닫기</button></div><div class="tb">'+[['stats','통계'],['live','진행 중인 판'],['dev','기기 검색·차단'],['cheat','치팅 로그'],['words','닉네임·금지어']].map(x=>'<button data-t="'+x[0]+'">'+x[1]+'</button>').join('')+'</div><div class="bd"><div class="msg" id="admM"></div><div id="admB"></div></div>';
+  BD=document.getElementById('admB');MSG=document.getElementById('admM');
+  P.querySelectorAll('.tb button').forEach(b=>b.onclick=()=>{TAB=b.dataset.t;show()});
+  document.getElementById('admRf').onclick=show;document.getElementById('admCl').onclick=close;arm(document.getElementById('admLo'),()=>{setTok('');login('로그아웃했어요')});show()}
+ let NOTE='',NT=0;const say=t=>{if(MSG)MSG.textContent=(NOTE?'✔ '+NOTE+(t?'  ·  ':''):'')+(t||'')};
+ function show(){P.querySelectorAll('.tb button').forEach(b=>b.classList.toggle('on',b.dataset.t===TAB));say('불러오는 중…');BD.innerHTML='';({stats,live,dev:devs,cheat,words})[TAB]()}
+ function stats(){call({op:'stats'}).then(d=>{if(!d.ok)return say('불러오지 못했어요');say('');const r=d.r||{},c=(t,v)=>'<div class="card"><i>'+t+'</i><em>'+nf(v)+'</em></div>';
+  BD.innerHTML=c('전체 기기',r.dev)+c('최근 24시간 기록한 기기',r.day)+c('지금 진행 중(15분 안)',r.live)+c('서버 지갑 판을 쓴 기기',r.sv)+c('최근 24시간 시작한 판',d.runs24)+c('차단된 기기',r.ban)+c('최근 24시간 로그',d.cheat24)})}
+ const tags=r=>(r.ban?'<span class="tag t-b">차단</span>':'')+(r.lts&&Date.now()-r.lts<900000?'<span class="tag t-l">진행 중</span>':'')+(r.sv?'<span class="tag t-s">서버판</span>':'');
+ function table(rows,opt){if(!rows.length){BD.insertAdjacentHTML('beforeend','<p style="color:#888">없어요</p>');return}
+  const t=document.createElement('table');t.innerHTML='<thead><tr><th>닉네임</th><th class="n">익절</th><th class="n">최고 수익</th><th class="n">일격</th><th class="n">최장 생존</th><th class="n">진행 중 수지</th><th class="n">진행 회전</th><th>마지막 기록</th><th>기기</th></tr></thead>';
+  const tb=document.createElement('tbody');t.appendChild(tb);
+  rows.forEach(r=>{const tr=document.createElement('tr');tr.className='x'+(r.ban?' ban':'');tr.innerHTML='<td>'+esc(r.nick)+tags(r)+'</td><td class="n">'+nf(r.cash)+'</td><td class="n">'+nf(r.prof)+'</td><td class="n">'+nf(r.ichi)+'</td><td class="n">'+nf(r.spins)+'</td><td class="n">'+(r.lts?nf(r.live):'-')+'</td><td class="n">'+(r.lts?nf(r.lsp):'-')+'</td><td>'+tm(Math.max(r.ts||0,r.lts||0))+'</td><td style="color:#777">'+esc(String(r.id).slice(0,8))+'</td>';
+   tr.onclick=()=>{const nx=tr.nextSibling;if(nx&&nx.classList&&nx.classList.contains('dr')){nx.remove();return}tb.querySelectorAll('tr.dr').forEach(x=>x.remove());const d=document.createElement('tr');d.className='dr';const td=document.createElement('td');td.colSpan=9;d.appendChild(td);tr.after(d);detail(td,r,opt)};tb.appendChild(tr)});
+  BD.appendChild(t)}
+ function detail(td,r,opt){td.innerHTML='<div class="det"><b>'+esc(r.nick)+'</b> <span style="color:#888">'+esc(r.id)+'</span>'+tags(r)+'<div style="color:#aab;margin-top:4px">닉네임 바꾼 시각 '+tm(r.nts)+' · 판 번호 '+esc(r.rid||'-')+'</div>'+
+  '<div class="row"><button class="'+(r.ban?'grn':'red')+'" data-a="ban">'+(r.ban?'차단 해제':'차단 (모든 기록 숨김)')+'</button></div>'+
+  '<div class="row">기록 지우기: '+[['cash','익절'],['prof','최고 수익'],['ichi','일격'],['spins','최장 생존'],['live','진행 중']].map(x=>'<label><input type="checkbox" value="'+x[0]+'">'+x[1]+'</label>').join('')+'<button class="red" data-a="clr">지우기</button></div>'+
+  '<div class="row">닉네임 변경: <input data-a="nk" maxlength="8" value="'+esc(r.nick)+'" style="width:110px"><button data-a="nkb">변경</button></div><div class="msg"></div></div>';
+  const q=s=>td.querySelector(s),m=q('.msg'),done=t=>{NOTE=t;clearTimeout(NT);NT=setTimeout(()=>{NOTE='';say('')},6000);(opt&&opt.again||show)()};
+  arm(q('[data-a=ban]'),()=>call({op:'ban',id:r.id,v:r.ban?0:1}).then(d=>d.ok?done(r.nick+(r.ban?' 차단을 풀었어요':' 차단했어요')):m.textContent='실패: '+d.error));
+  arm(q('[data-a=clr]'),()=>{const cols=[...td.querySelectorAll('input[type=checkbox]:checked')].map(x=>x.value);if(!cols.length){m.textContent='지울 기록을 골라 주세요';return}call({op:'clear',id:r.id,cols}).then(d=>d.ok?done(r.nick+' 기록을 지웠어요'):m.textContent='실패: '+d.error)});
+  const ni=q('[data-a=nk]');ni.addEventListener('keydown',e=>e.stopPropagation());
+  arm(q('[data-a=nkb]'),()=>call({op:'nick',id:r.id,nick:ni.value.trim()}).then(d=>d.ok?done('닉네임을 바꿨어요'):m.textContent=d.error==='taken'?'이미 다른 기기가 쓰는 닉네임이에요':d.error==='bad nick'?'한글·영어·일본어 1~8자만 돼요':'실패: '+d.error))}
+ function live(){call({op:'live'}).then(d=>{if(!d.ok)return say('불러오지 못했어요');say('최근 15분 안에 기록을 보낸 판 '+d.rows.length+'개 (수지 순)');table(d.rows,{again:live})})}
+ let LQ='',LC='';
+ function devs(){const bar=document.createElement('div');bar.className='row';bar.style.cssText='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px';
+  bar.innerHTML='<input id="admQ" placeholder="닉네임 또는 기기 id" style="width:170px" value="'+esc(LQ)+'"><button id="admS">검색</button><span style="color:#666">|</span>'+[['spins','최장 생존 순'],['ichi','일격 순'],['cash','익절 순'],['prof','최고 수익 순']].map(x=>'<button data-c="'+x[0]+'"'+(LC===x[0]?' class="on"':'')+'>'+x[1]+'</button>').join('');BD.appendChild(bar);
+  const qi=document.getElementById('admQ'),again=()=>{BD.innerHTML='';devs()};qi.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){LQ=qi.value.trim();LC='';again()}});
+  document.getElementById('admS').onclick=()=>{LQ=qi.value.trim();LC='';again()};bar.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{LC=b.dataset.c;LQ='';again()});
+  const o=LQ?{op:'find',q:LQ}:{op:'top',col:LC||'spins'};call(o).then(d=>{if(!d.ok)return say('불러오지 못했어요');say(d.rows.length+'개 · 줄을 누르면 차단·기록 지우기·닉네임 변경');table(d.rows,{again})})}
+ function cheat(){call({op:'cheat'}).then(d=>{if(!d.ok)return say('불러오지 못했어요');say('최근 300개');const t=document.createElement('table');t.innerHTML='<thead><tr><th>시각</th><th>닉네임</th><th>이유</th><th>값</th><th>기기</th></tr></thead><tbody>'+d.rows.map(r=>'<tr><td>'+tm(r.ts)+' <span style="color:#666">'+ago(r.ts)+'</span></td><td>'+esc(r.nick)+'</td><td>'+esc(r.why)+'</td><td class="dt" title="'+esc(r.data)+'">'+esc(r.data)+'</td><td style="color:#777">'+esc(String(r.id||'').slice(0,8))+'</td></tr>').join('')+'</tbody>';BD.appendChild(t);
+  t.querySelectorAll('td.dt').forEach(c=>c.onclick=()=>{c.style.whiteSpace=c.style.whiteSpace==='normal'?'':'normal';c.style.maxWidth=c.style.maxWidth?'':'none'})})}
+ function words(){call({op:'words'}).then(d=>{if(!d.ok)return say('불러오지 못했어요');say('닉네임에 이 글자가 들어가면 쓸 수 없어요. 기존 닉네임 강제 변경은 "기기 검색·차단"에서 해요.');
+  BD.innerHTML='<div style="margin-bottom:8px">'+d.base.map(w=>'<span class="wd b">'+esc(w)+'</span>').join('')+d.extra.map(w=>'<span class="wd">'+esc(w)+' <button data-w="'+esc(w)+'" style="padding:0 5px">×</button></span>').join('')+'</div><input id="admW" placeholder="추가할 금지어" maxlength="12" style="width:140px"> <button id="admWa">추가</button><p style="color:#888;font-size:12px">회색은 기본 금지어(코드에 고정), 흰색은 여기서 추가한 금지어예요.</p>';
+  const wi=document.getElementById('admW'),add=()=>{const w=wi.value.trim();if(!w)return;call({op:'addword',w}).then(r=>{say(r.ok?'추가했어요':'실패');words()})};wi.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')add()});document.getElementById('admWa').onclick=add;
+  BD.querySelectorAll('[data-w]').forEach(b=>arm(b,()=>call({op:'delword',w:b.dataset.w}).then(r=>{say(r.ok?'뺐어요':'실패');words()})))})}
+ function open(){P.hidden=false;if(tok())shell();else login()}
+ function close(){P.hidden=true;P.innerHTML='';if(location.hash==='#admin')history.replaceState(null,'',location.pathname+location.search)}
+ P.addEventListener('keydown',e=>e.stopPropagation());P.addEventListener('wheel',e=>e.stopPropagation(),{passive:true});P.addEventListener('pointerdown',e=>e.stopPropagation());
+ const chk=()=>{if(location.hash==='#admin'&&P.hidden)open()};addEventListener('hashchange',chk);setTimeout(chk,300);
+})();</script>
 <style>#wView{display:none!important}body.v-full #cab{transform-origin:0 0;touch-action:none;will-change:transform}html.mob,html.mob body{touch-action:pan-x pan-y;overscroll-behavior:none}#helpBox .tc{display:none}html.mob #helpBox .tc{display:inline}html.mob #helpBox span.kb{display:none}</style>
 <script>(()=>{
  /* 기기 버튼: 연출 중에는 PUSH 만 (건너뛰기 없음). 대기 중 한 번 회전·판정 선택의 결정은 그대로 */
