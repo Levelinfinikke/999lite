@@ -2839,13 +2839,13 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
    if(!d||!d.ok||n<SV.got||!svOn())return d;SV.got=n;
    const m=new Map();for(const x of d.h)m.set(x[0],x.slice(1));SV.q={from:d.from,end:d.from+d.n,h:m,bust:!!d.bust};
    if((R.sp||0)<d.from){R.sp=d.from;SV.fix=false;saveR()}   // 서버가 이미 더 확정해 둠(SKIP 응답을 못 받은 경우 등)
-   svFix(d.a);return d}).finally(()=>{if(SV.pend===p)SV.pend=null});
+   SV.la=d.a;svFix(d.a);return d}).finally(()=>{if(SV.pend===p)SV.pend=null});
   if(!skip)SV.pend=p;return p};
  const svEnd=quit=>{const o={id:DEV,nick:myNick()||R.nick,rid:R.rid,pos:R.sp||0,quit:quit?1:0,hp:svHp()};lsS('g999SvEnd',o);const go=()=>{const e=lsJ('g999SvEnd',null);if(!e||!e.rid)return;postJ('/end2',e).then(d=>{if(d&&(d.ok||d.error==='ended'||d.error==='run'))lsS('g999SvEnd',null)})};go();svEnd.go=go};
  const svWait=async()=>{for(let k=0;k<200;k++){if(!svOn()||BLOCK)return 'off';if(svLeft()>0)return 'ok';if(SV.q&&SV.q.bust&&(R.sp||0)>=SV.q.end)return 'bust';if(k===2)toast('서버에 연결하는 중…');const d=await svSync();if(svLeft()>0)return 'ok';if(SV.q&&SV.q.bust&&(R.sp||0)>=SV.q.end)return 'bust';await new Promise(r=>setTimeout(r,d&&d.error==='slow'?800:1500))}return 'off'};
  Object.defineProperty(window,'OSRC',{configurable:false,get:()=>svOn()?OS:null});
  const OS={
-  normal(){const q=SV.q,i=R.sp||0;if(!q||i<q.from||i>=q.end)return null;R.sp=i+1;svSaveSoon();const x=q.h.get(i)||null;SV.cur=x;SV.ri=0;if(x){R.hp={i,o0:S.out,s0:S.spins,g:0,s:0};saveR()}if(svLeft()<20&&!SV.pend)svSync();return x?(x[0]==='z'?'zorome':'charge'):'lose'},
+  normal(){const q=SV.q,i=R.sp||0;if(!q||i<q.from||i>=q.end)return null;R.sp=i+1;svSaveSoon();const x=q.h.get(i)||null;SV.cur=x;SV.ri=0;if(x){R.hp={i,o0:S.out,s0:S.spins,g:0,s:0};saveR()}if(svLeft()<50&&!SV.pend)svSync();return x?(x[0]==='z'?'zorome':'charge'):'lose'},
   rush(){return !!(SV.cur&&SV.cur[1])},
   stHit(){const c=SV.cur&&SV.cur[2],r=c&&c[SV.ri];return r?r[0]:-1},
   uw(){const c=SV.cur&&SV.cur[2],r=c&&c[SV.ri];SV.ri++;return r?r[1]:0}};
@@ -3036,7 +3036,8 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&!q('rRank').hidden)q('rRank'
  
  /* ── 결과 화면 ── */
  const dayOf=sp=>{let d=1;for(const s of R.days||[])if(sp>=s)d++;return d};
- function finish(kind){BLOCK=true;auto=false;window.RQ=0;const g=(S.g||[[0,0]]).slice(),end=funds();let mx=g[0],mn=g[0];for(const p of g){if(p[1]>mx[1])mx=p;if(p[1]<mn[1])mn=p}
+ function finish(kind){if(kind==='lose'&&svOn()&&SV.la&&(R.sp||0)===SV.la.p&&S.mode==='normal'&&!busy){SV.fix=false;svFix(SV.la)}   /* 파산: 화면의 회전 수·수지를 서버가 확정한 값으로 맞춘 뒤 결과를 보여 줌 */
+  BLOCK=true;auto=false;window.RQ=0;const g=(S.g||[[0,0]]).slice(),end=funds();let mx=g[0],mn=g[0];for(const p of g){if(p[1]>mx[1])mx=p;if(p[1]<mn[1])mn=p}
   
   if(R.ch)lsS('g999BestSp',Math.max(+lsJ('g999BestSp',0)||0,S.spins));if(R.ch&&R.sv&&R.rid)svEnd(kind==='quit');let give=false;if(kind==='quit'&&R.ch){const c=Math.round(end-R.fund0),best=myBest();give=!(c>best);R.cash=give?0:c;if(c>(R.peak||0))R.peak=c;if(!give)lsS('g999Best',c)}else R.cash=0;R.on=false;R.last={kind,end};saveR();lockRate();paintBtn();
   const t=q('rTitle');t.className=kind==='win'?'win':'lose';t.textContent=kind==='win'?'목표 달성':kind==='lose'?'파산':kind==='stop'?'묻더 종료':kind==='season'?'시즌 종료':kind==='quit'?(give?'포기':'익절 +'+yen(end-R.fund0)):'구울 챌린지 종료';if(kind==='quit')t.className=give?'lose':'win';if(kind==='stop')t.className=end>=R.fund0?'win':'lose';
