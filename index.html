@@ -586,7 +586,7 @@ const REVIEW=[
  ['v498','(배포판) 실전모드 챌린지: 일반/챌린지 전환 · 닉네임(한글·영어·일본어 8자) · 100k·회전율30 고정 · 랭킹 창(수지 LIVE / 일격 / 생존) · 파산 시 영구 랭킹 등록 · 포기는 기록 안 됨',{url:'../999lite v.3/index.html'}],
  ['v499','(배포판) PC: 설정 창의 실전모드 버튼 제거 → 아이콘 줄 맨 앞 ¥ 버튼 · HYPER 설명 "진동 · LED 강화" · 손떨 커스텀 버튼을 제목과 같은 줄 오른쪽에',{url:'../999lite v.3/index.html'}],
  ['v500','(배포판) 챌린지 보완: 파산 기록은 서버에 닿을 때까지 보관 후 재전송 · 포기하면 실시간 랭킹에서 바로 빠짐 · 파산 결과 화면에 일격/생존 순위 표시 · 랭킹 창 20초마다 자동 갱신 · 일격/생존 탭에 내 최고 기록과 순위',{url:'../999lite v.3/index.html'}],
- ['v536','손떨 연속 방지: 회전 시작 때 손이 떨어진 회전에서는 배틀 앞 손떨(pre_hand · pre_hand2 · 리제 낙하)을 또 붙이지 않음. 여러 번 돌려 손 낙하 뒤 바로 리치·배틀로 가는지',{e:'커스텀 ─ 찬스 암시: 손 낙하 → 꽝이어도 리치로 발전'}],
+ ['v536','손떨 연속 방지: 회전 시작 때 손(pre_hand)이 떨어진 회전에서는 pre_hand · pre_hand2 를 또 붙이지 않음(리제 낙하 pre_rize_drop 은 나올 수 있음). 여러 번 돌려 손 낙하 뒤 바로 리치·배틀로 가는지',{e:'커스텀 ─ 찬스 암시: 손 낙하 → 꽝이어도 리치로 발전'}],
  ['v535','레버블이 떨리는 동안 버튼을 눌러 보기: 버튼이 제대로 내려가고, 버튼 LED 아래쪽이 사라지지 않는지(떨리는 레버 그림에서 버튼 구역을 뚫음) · 레버블·임팩트 플래시(커스텀 OFF) 출현을 통상·RUSH·저지먼트·喰MAX 모두 당첨의 2%로 낮춤(흰색 신뢰도 75% 유지)',{e:'커스텀 ─ 레버블: 강(빨강 · 5초)'}],
  ['v534','뒤늦은 역전 이음매 · 어머니: 꽝 결말 → 1~2초 → 71.9초부터 잘라 쓴 승리 부분 → 보너스. 꽝 결말과 승리 결말이 자연스럽게 이어지는지(끊김 · 숫자 · 소리)',{e:'뒤늦은 역전 ─ 어머니'}],
  ['v534','뒤늦은 역전 이음매 · 니시오: 꽝 결말 → 1~2초 → 니시오 승리 결말 → 보너스. 꽝 결말과 승리 결말이 자연스럽게 이어지는지(끊김 · 숫자 · 소리)',{e:'뒤늦은 역전 ─ 니시오'}],
@@ -1828,7 +1828,7 @@ async function spinNormal(){LED.sw();
  const fZen=take('zen'),zen=win&&rushPre&&!NOCLIP()&&(fZen!==undefined?!!fZen:Math.random()<zenP())&&await probe(ZEN.src);   // 전회전: 7500+RUSH 당첨 중 일부. 손떨 없이 단독으로 → 3000 → 즉시 7500
  let lever=win?(Math.random()<.02?wpick(LEVER,pmw):null):chooseEvent(LEVER,false,pHit,1,2);if(lever&&lever[0]==='rainbow'&&!rushPre)lever=LEVER[1];if(window.CUS&&window.CUS.lev==='on')lever=null;   // 레버블(커스텀 OFF): 흰색 약 75% · 빨강 당첨 농후. 커스텀 ON 이면 그쪽 추첨(흰색 약 95%)을 씀
  const chn=(window.CUS&&window.CUS.chance)||'off',custom=chn==='ex'?'ex':chn==='osu'?'25':$('selCustom').value;   // 찬스 암시 커스텀이 켜져 있으면 손 낙하의 신뢰도는 그 설정을 따름(오스스메 약 25% · EX = RUSH 당첨 농후)
- let hand=win?Math.random()<HAND_WIN_SHARE:Math.random()<loseRate(pHit,HAND_WIN_SHARE,HAND_REL);const fHand=take('hand');if(fHand!==undefined)hand=fHand;let preDrop=false;   /* 회전 시작 때 손이 이미 떨어졌으면(선역물) 같은 회전에서 손떨을 또 붙이지 않음 */
+ let hand=win?Math.random()<HAND_WIN_SHARE:Math.random()<loseRate(pHit,HAND_WIN_SHARE,HAND_REL);const fHand=take('hand');if(fHand!==undefined)hand=fHand;let preDrop=false;   /* 회전 시작 때 손이 이미 떨어졌으면(선역물 · 늘 pre_hand) 같은 회전에서 pre_hand · pre_hand2 를 또 붙이지 않음. pre_rize_drop 은 예외로 나올 수 있음 */
  let reachEv=win?wpick(N_REACH,x=>x[3]):chooseEvent(N_REACH,false,pHit);
  // 영상이 준비된 리치만 사용 (코드로 그린 리치 연출과 게임 숫자가 영상 사이에 끼지 않게)
  if(reachEv&&!NOCLIP()){const av=[];for(const e of N_REACH)if(await reachOK(e[0],win))av.push(e);
@@ -1893,11 +1893,11 @@ async function spinNormal(){LED.sw();
   // 긴 도입의 두 번째 형태(손떨 옵션2): 손이 내려온 채 리제 장면 → 긴 도입 영상의 85초 지점(꽃밭)으로 이어짐. 긴 도입이 뽑혔을 때 절반은 이쪽
   const long2=long&&(fIntro?fIntro==='long2':Math.random()<.5)&&await probe(PRE_LONG.alt);
   const YB=V_('pre_yamori_body');yLead=null;
-  if(preDrop)hand=false;if(hand){let ok;
+  if(preDrop&&!(long&&!long2))hand=false;if(hand){let ok;   /* 회전 시작 손 낙하(pre_hand) 뒤에도 병실 → 리제 낙하(pre_rize_drop)는 나올 수 있음. pre_hand · pre_hand2 는 안 나옴 */
    if(long2){ok=await playClip(PRE_LONG.alt,{next:YB});if(ok)yLead=['pre_yamori_body']}
    else if(long){ok=await playClip(PRE_LONG.src,{next:V_('pre_rize_drop')});if(ok)yLead=['pre_rize_drop','pre_yamori_body']}
    else ok=await playClip('videos/pre_hand.mp4',{next:first});
-   if(!ok&&!(long&&await playClip('videos/pre_hand.mp4',{next:first})))await handDrop(win)}
+   if(!ok&&!preDrop&&!(long&&await playClip('videos/pre_hand.mp4',{next:first})))await handDrop(win)}
   await doReach(reachEv,tenpai,vwin,false,{quiet:true,next:vwin&&res==='zorome'?CLIP.bonus:null});
   if(late){clearTimeout(hideT);await sleep(1000+Math.random()*1000)}
   stopSilent(0,tenpai);stopSilent(2,tenpai);stopSilent(1,mid);
