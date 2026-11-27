@@ -582,6 +582,8 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
+ ['부활 타이밍 확인','클라이맥스 야모리 꽝 → 올빼미 부활 (실제 게임 흐름 그대로 · 11.8초에서 넘어가야 함)',{e:'부활 이음매 ─ 클라이맥스 야모리 → 올빼미'}],
+ ['부활 타이밍 확인','클라이맥스 야모리 꽝 → 리제 부활 (실제 게임 흐름 그대로 · 11.8초에서 넘어가야 함)',{e:'부활 이음매 ─ 클라이맥스 야모리 → 리제'}],
  ['부활 이음매','클라이맥스 야모리 · 빌딩 분기 꽝(11.8초에서 전환) → 올빼미 부활',rvSeam('climax_yamori_lose_2','revival_fukurou',11.8)],
  ['부활 이음매','어머니 꽝(7.5초에서 전환) → 올빼미 부활',rvSeam('battle_mother_lose_4','revival_fukurou',7.5)]];   // 검수 목록: 사용자 요청으로 비움 · 더 이상 추가하지 않음
 let RVW={};try{if(!localStorage.getItem('ghoulRvReset2')){localStorage.setItem('ghoulReview','{}');localStorage.setItem('ghoulRvReset2','1')}RVW=JSON.parse(localStorage.getItem('ghoulReview')||'{}')}catch(e){}   // 검토 목록을 새로 짬(v333): 예전 확인·문제·메모 기록은 한 번 비움
@@ -1009,7 +1011,7 @@ async function prepClip(nx){nx=nextOf(nx);if(!nx||!nx.src||NOCLIP()||!(await pro
  await new Promise(r=>{if(v.readyState>=3)r();else{v.oncanplay=r;setTimeout(r,1500)}});
  if(my===prepSeq)prepared={src:nx.src,t0,v,g}}
 // opt: {from,to,skip:[[a,b]]|'all',marks:[[t,fn]],onTime:fn(t,d)}  (모두 기준 시각, 초)
-async function playClip(src,opt){opt=opt||{};if(!src||NOCLIP())return false;if(!(await probe(src)))return false;if(window.AUTOX)slowOn();
+async function playClip(src,opt){opt=opt||{};{const nx=opt.next&&(opt.next.src||opt.next),cn=cname(src);if(opt.to==null&&nx&&RVS.includes(nx)&&RVCUT[cn]!=null)opt=Object.assign({},opt,{to:RVCUT[cn]})}   /* 어느 경로로 오든 부활 직전의 꽝 영상은 정해 둔 지점에서 부활로 */if(!src||NOCLIP())return false;if(!(await probe(src)))return false;if(window.AUTOX)slowOn();
  clearTimeout(hideT);const MSEP=MXP.on&&await MXP.ok(src);const v=MSEP?MXP.v:VIDS[vidI^=1],old=MSEP?null:VIDS[vidI^1];let g,t0;
  document.body.classList.add('inclip');bgPause();idleHide();
  const want=x=>!MSEP&&x&&x.src===src&&x.v===v;
@@ -1711,7 +1713,8 @@ const WIN_END={nishio:['battle_nishio_win'],tsukiyama:['battle_tsukiyama_win_rv'
 const REV_ALL=.06,LATE_ALL=.20,KFAIL_LOSE=.0667,B_HAND_WIN=.54,HAND_REL_ALL=.72;
 const ZEN={src:'videos/zenkaiten.mp4',p:.03};   // 전회전 출현: 7500+RUSH 당첨의 3% (사용자 지정)
 const BT=Object.assign({branch:26.3,pay:41,jintro:93,judge:93},TUNE.consts.BT),B75=Object.assign({pay:52,st:182,d:3.3},TUNE.consts.B75),DIRECT_7500=0.125,DIRECT_REV=1;   // 부활 연출 뒤에는 항상 3000 → 즉시 7500 (그래서 부활은 7500+RUSH 당첨에서만 나옴)
-const RVS=['videos/revival_fukurou.mp4','videos/revival_rize_3.mp4'];// 부활
+const RVS=['videos/revival_fukurou.mp4','videos/revival_rize_3.mp4'];const RVCUT={climax_yamori_lose_2:11.8,battle_mother_lose_4:7.5,battle_kakuza_lose_1:7.9};   // 부활로 넘어가는 꽝 영상 시각(초)
+// 부활
 async function revPlay(RV){return await playClip(RV,{next:CLIP.bonus})}   /* 부활 영상은 꽝 영상 바로 뒤에 끊김 없이 이어짐 (앞의 2초 멈춤은 삭제) */
 async function pickRV(f){const av=[];for(const r of RVS)if(await probe(r))av.push(r);if(f==='rize'||f==='fukurou'){const m=av.find(r=>r.includes(f));if(m)return m}return av.length?av[Math.floor(Math.random()*av.length)]:''}   //   // DIRECT_REV: 올빼미 부활 뒤에는 즉시 7500 이 크게 늘어남 (RUSH 당첨 중 60%)
 //   // RUSH 당첨 중 12.5% (줄인 12.5%p 는 judge 실패 후 역전 LATE_J 로 옮김)
