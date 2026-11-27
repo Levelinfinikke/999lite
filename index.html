@@ -582,8 +582,8 @@ const rvSeam=(a,b,ae,bs)=>({p:[ae!=null?{tok:a,mode:'range',a:Math.max(0,ae-3),b
 const rvClip=(n,mode,a,b)=>({p:[mode==='range'?{tok:n,mode:'range',a,b}:{tok:n,mode:mode||'all'}],sel:n});
 const LEDSRC={"battle_amon_3":"실기","battle_amon_win_3":"실기","battle_kakuza_1":"실기","battle_kakuza_lose_1":"실기","battle_kakuza_win_2":"화면 추정","battle_mother_lose_4":"실기","battle_mother_strong_win_8":"72초까지 실기, 뒤는 화면 추정","battle_nishio_lose_4":"실기","battle_nishio_strong_win_4":"앞 일부 실기, 나머지 화면 추정","battle_nishio_weak_4":"실기","battle_scrapper_lose_4":"화면 추정","battle_scrapper_revival_2":"실기","battle_scrapper_strong_lose_4":"실기","battle_scrapper_strong_win_4":"실기","battle_scrapper_weak_4":"실기(37~42초만 화면 추정)","battle_tsukiyama_strong_lose_4":"실기","battle_tsukiyama_strong_win_4":"화면 추정","battle_tsukiyama_weak_lose_2":"화면 추정","bonus":"실기","bonus7500":"실기","charge":"실기","climax_yamori_lose_2":"실기","climax_yamori_win":"화면 추정","direct7500":"실기","judge_ayato_body":"샤치 실기 표를 옮김","judge_break_body":"실기","judge_break_win":"화면 추정","judge_ready":"실기","judge_select":"샤치 실기 표를 옮김","judge_shachi_body":"실기","judge_shiro_body":"샤치 실기 표를 옮김","judge_tail_lose":"실기","judge_tail_win":"실기","judge_yamori_body":"샤치 실기 표를 옮김","pre_button":"화면 추정","pre_cafe":"화면 추정","pre_hand":"실기","pre_hand2":"실기","pre_hospital":"화면 추정","pre_kakuza_fail_1":"실기","pre_rize_drop":"화면 추정","pre_rize_eat":"실기","pre_street_human_4":"실기","pre_street_strong":"화면 추정","pre_street_weak":"실기","pre_street_weak2":"실기","pre_tsukiyama_strong":"화면 추정","pre_yamori_body":"화면 추정","revival_fukurou":"화면 추정","revival_rize_3":"화면 추정","rush_in":"실기","rush_result":"화면 추정","st_ep_2":"화면 추정","st_ep_3":"화면 추정","st_ep_4":"화면 추정","st_full":"실기","st_hyper6000":"화면 추정","st_intro":"실기","st_win_omedetou":"실기","st_win_rize":"화면 추정","st_win_tsukiyama":"화면 추정","uw_lose":"실기","uw_pay":"화면 추정","uw_try":"실기","uw_win_12000":"6000 실기 표를 옮김","uw_win_15000":"6000 실기 표를 옮김","uw_win_18000":"6000 실기 표를 옮김","uw_win_21000":"6000 실기 표를 옮김","uw_win_6000":"실기","uw_win_9000":"6000 실기 표를 옮김"};
 const REVIEW=[
- ['부활 이음매','클라이맥스 야모리 · 빌딩 분기 꽝 끝(12.17초까지) → 올빼미 부활',rvSeam('climax_yamori_lose_2','revival_fukurou',12.17)],
- ['부활 이음매','어머니 꽝 끝(9.6초까지) → 올빼미 부활',rvSeam('battle_mother_lose_4','revival_fukurou',9.6)]];   // 검수 목록: 사용자 요청으로 비움 · 더 이상 추가하지 않음
+ ['부활 이음매','클라이맥스 야모리 · 빌딩 분기 꽝(11.8초에서 전환) → 올빼미 부활',rvSeam('climax_yamori_lose_2','revival_fukurou',11.8)],
+ ['부활 이음매','어머니 꽝(7.5초에서 전환) → 올빼미 부활',rvSeam('battle_mother_lose_4','revival_fukurou',7.5)]];   // 검수 목록: 사용자 요청으로 비움 · 더 이상 추가하지 않음
 let RVW={};try{if(!localStorage.getItem('ghoulRvReset2')){localStorage.setItem('ghoulReview','{}');localStorage.setItem('ghoulRvReset2','1')}RVW=JSON.parse(localStorage.getItem('ghoulReview')||'{}')}catch(e){}   // 검토 목록을 새로 짬(v333): 예전 확인·문제·메모 기록은 한 번 비움
 const rvKey=x=>x[0]+'|'+x[1],rvSave=()=>{try{localStorage.setItem('ghoulReview',JSON.stringify(RVW))}catch(e){}};
 function rvPanel(){const f=TK.rvf||'todo',cnt={ok:0,ng:0};for(const x of REVIEW){const r=RVW[rvKey(x)];if(r&&r.s)cnt[r.s]++}
@@ -1477,8 +1477,8 @@ async function handDrop(win,kind,only){
 // 한 파일의 구간을 이름 붙여 따로 씀(파일은 자르지 않음). a·b = 조정 화면에 보이는 클립 시각(초), 없으면 처음·끝
 const V_=n=>'videos/'+n+'.mp4',SEG={
  battle_kakuza_lose_rv:{src:V_('battle_kakuza_lose_1'),b:7.9},
- climax_yamori_lose_rv:{src:V_('climax_yamori_lose_2'),b:()=>(CLIPS.climax_yamori_lose_2||{}).dur||12.17},   // 부활이 붙을 때: 야모리 꽝 영상을 끝(12.17초)까지
- battle_mother_lose_rv:{src:V_('battle_mother_lose_4'),b:()=>(CLIPS.battle_mother_lose_4||{}).dur||9.6},   // 부활이 붙을 때: 어머니 꽝 영상을 끝(9.6초)까지   // 카쿠자 꽝 뒤에 부활이 붙을 때: 꽝 영상을 7.9초에서 끊고 부활로
+ climax_yamori_lose_rv:{src:V_('climax_yamori_lose_2'),b:11.8},   // 부활이 붙을 때: 야모리 꽝 영상 11.8초에서 부활로
+ battle_mother_lose_rv:{src:V_('battle_mother_lose_4'),b:7.5},   // 부활이 붙을 때: 어머니 꽝 영상 7.5초에서 부활로   // 카쿠자 꽝 뒤에 부활이 붙을 때: 꽝 영상을 7.9초에서 끊고 부활로
  // 니시오·츠키야마 strong: 예고(pre_street_strong·pre_tsukiyama_strong)는 따로 자른 파일, 배틀+당첨이 한 파일
  battle_nishio_strong:{src:V_('battle_nishio_strong_win_4'),b:64},battle_nishio_win:{src:V_('battle_nishio_strong_win_4'),a:64.6},   // 꽝은 64초에서 끊음(당첨 프레임이 섞이지 않게), weak 당첨은 64.6초부터
  battle_tsukiyama_strong:{src:V_('battle_tsukiyama_strong_win_4'),b:86.8},battle_tsukiyama_win_rv:{src:V_('battle_tsukiyama_strong_win_4'),a:88.03},   // 꽝은 86.8초에서 끊음. weak 역전은 숫자 장면을 건너뛰고 손떨(88.03초)부터
