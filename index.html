@@ -586,6 +586,7 @@ const REVIEW=[
  ['v498','(배포판) 실전모드 챌린지: 일반/챌린지 전환 · 닉네임(한글·영어·일본어 8자) · 100k·회전율30 고정 · 랭킹 창(수지 LIVE / 일격 / 생존) · 파산 시 영구 랭킹 등록 · 포기는 기록 안 됨',{url:'../999lite v.3/index.html'}],
  ['v499','(배포판) PC: 설정 창의 실전모드 버튼 제거 → 아이콘 줄 맨 앞 ¥ 버튼 · HYPER 설명 "진동 · LED 강화" · 손떨 커스텀 버튼을 제목과 같은 줄 오른쪽에',{url:'../999lite v.3/index.html'}],
  ['v500','(배포판) 챌린지 보완: 파산 기록은 서버에 닿을 때까지 보관 후 재전송 · 포기하면 실시간 랭킹에서 바로 빠짐 · 파산 결과 화면에 일격/생존 순위 표시 · 랭킹 창 20초마다 자동 갱신 · 일격/생존 탭에 내 최고 기록과 순위',{url:'../999lite v.3/index.html'}],
+ ['v533','(서버 + 배포판) 랭킹 기록 검사: 일격은 300의 배수 · 20만 구슬 이하, 최대 수익은 일격 · 회전수로 가능한 범위 안, 회전수는 1분에 8만 회전 넘게 늘 수 없음 — 어긋나면 서버가 거절(화면은 그 기록을 다시 보내지 않음)',{url:'../999lite v.3/index.html'}],
  ['v532','(되돌림) 배틀 앞 손떨 · 리제 낙하는 부활 · 뒤늦은 역전에도 원래대로 붙음(v528 · 전 v532 에서 뺐던 것 복구). 금지는 꽝 결말 뒤 손떨뿐: 배틀 → 꽝 결말 → 1~2초 → 그 배틀의 승리 결말 → 보너스 / 부활은 꽝 결말 → 부활 영상',{url:'../999lite v.3/index.html'}],
  ['v531','(배포판 · 휴대폰) 아래 막대의 왕관(챌린지) 아이콘을 노란색으로 — 전엔 다른 버튼 규칙에 덮여 흰색이었음',{url:'../999lite v.3/index.html'}],
  ['v530','(배포판) 라이트 모드: RECORD 디지털 숫자의 꺼진 칸(8 모양)을 훨씬 옅게 · 다크/라이트를 바꾸면 바로 다시 그림',{url:'../999lite v.3/index.html'}],
@@ -2934,7 +2935,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
  const myNick=()=>{try{return localStorage.getItem('g999Nick')||''}catch(e){return ''}},nickT=()=>+lsJ('g999NickT',0)||0;
  const postJ=(path,o)=>fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o),keepalive:true}).then(r=>r.json()).catch(()=>null);
  /* 기록 보내기: 보낼 값을 보관(랭킹별 최댓값)했다가 서버가 받으면 지움 */
- const flushQ=()=>{const Q=lsJ('g999RkQ',null),n=myNick();if(!Q||!n)return Promise.resolve();return postJ('/rec',Object.assign({id:DEV,nick:n},Q)).then(d=>{if(d&&d.ok){const Z=lsJ('g999RkQ',null);if(Z&&Z.prof<=Q.prof&&Z.ichi<=Q.ichi&&Z.spins<=Q.spins)lsS('g999RkQ',null)}})};
+ const flushQ=()=>{const Q=lsJ('g999RkQ',null),n=myNick();if(!Q||!n)return Promise.resolve();return postJ('/rec',Object.assign({id:DEV,nick:n},Q)).then(d=>{if(d&&(d.ok||d.error==='implausible')){const Z=lsJ('g999RkQ',null);if(Z&&Z.prof<=Q.prof&&Z.ichi<=Q.ichi&&Z.spins<=Q.spins)lsS('g999RkQ',null)}})};
  const rec=()=>{if(!R.on&&!R.last)return;const o={prof:Math.max(0,Math.round(R.peak||0)),ichi:R.ichi||0,spins:S.spins},Q=lsJ('g999RkQ',null)||{prof:0,ichi:0,spins:0};lsS('g999RkQ',{prof:Math.max(Q.prof,o.prof),ichi:Math.max(Q.ichi,o.ichi),spins:Math.max(Q.spins,o.spins)});R.lp=Date.now();R.lv=[o.prof,o.ichi,o.spins].join();saveR();return flushQ()};
  setTimeout(flushQ,4000);
  /* 챌린지 중에는 기록이 바뀌면 1분마다 올림 (화면을 보고 있을 때) */
