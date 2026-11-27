@@ -320,7 +320,7 @@ body{box-sizing:border-box;padding-top:env(safe-area-inset-top)!important}
 #volPop.on{opacity:1;transform:none;pointer-events:auto}
 #volPop button{width:28px;height:28px;flex:none;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.12);color:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;cursor:pointer}
 #volPop button svg{width:16px;height:16px}
-#volPop input{-webkit-appearance:none;appearance:none;width:150px;height:4px;border-radius:2px;outline:0;cursor:pointer;background:linear-gradient(90deg,#ff3044 0 var(--p,70%),rgba(255,255,255,.18) var(--p,70%) 100%)}
+#volPop input{-webkit-appearance:none;appearance:none;width:150px;height:4px;border-radius:2px;outline:0;cursor:pointer;--q:calc(8px + (100% - 16px) * var(--f,.7));background:linear-gradient(90deg,#ff3044 0 var(--q),rgba(255,255,255,.18) var(--q) 100%)}
 #volPop input::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.5)}
 #volPop input::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#fff}
 #volPop output{width:28px;text-align:right;color:rgba(255,255,255,.8);font-variant-numeric:tabular-nums}
@@ -658,7 +658,7 @@ function ledPaint(){const cv=$('tLed');if(!cv)return;const n=TK.sel,d=LEDDATA[n]
 document.addEventListener('click',e=>{if(e.target.id!=='tLed')return;const n=TK.sel,d=LEDDATA[n];if(!d||!curPlay||cname(curPlay.src)!==n)return;const r=e.target.getBoundingClientRect(),t=(e.clientX-r.left)/r.width*d.z.right.length/2/d.fps;try{curPlay.v.currentTime=Math.max(0,t-ledOff(n))}catch(_){}});
 function tuneDraw(){const T=$('tune');if(!T.classList.contains('on'))return;
  const have=n=>clipState['videos/'+n+'.mp4']!==undefined;const opt=(v,cur)=>'<option'+(v===cur?' selected':'')+'>'+v+'</option>';
- const list=Object.keys(CLIPS).length?Object.keys(CLIPS):ALLCLIPS;
+ const list=[...new Set(Object.keys(CLIPS).concat(ALLCLIPS,['idle_loop']))].sort((x,y)=>x<y?-1:x>y?1:0);   // 모든 영상, 알파벳순
  if(!TK.sel)TK.sel=list[0];if(!TK.a){TK.a=SEAMS[0][0];TK.b=SEAMS[0][1]}
  const src=tSrc(TK.sel),cues=TUNE.cues[src]||CUES[src]||[];
  let h='<div class="r"><b>연출 조정</b>&nbsp;<span class="now" id="tNow"></span><span style="flex:1"></span><button id="tPause" title="일시정지/재생 (K)">⏯</button><button data-seek="-5">−5s</button><button data-seek="-1" title="←">−1s</button><button id="tB1" title=",">◀1f</button><button id="tF1" title=".">1f▶</button><button data-seek="1" title="→">+1s</button><button data-seek="5">+5s</button><button id="tStop" title="재생 중인 연출을 모두 버리고 대기 화면으로">■ 초기화</button></div>';
@@ -2555,7 +2555,7 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
 (()=>{const P=document.createElement('div');P.id='volPop';P.innerHTML='<button type="button" id="volM" title="음소거 (M)"></button><div><input id="volR" type="range" min="0" max="100" step="1" aria-label="볼륨"></div><output id="volO"></output>';document.body.appendChild(P);
  const R=P.querySelector('#volR'),O=P.querySelector('#volO'),M=P.querySelector('#volM'),ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
  const ICON_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" fill="currentColor" stroke="none"/><path d="M15.5 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>',ICON_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" fill="currentColor" stroke="none"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>';
- const paint=()=>{const v=Math.round((window.VOL!=null?window.VOL:1)*100),show=muted?0:v;R.value=show;R.style.setProperty('--p',show+'%');O.textContent=show;M.innerHTML=muted||!v?ICON_OFF:ICON_ON};
+ const paint=()=>{const v=Math.round((window.VOL!=null?window.VOL:1)*100),show=muted?0:v;R.value=show;R.style.setProperty('--f',show/100);O.textContent=show;M.innerHTML=muted||!v?ICON_OFF:ICON_ON};
  let anchor=null;const place=()=>{if(!anchor)return;const r=anchor.getBoundingClientRect(),w=P.offsetWidth,h=P.offsetHeight;let x=r.left+r.width/2-w/2,y=r.bottom+8;if(y+h>innerHeight-6)y=r.top-h-8;x=Math.max(6,Math.min(innerWidth-w-6,x));P.style.left=x+'px';P.style.top=y+'px'};
  window.volPop=b=>{if(P.classList.contains('on')&&anchor===b){P.classList.remove('on');return}anchor=b;paint();P.classList.add('on');place()};
  R.addEventListener('input',()=>{const v=R.value/100;if(muted&&v>0){muted=false;applyMute()}window.setVol(v);if(v===0&&!muted){muted=true;applyMute()}paint()});
