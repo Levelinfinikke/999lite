@@ -1347,7 +1347,7 @@ function applyRest(){if(!DROP_AS_REST||partsOk<NP||dropsOk<ND)return;partEls.for
 // ═══════════ 역물 내리기/올리기 (영상 큐와 수동 낙하가 같이 씀) ═══════════
 // extra=true: 대기 역물이 빠르게 떨어지며 사라지고 영상 속 역물로 이어짐. false: 우리가 만든 역물이 영상 위를 덮음
 let EXTRA=true,gState=null,gBusy=Promise.resolve();
-function gGeom(){const M=$('machine').getBoundingClientRect(),rect=el=>{const r=el.getBoundingClientRect();return {cx:r.left+r.width/2,cy:r.top+r.height/2,w:el.offsetWidth}};
+function gGeom(){const M=$('machine').getBoundingClientRect(),K=(M.width/($('machine').offsetWidth||M.width))||1,rect=el=>{const r=el.getBoundingClientRect();return {cx:(r.left+r.width/2)/K,cy:(r.top+r.height/2)/K,w:el.offsetWidth}};   /* 화면 확대(#cab scale) 중에도 이동 거리가 맞게: 화면 좌표를 확대 배율로 나눠 기기 기준 거리로 */
  const srcOf=k=>{const idx=PARTS.map((P,i)=>P.to===k?i:-1).filter(i=>i>=0);return idx[idx.length-1]};
  const pr=partEls.map(rect),dr={},tg={};for(const k in DROPS){dr[k]=rect(DROPS[k].el);tg[k]=pr[srcOf(k)]}
  const th=(DROPS.body.rest||0)*Math.PI/180,sc=tg.head.w/dr.head.w,vx=dr.body.cx-dr.head.cx,vy=dr.body.cy-dr.head.cy;
