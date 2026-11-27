@@ -2620,7 +2620,8 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
 #rRes #rAgree{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0 0;padding:9px 12px;border-radius:12px;background:rgba(255,210,122,.12);box-shadow:inset 0 0 0 1px rgba(255,210,122,.3);font-weight:700;color:#ffe9a8}#rRes #rAgree[hidden]{display:none}#rRes #rAgree .cr{width:20px;height:20px;color:#ffd76a;flex:none}#rRes #rAgree span{flex:1;display:flex;align-items:center;gap:7px}#rRes #rAgree button{height:32px;padding:0 14px}
 #wRank,#mRank,#rTop,#rRankB1{display:none!important}.rrow #wReal{flex:1}#rRank .btns button#rRankQ,#rSet .btns button#rQuit{position:relative;overflow:hidden;flex:1;height:44px;font-weight:900!important;font-size:15px!important;letter-spacing:.12em;color:#fff!important;background:linear-gradient(180deg,#5cf0a6 0%,#1fb36a 48%,#0c6e3d 100%)!important;box-shadow:0 0 0 1px rgba(255,226,140,.95) inset,0 0 0 2px rgba(0,0,0,.35),0 4px 16px rgba(0,0,0,.5),0 0 18px rgba(60,230,140,.45)!important;text-shadow:0 1px 2px rgba(0,60,25,.8)}
 #rRank .btns button#rRankQ::after,#rSet .btns button#rQuit::after{content:'';position:absolute;top:0;bottom:0;left:-60%;width:35%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:cashSh 2.6s ease-in-out infinite;pointer-events:none}
-#rRank .btns button#rRankQ.arm,#rSet .btns button#rQuit.arm{letter-spacing:.02em;font-size:13.5px!important;animation:qArm .9s ease-in-out infinite}@keyframes qArm{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25);box-shadow:0 0 0 1px #fff3b8 inset,0 0 26px rgba(80,255,160,.8)}}
+#rRank .btns button#rRankQ.give,#rSet .btns button#rQuit.give{background:linear-gradient(180deg,#ff4a58 0%,#c3141f 50%,#6e0710 100%)!important;box-shadow:0 0 0 1px rgba(255,140,150,.85) inset,0 4px 16px rgba(0,0,0,.5),0 0 16px rgba(255,40,60,.4)!important;text-shadow:0 1px 2px rgba(60,0,5,.8)}#rRank .btns button#rRankQ.give::after,#rSet .btns button#rQuit.give::after{display:none}
+#rRank .btns button#rRankQ.arm,#rSet .btns button#rQuit.arm{letter-spacing:.02em;font-size:13.5px!important;animation:qArm .9s ease-in-out infinite}#rRank .btns button#rRankQ.give.arm,#rSet .btns button#rQuit.give.arm{animation-name:qArmR}@keyframes qArmR{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25);box-shadow:0 0 0 1px #ffd0d4 inset,0 0 26px rgba(255,50,70,.85)}}@keyframes qArm{0%,100%{filter:brightness(1)}50%{filter:brightness(1.25);box-shadow:0 0 0 1px #fff3b8 inset,0 0 26px rgba(80,255,160,.8)}}
 #rSet .rk,#rRes .rk{display:block;width:100%;margin-top:8px}
 #rRank .hb{width:min(94vw,440px);padding-top:18px}#rRankX{position:absolute;top:8px;right:8px;width:32px;height:32px;min-width:0;padding:0;border-radius:50%!important;font-size:15px}
 .cr{display:block;width:100%;height:100%}.rkHero{text-align:center;margin:0 0 10px}.rkHero .cr{width:46px;height:46px;margin:0 auto 2px;color:#ffd76a;filter:drop-shadow(0 0 10px rgba(255,200,80,.55))}.rkHero h3{margin:0;font-size:19px;letter-spacing:.14em;color:#fff}.rkHero p{margin:3px 0 0;font-size:12px;color:rgba(255,255,255,.55)}
@@ -2796,8 +2797,12 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
   if(!a.length)L.innerHTML='<p>-</p>';
   const TA=topOf(RD,RT),mine=TA[myIdx(TA)],X=mine?mine.v:RD.me&&RD.me[RT];if(mine||X>0){const k=myRank(RD,RT);M.innerHTML='<b>'+(RT==='cash'&&mine&&mine.l?'<span class="lv"></span>':'')+(RD.me.nick||'').replace(/[<&]/g,'')+'</b> · '+fmt(X)+' · '+(k?'<b>'+k+'위</b>':'<u>100위 밖</u>')}};
  const loadRank=()=>{RD=null;paintRank();Promise.resolve(R.on&&R.ch?rec():0).then(()=>fetch(API+'/rank?id='+DEV,{cache:'no-store'})).then(r=>r.json()).then(d=>{RD=d;paintRank()}).catch(()=>{RD={err:1};paintRank()})};
- const openRank=()=>{q('rSet').hidden=true;q('rRank').hidden=false;rqArm=0;q('rRankQ').textContent='익절하기';q('rRankQ').classList.remove('arm');loadRank()};let rqArm=0;
- q('rRankQ').onclick=()=>{const b=q('rRankQ');b.blur();if(!R.on)return;if(!rqArm){rqArm=1;b.textContent='한 번 더 누르면 익절 · '+pmk(funds()-R.fund0);b.classList.add('arm');return}if(busy||S.mode!=='normal'){b.textContent='연출 뒤에 가능';return}q('rRank').hidden=true;finish('quit')};window.openRank=openRank;addEventListener('keydown',e=>{if(e.key==='Escape'&&!q('rRank').hidden)q('rRank').hidden=true});
+ /* 지금 수지가 개인 최고 익절 기록 이하(또는 0 이하)면 익절이 아니라 포기: 빨간 포기하기 버튼 */
+ const myBest=()=>Math.max(+lsJ('g999Best',0)||0,(RD&&RD.me&&RD.me.cash)||0),canCash=()=>R.on&&R.ch&&funds()-R.fund0>myBest();
+ const qPaint=(b,armed)=>{const ok=canCash();b.classList.toggle('give',!ok);b.classList.toggle('arm',!!armed);b.textContent=armed?(ok?'한 번 더 누르면 익절 · '+pmk(funds()-R.fund0):'한 번 더 누르면 포기'):(ok?'익절하기':'포기하기')};
+ setInterval(()=>{if(R.on&&!q('rRank').hidden&&!rqArm)qPaint(q('rRankQ'),0)},1000);
+ const openRank=()=>{q('rSet').hidden=true;q('rRank').hidden=false;rqArm=0;qPaint(q('rRankQ'),0);loadRank()};let rqArm=0;
+ q('rRankQ').onclick=()=>{const b=q('rRankQ');b.blur();if(!R.on)return;if(!rqArm){rqArm=1;qPaint(b,1);return}if(busy||S.mode!=='normal'){b.textContent='연출 뒤에 가능';return}q('rRank').hidden=true;finish('quit')};window.openRank=openRank;addEventListener('keydown',e=>{if(e.key==='Escape'&&!q('rRank').hidden)q('rRank').hidden=true});
  q('rRankGo').onclick=()=>{q('rRankGo').blur();q('rRank').hidden=true;if(R.on)return;if(!q('rRes').hidden)q('rClose').click();openSet()};
  ['rRankB1','rRankB3'].forEach(i=>q(i).onclick=()=>{q(i).blur();openRank()});
  q('rRankT').querySelectorAll('button').forEach(b=>b.onclick=()=>{b.blur();RT=b.dataset.v;paintRank()});
@@ -2831,7 +2836,7 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
   let t=0,u=0;const stop=()=>{clearTimeout(t);clearInterval(u)},hold=d=>e=>{e.preventDefault();bump(d);stop();t=setTimeout(()=>{u=setInterval(()=>bump(d),70)},420)};
   for(const [c,d] of [['.m',-1],['.p',1]]){const b=s.querySelector(c);b.addEventListener('pointerdown',hold(d));for(const ev of ['pointerup','pointerleave','pointercancel'])b.addEventListener(ev,stop)}fit(i)});
  const topT=()=>{const T=q('rTop');fetch(API+'/rank',{cache:'no-store'}).then(r=>r.json()).then(d=>{T.innerHTML=CR;[['최고 익절','cash'],['최대 일격','ichi'],['최장 생존','spins']].forEach(([t,k])=>{const r=d[k]&&d[k][0],c=el('div','',t);c.append(el('b','',r?r.n:'-'),(()=>{const e=el('em','');e.innerHTML=r?fmtK(k,r.v):'';return e})());T.appendChild(c)})}).catch(()=>{T.innerHTML=''})};q('rTop').onclick=()=>openRank();
- const openSet=()=>{const on=!!R.on;q('rSetIn').hidden=on;q('rSetOn').hidden=!on;quitArm=false;q('rQuit').textContent='익절하기';q('rQuit').classList.remove('arm');
+ const openSet=()=>{const on=!!R.on;q('rSetIn').hidden=on;q('rSetOn').hidden=!on;quitArm=false;if(R.on)qPaint(q('rQuit'),0);
   if(on){q('rDayT').textContent='DAY '+R.day+' · 오늘 '+(S.spins-R.dayS).toLocaleString()+' / '+DAYN.toLocaleString()+'회전';q('rNow').textContent=yen(funds());q('rGoalT').textContent='목표 '+yen(R.goal)+' · 시작 '+yen(R.fund0);q('rOnNote').textContent='시작할 때 계산한 목표 달성 확률: '+(R.wp*100).toFixed(1)+'%'}
   if(on&&R.ch){q('rNow').textContent=yen(funds())+' ('+pmk(funds()-R.fund0)+')';q('rGoalT').textContent='최대 일격 '+nf(R.ichi||0)+'구슬';q('rOnNote').textContent=''}NKE=!myNick();paintNick();q('rNickE').textContent='';setMode()
   q('rSet').hidden=false};
@@ -2845,7 +2850,7 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
   R={on:true,fund0:f,goal:g,goal0:g,dbl:0,rate:r,day:1,dayS:0,dayNet0:0,days:[],comp:0,wp:CH?0:winProb(f,g,r,20000),t0:Date.now()};if(CH)Object.assign(R,{ch:1,nick,id:rid(),ichi:0,base:0,peak:0,lp:Date.now()});
   if(mid){R.note=1;saveR();save();q('rSet').hidden=true;try{stopAll=true;stopReq=true}catch(e){}location.reload();return}
   saveR();lockRate();save();render();paintBtn();q('rSet').hidden=true;dayShow(1)};
- let quitArm=false;q('rQuit').onclick=()=>{if(!quitArm){quitArm=true;q('rQuit').textContent='한 번 더 누르면 익절 · '+pmk(funds()-R.fund0);q('rQuit').classList.add('arm');return}if(busy||S.mode!=='normal'){q('rOnNote').textContent='연출이 끝난 뒤에 익절할 수 있어요.';return}q('rSet').hidden=true;finish('quit')};
+ let quitArm=false;q('rQuit').onclick=()=>{if(!quitArm){quitArm=true;qPaint(q('rQuit'),1);return}if(busy||S.mode!=='normal'){q('rOnNote').textContent='연출이 끝난 뒤에 할 수 있어요.';return}q('rSet').hidden=true;finish('quit')};
  /* ── 하루 · 판정 ── */
  function nextDay(){R.prev=(net()-R.dayNet0)*YEN;R.day++;R.dayS=S.spins;R.dayNet0=net();R.days.push(S.spins);saveR();dayShow(R.day)}
  function check(){if(!R.on||BLOCK||busy||S.mode!=='normal')return;
@@ -2925,10 +2930,10 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
  const dayOf=sp=>{let d=1;for(const s of R.days||[])if(sp>=s)d++;return d};
  function finish(kind){BLOCK=true;auto=false;window.RQ=0;const g=(S.g||[[0,0]]).slice(),end=funds();let mx=g[0],mn=g[0];for(const p of g){if(p[1]>mx[1])mx=p;if(p[1]<mn[1])mn=p}
   
-  if(kind==='quit'&&R.ch){const c=Math.round(end-R.fund0);R.cash=c>0?c:0;if(c>(R.peak||0))R.peak=c}else R.cash=0;R.on=false;R.last={kind,end};saveR();lockRate();paintBtn();
-  const t=q('rTitle');t.className=kind==='win'?'win':'lose';t.textContent=kind==='win'?'목표 달성':kind==='lose'?'파산':kind==='stop'?'묻더 종료':kind==='quit'?'익절 '+(end>=R.fund0?'+':'−')+yen(Math.abs(end-R.fund0)):'구울 챌린지 종료';if(kind==='quit')t.className=end>R.fund0?'win':'lose';if(kind==='stop')t.className=end>=R.fund0?'win':'lose';
+  let give=false;if(kind==='quit'&&R.ch){const c=Math.round(end-R.fund0),best=myBest();give=!(c>best);R.cash=give?0:c;if(c>(R.peak||0))R.peak=c;if(!give)lsS('g999Best',c)}else R.cash=0;R.on=false;R.last={kind,end};saveR();lockRate();paintBtn();
+  const t=q('rTitle');t.className=kind==='win'?'win':'lose';t.textContent=kind==='win'?'목표 달성':kind==='lose'?'파산':kind==='stop'?'묻더 종료':kind==='quit'?(give?'포기':'익절 +'+yen(end-R.fund0)):'구울 챌린지 종료';if(kind==='quit')t.className=give?'lose':'win';if(kind==='stop')t.className=end>=R.fund0?'win':'lose';
   const pm=v=>(v>=0?'+':'−')+yen(Math.abs(v));
-  q('rsC').innerHTML=kind==='quit'?'<span style="color:'+(end>=R.fund0?'#7fe0a8':'#ff8a9a')+'">'+(end>=R.fund0?'+':'−')+nf(Math.abs(Math.round(end-R.fund0)))+'</span>'+UY:'-';q('rsP').innerHTML=fmtK('prof',Math.max(0,R.peak||0));q('rsI').innerHTML=fmtK('ichi',R.ichi||0);q('rsS').innerHTML=fmtK('spins',S.spins);['rsCr','rsPr','rsIr','rsSr'].forEach(k=>q(k).textContent='');
+  q('rsC').innerHTML=kind==='quit'&&!give?'<span style="color:'+(end>=R.fund0?'#7fe0a8':'#ff8a9a')+'">'+(end>=R.fund0?'+':'−')+nf(Math.abs(Math.round(end-R.fund0)))+'</span>'+UY:'-';q('rsP').innerHTML=fmtK('prof',Math.max(0,R.peak||0));q('rsI').innerHTML=fmtK('ichi',R.ichi||0);q('rsS').innerHTML=fmtK('spins',S.spins);['rsCr','rsPr','rsIr','rsSr'].forEach(k=>q(k).textContent='');
   const rows=[['DAY '+R.day,'대당 '+S.hits+'회 · RUSH '+S.rushes+'회 · 최고 '+S.maxChain+'연'+(R.comp?' · 컴플리트 '+R.comp+'회':'')]];
   q('rList').innerHTML=rows.map(r=>'<li><span>'+r[0]+'</span><b>'+r[1]+'</b></li>').join('');
   const db=q('rDouble'),dn=q('rDoubleN');db.hidden=dn.hidden=kind!=='win';const st=(R.goal0||R.goal)-R.fund0;if(kind==='win'){db.textContent='묻고 더블로 가!  (목표 '+yen(end+st)+')';dn.textContent='이번 판을 끝내지 않고 지금 자금('+yen(end)+')에서 이어서 '+yen(st)+' 더 벌어요. '+yen(R.stage!=null?R.stage:R.fund0)+'까지 떨어지면 그만둘지 물어봐요.'}
