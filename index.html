@@ -2601,7 +2601,12 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
 #rRank .hb{background:linear-gradient(180deg,#1d1a1c 0%,#241719 30%,#5a1418 62%,#9e1f25 84%,#c3292e 100%)!important;overflow-x:hidden}
 #rRank .hb::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.5;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5  0 0 0 0 .1  0 0 0 0 .12  0 0 0 1.1 -.25'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E")}
 #rkPet{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:0}
-#rkLily{position:absolute;left:0;bottom:0;width:100%;height:auto;pointer-events:none;z-index:0;opacity:.9;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 22%);mask-image:linear-gradient(180deg,transparent 0,#000 22%)}   /* 창 아래에 깔린 피안화 꽃밭(검은 바탕을 지운 그림). 위쪽 끝은 부드럽게 사라짐 */
+#rRank .hb{display:flex;flex-direction:column;overflow:hidden!important}   /* 창 자체는 스크롤하지 않음: 화면이 작으면 순위 목록만 줄어듦 */
+#rRank .hb>*{flex:none}
+#rRankL{flex:0 1 auto!important;min-height:90px;max-height:none!important;scrollbar-width:none;cursor:grab;-webkit-mask-image:linear-gradient(180deg,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(180deg,#000 calc(100% - 22px),transparent)}
+#rRankL::-webkit-scrollbar{display:none}
+#rRankL.drag{cursor:grabbing;user-select:none}   /* 순위 목록: 스크롤 막대 없이 끌어서(또는 휠·터치로) 보기. 아래 끝이 흐려져 더 있다는 걸 알려 줌 */
+#rkLily{position:absolute;left:-7.6%;bottom:0;width:112%;max-width:none;height:auto;pointer-events:none;z-index:0;opacity:.9;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 22%);mask-image:linear-gradient(180deg,transparent 0,#000 22%)}   /* 창 아래에 깔린 피안화 꽃밭(검은 바탕을 지운 그림). 위쪽 끝은 부드럽게 사라짐 */
 #rRank .hb>:not(#rkPet):not(#rkLily):not(#rRankX){position:relative;z-index:1}
 #rRankX{z-index:2}
 #rRankL li{border-top-color:rgba(255,255,255,.12)}
@@ -2763,6 +2768,7 @@ if(/^https?:$/.test(location.protocol)){const g=document.createElement('script')
    for(const p of P){if(!RM){p.sw+=dt*p.sf;p.x+=(p.vx+Math.sin(p.sw)*.03)*dt*(.6+p.z*.6);p.y+=p.vy*dt*k*(.6+p.z*.6);p.a+=p.va*dt;if(p.y>1.08||p.x>1.12)Object.assign(p,mk(false))}draw(p)}};
   const start=()=>{if(raf)return;if(!P.length)P=Array.from({length:22},()=>mk(true)).sort((a,b)=>a.z-b.z);last=0;raf=requestAnimationFrame(frame)},stop=()=>{if(raf){cancelAnimationFrame(raf);raf=0}};
   setInterval(()=>{if(!box.hidden&&document.visibilityState==='visible')start();else stop()},250)}
+ {const L=q('rRankL');let d=null;L.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0)return;d={y:e.clientY,t:L.scrollTop,id:e.pointerId,m:false}});addEventListener('pointermove',e=>{if(!d||e.pointerId!==d.id)return;const dy=e.clientY-d.y;if(!d.m&&Math.abs(dy)>4){d.m=true;L.classList.add('drag')}if(d.m){L.scrollTop=d.t-dy;e.preventDefault()}});const up=()=>{if(d&&d.m){L.classList.remove('drag');const c=ev=>{ev.stopPropagation();ev.preventDefault()};L.addEventListener('click',c,{capture:true,once:true});setTimeout(()=>L.removeEventListener('click',c,{capture:true}),0)}d=null};addEventListener('pointerup',up);addEventListener('pointercancel',up)}   /* 순위 목록을 마우스로 끌어서 스크롤 */
  q('rRankX').onclick=()=>{q('rRank').hidden=true};q('rRank').addEventListener('pointerdown',e=>{if(e.target===q('rRank'))q('rRank').hidden=true});
  /* 챌린지가 끝나면(파산 · 포기) 항상 등재 */
  const showRanks=()=>{fetch(API+'/rank?id='+DEV,{cache:'no-store'}).then(r=>r.json()).then(d=>{const m=d.me;if(!m)return;[['rsPr','prof'],['rsIr','ichi'],['rsSr','spins']].forEach(([e,k])=>{const n=myRank(d,k);q(e).textContent=m[k]?(n?n+'위':'30위 밖'):''})}).catch(()=>{})};
