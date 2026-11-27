@@ -2779,7 +2779,7 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
  const postJ=(path,o)=>fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(o),keepalive:true}).then(r=>r.json()).catch(()=>null);
  /* 기록 보내기: 보낼 값을 보관(랭킹별 최댓값)했다가 서버가 받으면 지움 */
  const flushQ=x=>{const Q=lsJ('g999RkQ',null),n=myNick();if(!Q||!n)return Promise.resolve();return postJ('/rec',Object.assign({id:DEV,nick:n},Q,x||{})).then(d=>{if(d&&(d.ok||d.error==='implausible')){const Z=lsJ('g999RkQ',null);if(Z&&(Z.cash||0)<=(Q.cash||0)&&Z.prof<=Q.prof&&Z.ichi<=Q.ichi&&Z.spins<=Q.spins)lsS('g999RkQ',null)}})};
- const rec=()=>{if(!R.on&&!R.last)return;const live=R.on&&R.ch?Math.round(funds()-R.fund0):null;if(live!=null&&live>(R.peak||0))R.peak=live;const o={cash:Math.max(0,Math.round(R.cash||0)),prof:Math.max(0,Math.round(R.peak||0)),ichi:R.ichi||0,spins:S.spins},Q=lsJ('g999RkQ',null)||{cash:0,prof:0,ichi:0,spins:0};lsS('g999RkQ',{cash:Math.max(Q.cash||0,o.cash),prof:Math.max(Q.prof,o.prof),ichi:Math.max(Q.ichi,o.ichi),spins:Math.max(Q.spins,o.spins)});R.lp=Date.now();R.lv=[o.prof,o.ichi,o.spins,live].join();saveR();return flushQ(live!=null?{live,lsp:S.spins}:{end:1})};   /* live = 진행 중인 판의 지금 수지(최고 익절 랭킹에 진행 중으로 보임), end = 판이 끝남 */
+ const rec=()=>{if(!R.on&&!R.last)return;const live=R.on&&R.ch?Math.round(funds()-R.fund0):null;if(live!=null&&live>(R.peak||0))R.peak=live;const o={cash:Math.max(0,Math.round(R.cash||0)),prof:Math.max(0,Math.round(R.peak||0)),ichi:R.ichi||0,spins:S.spins},Q=lsJ('g999RkQ',null)||{cash:0,prof:0,ichi:0,spins:0};lsS('g999RkQ',{cash:Math.max(Q.cash||0,o.cash),prof:Math.max(Q.prof,o.prof),ichi:Math.max(Q.ichi,o.ichi),spins:Math.max(Q.spins,o.spins)});R.lp=Date.now();R.lv=[o.prof,o.ichi,o.spins,live].join();saveR();return flushQ(live!=null?{live,lsp:S.spins}:{end:1,lsp:S.spins})};   /* live = 진행 중인 판의 지금 수지(최고 익절 랭킹에 진행 중으로 보임), end = 판이 끝남 */
  setTimeout(flushQ,4000);
  /* 챌린지 중에는 기록이 바뀌면 1분마다 올림 (화면을 보고 있을 때) */
  setInterval(()=>{if(R.on&&R.ch&&document.visibilityState==='visible'&&(R.lv!==[Math.max(0,Math.round(R.peak||0)),R.ichi||0,S.spins,Math.round(funds()-R.fund0)].join()||Date.now()-(R.lp||0)>110000))rec()},60000);   /* 바뀐 게 없어도 2분마다 한 번은 올려서 '진행 중' 표시가 꺼지지 않게 */
@@ -2941,7 +2941,7 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
   const h=document.createElement('div');h.id='compHint';h.textContent='기기 버튼을 누르면 종료';m.appendChild(h);
   try{cs.currentTime=0;cs.volume=1;cs.play().catch(()=>{})}catch(e){}}
  function compEnd(){try{cs.pause()}catch(e){}R.comp=(R.comp||0)+1;R.prev=(net()-R.dayNet0)*YEN;R.day++;R.dayS=S.spins;R.dayNet0=net();R.days.push(S.spins);R.note=R.day;saveR();save();location.reload()}
- window.__compTest=()=>{if(R.on){S.out+=Math.ceil((COMPN+10+Math.max(0,R.dayNet0-net()))/(1-LOSS));render()}};
+ 
  /* ── 결과 화면 ── */
  const dayOf=sp=>{let d=1;for(const s of R.days||[])if(sp>=s)d++;return d};
  function finish(kind){BLOCK=true;auto=false;window.RQ=0;const g=(S.g||[[0,0]]).slice(),end=funds();let mx=g[0],mn=g[0];for(const p of g){if(p[1]>mx[1])mx=p;if(p[1]<mn[1])mn=p}
@@ -2978,9 +2978,13 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
  lockRate();paintBtn();setInterval(paintBtn,500);
  /* ── 실전모드 중: 화면 왼쪽 아래에 DAY · 지금 잔액(천 엔 단위)을 숫자만 ── */
  {const m=document.createElement('div');m.id='rMini';document.body.appendChild(m);let last='';setInterval(()=>{const t=R.on?'DAY '+R.day+'<b>'+kk(funds())+'</b>':'';if(t!==last){last=t;m.innerHTML=t;m.classList.toggle('on',!!t)}},300)}
+ /* 챌린지 중에는 기록(통계) 초기화 불가: 초기화하면 손익이 0 이 되어 잃은 돈이 사라지므로 */
+ {const b=q('bReset');if(b){const o=b.onclick;b.onclick=function(){if(R.on){toast('챌린지 중에는 기록을 초기화할 수 없어요');return}return o&&o.apply(this,arguments)}}}
+ /* 개발용 단추(강제 당첨 · RUSH 직행)는 실전용에서 없앰. 챌린지 중에는 강제 당첨 표시를 늘 끔 */
+ ['bForce','bRush'].forEach(i=>{const e=q(i);if(e)e.remove()});setInterval(()=>{if(R.on)try{if(forceWin)forceWin=false}catch(e){}},150);
  /* ── 기록 초기화: 한 번 누르면 '한 번 더 누르면 초기화' 로 바뀌고, 3초 안에 다시 누르면 초기화 ── */
  {const w=q('wReset');let arm=0,tx='';const back=()=>{arm=0;w.textContent=tx;w.classList.remove('arm')};
-  w.addEventListener('click',e=>{if(arm&&performance.now()<arm){back();return}e.stopImmediatePropagation();e.preventDefault();w.blur();tx=w.textContent;arm=performance.now()+3000;w.textContent='한 번 더 누르면 초기화';w.classList.add('arm');setTimeout(()=>{if(arm&&performance.now()>=arm)back()},3050)},true)}
+  w.addEventListener('click',e=>{if(R.on){e.stopImmediatePropagation();e.preventDefault();w.blur();toast('챌린지 중에는 기록을 초기화할 수 없어요');return}if(arm&&performance.now()<arm){back();return}e.stopImmediatePropagation();e.preventDefault();w.blur();tx=w.textContent;arm=performance.now()+3000;w.textContent='한 번 더 누르면 초기화';w.classList.add('arm');setTimeout(()=>{if(arm&&performance.now()>=arm)back()},3050)},true)}
 
  /* ── 랭킹 알림: 서버(1분마다)가 R2 의 rank_ev.json 에 적어 둔 소식을 1분마다 읽어 화면 위에 잠깐 띄움. 3위 안 진입·상승, 10위 안 진입(목록이 30명 넘은 뒤). 누르면 그 랭킹 탭 ── */
  {const ON=()=>{try{return localStorage.getItem('g999Note')!=='0'}catch(e){return true}};
