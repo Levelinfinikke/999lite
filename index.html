@@ -2821,24 +2821,31 @@ window.__mobDev=/iP(hone|ad|od)|Android|Mobi/i.test(navigator.userAgent)||(navig
     SKIP 은 '당첨까지'를 서버에 한 번 물어 그 꽝 구간을 바로 확정함. 새로고침하면 서버 값으로 돈·회전 수를 맞춤(못 본 RUSH 지급도 받음) ── */
  const SV={q:null,pend:null,seq:0,got:0,cur:null,ri:0,fix:false,w:false,st:null,sv:0};
  const svOn=()=>!!(R.on&&R.ch&&R.sv);
+ /* 당첨 진행: 당첨을 뽑은 순간부터 그 당첨으로 화면에 지급된 양(g)과 ST 회전 수(s)를 계속 적어 둠. 연출이 끝나면 d.
+    연출 도중 새로고침되면(다음에 열 때 d 가 없음) cut 으로 보내서, 서버가 그때까지 지급된 양만 인정하고 나머지는 무효로 함 */
+ const svHp=()=>R.hp?{i:R.hp.i,g:Math.max(0,Math.round(R.hp.g||0)),s:Math.max(0,R.hp.s||0),d:R.hp.d?1:0,cut:R.hp.cut?1:0}:undefined;
+ const hpTick=()=>{const h=R.hp;if(!h||h.d||h.cut||!svOn())return;h.g=Math.max(h.g||0,S.out-h.o0);h.s=Math.max(h.s||0,S.spins-h.s0-1);if(S.mode==='normal'&&!busy&&!curPlay)h.d=1;saveR();const t=performance.now();if(t-(hpTick.sv||0)>1000){hpTick.sv=t;try{save()}catch(e){}}};
+ if(R.hp&&!R.hp.d)R.hp.cut=1;   // 지난번에 당첨 연출 도중 페이지가 닫힘
+ setInterval(hpTick,300);addEventListener('pagehide',hpTick);
  const svLeft=()=>SV.q?SV.q.end-(R.sp||0):0;
  const svHit=()=>{const q=SV.q;if(!q)return false;for(const i of q.h.keys())if(i>=(R.sp||0)&&i<q.end)return true;return false};
  const svSaveSoon=()=>{if(SV.sv)return;SV.sv=1;setTimeout(()=>{SV.sv=0;saveR()},0)};
- const svFix=a=>{if(SV.fix||busy||S.mode!=='normal'||(R.sp||0)!==a.p)return;SV.fix=true;S.used=S.out-a.net;S.spins=a.sp;if(a.ic>(R.ichi||0))R.ichi=a.ic;saveR();save();render();paintBtn()};   // 새로고침 뒤 처음 받을 때: 서버 값으로 맞춤
+ const svFix=a=>{if(SV.fix||busy||S.mode!=='normal'||(R.sp||0)!==a.p)return;SV.fix=true;{const g=S.g||(S.g=[[0,0]]),n0=Math.round(S.out-S.used),x0=S.spins;S.used=S.out-a.net;const n1=Math.round(S.out-S.used);while(g.length>1&&g[g.length-1][0]>x0)g.pop();if(n1!==n0)g.push([x0,n1]);S.spins=Math.max(x0,a.sp);if(S.spins>x0)g.push([S.spins,n1]);S._o=S.out}if(a.ic>(R.ichi||0))R.ichi=a.ic;saveR();save();render();paintBtn()};   // 새로고침 뒤 처음 받을 때: 서버 값으로 맞춤
  const svGone=()=>{if(!R.on||BLOCK)return;toast('이 판은 다른 창이나 기기에서 새 판이 시작돼 끝났어요');finish('gone')};
  const svSync=skip=>{if(!svOn())return Promise.resolve(null);if(!R.rid)return startRun().then(()=>R.rid&&svOn()?svSync(skip):null);if(SV.pend&&!skip)return SV.pend;
-  const n=++SV.seq,p=postJ('/draw',{id:DEV,nick:myNick()||R.nick,rid:R.rid,pos:R.sp||0,skip:skip?1:0}).then(d=>{
+  const hpS=svHp(),n=++SV.seq,p=postJ('/draw',{id:DEV,nick:myNick()||R.nick,rid:R.rid,pos:R.sp||0,skip:skip?1:0,hp:hpS}).then(d=>{
    if(d&&d.error==='ended'&&d.why==='season'){snEndRun();return null}if(d&&(d.error==='run'||d.error==='ended')){svGone();return null}
+   if(d&&d.ok&&hpS&&(hpS.d||hpS.cut)&&R.hp&&R.hp.i===hpS.i){R.hp=null;saveR()}
    if(!d||!d.ok||n<SV.got||!svOn())return d;SV.got=n;
    const m=new Map();for(const x of d.h)m.set(x[0],x.slice(1));SV.q={from:d.from,end:d.from+d.n,h:m,bust:!!d.bust};
    if((R.sp||0)<d.from){R.sp=d.from;SV.fix=false;saveR()}   // 서버가 이미 더 확정해 둠(SKIP 응답을 못 받은 경우 등)
    svFix(d.a);return d}).finally(()=>{if(SV.pend===p)SV.pend=null});
   if(!skip)SV.pend=p;return p};
- const svEnd=quit=>{const o={id:DEV,nick:myNick()||R.nick,rid:R.rid,pos:R.sp||0,quit:quit?1:0};lsS('g999SvEnd',o);const go=()=>{const e=lsJ('g999SvEnd',null);if(!e||!e.rid)return;postJ('/end2',e).then(d=>{if(d&&(d.ok||d.error==='ended'||d.error==='run'))lsS('g999SvEnd',null)})};go();svEnd.go=go};
+ const svEnd=quit=>{const o={id:DEV,nick:myNick()||R.nick,rid:R.rid,pos:R.sp||0,quit:quit?1:0,hp:svHp()};lsS('g999SvEnd',o);const go=()=>{const e=lsJ('g999SvEnd',null);if(!e||!e.rid)return;postJ('/end2',e).then(d=>{if(d&&(d.ok||d.error==='ended'||d.error==='run'))lsS('g999SvEnd',null)})};go();svEnd.go=go};
  const svWait=async()=>{for(let k=0;k<200;k++){if(!svOn()||BLOCK)return 'off';if(svLeft()>0)return 'ok';if(SV.q&&SV.q.bust&&(R.sp||0)>=SV.q.end)return 'bust';if(k===2)toast('서버에 연결하는 중…');const d=await svSync();if(svLeft()>0)return 'ok';if(SV.q&&SV.q.bust&&(R.sp||0)>=SV.q.end)return 'bust';await new Promise(r=>setTimeout(r,d&&d.error==='slow'?800:1500))}return 'off'};
  Object.defineProperty(window,'OSRC',{configurable:false,get:()=>svOn()?OS:null});
  const OS={
-  normal(){const q=SV.q,i=R.sp||0;if(!q||i<q.from||i>=q.end)return null;R.sp=i+1;svSaveSoon();const x=q.h.get(i)||null;SV.cur=x;SV.ri=0;if(svLeft()<20&&!SV.pend)svSync();return x?(x[0]==='z'?'zorome':'charge'):'lose'},
+  normal(){const q=SV.q,i=R.sp||0;if(!q||i<q.from||i>=q.end)return null;R.sp=i+1;svSaveSoon();const x=q.h.get(i)||null;SV.cur=x;SV.ri=0;if(x){R.hp={i,o0:S.out,s0:S.spins,g:0,s:0};saveR()}if(svLeft()<20&&!SV.pend)svSync();return x?(x[0]==='z'?'zorome':'charge'):'lose'},
   rush(){return !!(SV.cur&&SV.cur[1])},
   stHit(){const c=SV.cur&&SV.cur[2],r=c&&c[SV.ri];return r?r[0]:-1},
   uw(){const c=SV.cur&&SV.cur[2],r=c&&c[SV.ri];SV.ri++;return r?r[1]:0}};
