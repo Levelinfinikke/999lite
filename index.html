@@ -1564,7 +1564,7 @@ async function spinNormal(){LED.sw();
  const fZen=take('zen'),zen=win&&rushPre&&!NOCLIP()&&(fZen!==undefined?!!fZen:Math.random()<zenP())&&await probe(ZEN.src);   // 전회전: 7500+RUSH 당첨 중 일부. 손떨 없이 단독으로 → 3000 → 즉시 7500
  let lever=win?(Math.random()<.02?wpick(LEVER,pmw):null):chooseEvent(LEVER,false,pHit,1,2);if(lever&&lever[0]==='rainbow'&&!rushPre)lever=LEVER[1];if(window.CUS&&window.CUS.lev==='on')lever=null;   // 레버블(커스텀 OFF): 흰색 약 75% · 빨강 당첨 농후. 커스텀 ON 이면 그쪽 추첨(흰색 약 95%)을 씀
  const chn=(window.CUS&&window.CUS.chance)||'off',custom=chn==='ex'?'ex':chn==='osu'?'25':$('selCustom').value;   // 찬스 암시 커스텀이 켜져 있으면 손 낙하의 신뢰도는 그 설정을 따름(오스스메 약 25% · EX = RUSH 당첨 농후)
- let hand=win?Math.random()<HAND_WIN_SHARE:Math.random()<loseRate(pHit,HAND_WIN_SHARE,HAND_REL);const fHand=take('hand');if(fHand!==undefined)hand=fHand;let preDrop=false;   /* 회전 시작 때 손이 이미 떨어졌으면(선역물 · 늘 pre_hand) 같은 회전에서 pre_hand · pre_hand2 를 또 붙이지 않음. pre_rize_drop 은 예외로 나올 수 있음 */
+ let hand=win?Math.random()<HAND_WIN_SHARE:Math.random()<loseRate(pHit,HAND_WIN_SHARE,HAND_REL);const fHand=take('hand');if(fHand!==undefined)hand=fHand;let preDrop='';   /* 회전 시작 손 낙하 종류('hand' · 'hand2' · 'rize'). hand 뒤에는 pre_rize_drop 만 더 나올 수 있고, rize·hand2 뒤에는 손떨이 더 안 나옴 */
  let reachEv=win?wpick(N_REACH,x=>x[3]):chooseEvent(N_REACH,false,pHit);
  // 영상이 준비된 리치만 사용 (코드로 그린 리치 연출과 게임 숫자가 영상 사이에 끼지 않게)
  if(reachEv&&!NOCLIP()){const av=[];for(const e of N_REACH)if(await reachOK(e[0],win))av.push(e);
@@ -1581,7 +1581,7 @@ async function spinNormal(){LED.sw();
  if(win&&fRev)rushPre=true;   // 부활(올빼미·리제)만 7500+RUSH 확정   // 부활·뒤늦은 당첨은 7500+RUSH 당첨에서만 (비율은 전체 당첨 기준 그대로가 되게 보정)
  const RVc=win&&rushPre&&!NOCLIP()?await pickRV(fRev):'';let rev=!!RVc&&!late&&(fRev!==undefined?!!fRev:Math.random()<Math.min(1,revAll()/(pLR*(1-pLT))));
  // 긴 도입(병실 → 리제)은 항상 클라이맥스 야모리로 이어짐
- const long=win&&!late&&!rev&&!NOCLIP()&&!(NF&&(fTier||fReach))&&(fIntro?(fIntro==='long'||fIntro==='long2'):Math.random()<PRE_LONG.p)&&await probe(PRE_LONG.src)&&await segsOK(BTL.yamori.strong.win);
+ let long=win&&!late&&!rev&&!NOCLIP()&&!(NF&&(fTier||fReach))&&(fIntro?(fIntro==='long'||fIntro==='long2'):Math.random()<PRE_LONG.p)&&await probe(PRE_LONG.src)&&await segsOK(BTL.yamori.strong.win);
  if(long)reachEv=N_REACH.find(x=>x[0]==='climax_yamori');
  if(NF&&win&&!long&&!fTier&&!fReach){NB=await winBattle(rev,late);if(NB){tier=NB.tier;if(NB.rvIn){rev=false;rushPre=true}if(NB.lateIn)late=false}}
  if(lever||hand||reachEv||(NF&&tier)||late||rev||long||zen)curEv=true;   /* 손떨·찬스 암시 커스텀은 실제로 손이 떨어지거나 암시가 나오는 회전만 연출로 침(켜 두기만 해도 매 회전 AUTO 가 1배속으로 떨어지던 것 수정). 보류 색은 화면에 없으므로 연출로 치지 않음 */
@@ -1594,7 +1594,12 @@ async function spinNormal(){LED.sw();
    const k=hf==='eye0'?'eye':hf||(drop?pk(.606,.212):(Math.random()<2.076*pHit*(chn==='ex'?SPEC.rushIn:2)?pk(.876,.102):''));if(hf==='eye')drop=true;if(hf==='eye0')drop=false;   /* 금목 뒤 손 낙하는 약 80%(실기). 검수용: eye = 낙하, eye0 = 낙하 없음 */
    const now=performance.now(),free=now>(window.cusHintU||0);if(k&&free){window.cusHintU=now+(k==='metal'?5000:k==='eye'?2300:1500);if(k==='eye'){curEv=true;await window.cusHint(k)}else if(drop){curEv=true;startReels();rOn=true;await sleep(700);await window.cusHint(k)}else{startReels();rOn=true;setTimeout(()=>window.cusHint(k),700)}}}   /* 손이 안 떨어지는 손 깜박임·금속음은 회전을 멈추지 않고 그대로 진행하며 나옴. 앞의 효과음이 끝나기 전에 또 걸리면 무시 */   /* 암시 뒤 손이 떨어질 비율: 손 깜박임 약 25% · 금속음 약 50% · 금목 약 80%(전체 약 33%) */
   if(drop&&!win){if(NF){if(!tier)tier=Math.random()<.25?'strong':'weak'}else if(!reachEv){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);if(av.length)reachEv=av[Math.floor(Math.random()*av.length)]}}   /* 회전 시작 때 손이 떨어지면 꽝이어도 반드시 리치로 발전(그 뒤에 실패) */
-  if(drop){preDrop=true;await handDrop(win,custom==='ex'?'gold':'')}}
+  if(drop){let dk='hand';const r=Math.random();
+   if(r>=.5){const can2=win&&!late&&!rev&&!zen&&!NOCLIP()&&!(NF&&(fTier||fReach))&&await probe(PRE_LONG.src)&&await probe(PRE_LONG.alt)&&await segsOK(BTL.yamori.strong.win);dk=r<.75&&can2?'hand2':(await segsOK(['pre_rize_drop'])?'rize':'hand')}   /* 회전 시작 손 낙하 영상: pre_hand 50% · pre_hand2 25% · pre_rize_drop 25%. pre_hand2 는 클라이맥스 야모리(꽃밭)로 이어져야 해서 그렇게 갈 수 있는 당첨 회전에서만 나오고, 못 나오는 몫은 pre_rize_drop 이 가져감 */
+   preDrop=dk;hand=false;
+   if(dk==='hand2'){long=true;reachEv=N_REACH.find(x=>x[0]==='climax_yamori')}   /* pre_hand2 는 아래 긴 도입 자리에서 바로 재생 → 꽃밭 → 클라이맥스 야모리 */
+   else if(dk==='rize')await playChain(['pre_rize_drop'],null);
+   else await handDrop(win,custom==='ex'?'gold':'')}}
  if(!rOn)startReels();await sleepSk(speed>=20?20:1200);   // 손 깜박임·금속음은 회전이 시작된 뒤(연출과 함께) 나옴
  const t=win?rd():0;
  let tenpai=win?(rushPre?t:[1,3,4,5][Math.floor(Math.random()*4)]):rd();
@@ -1607,7 +1612,7 @@ async function spinNormal(){LED.sw();
   const vwin=win&&!late&&!rev,fb=NB?NB.b:fReach&&fReach.startsWith('battle_')?fReach.slice(7):null,P=await pickBattle(tier,vwin,fb,fPre,NB?!!NB.rvIn:rushPre)||await pickBattle(tier==='strong'?'weak':'strong',vwin,fb,fPre,NB?!!NB.rvIn:rushPre);
   if(P){if(rev&&BTL[P.b]&&BTL[P.b][P.tier]&&BTL[P.b][P.tier].loseRv)P.list=BTL[P.b][P.tier].loseRv;if(NB&&NB.lateIn&&BTL[P.b].weak&&BTL[P.b].weak.rvl)P.list=BTL[P.b].weak.rvl;if(P.rv){rushPre=true;FORCE.direct=true}
    {const fD=take('drop'),fF=take('dropFirst');if((fD!==undefined?fD:Math.random()<RIZE_DROP[win?'win':'lose'])&&await segsOK(['pre_rize_drop'])){const first=P.bld||(fF!==undefined?fF:Math.random()<.5);P.pre=first?['pre_rize_drop'].concat(P.pre):P.pre.concat(['pre_rize_drop'])}}   /* 리제 낙하: 절반은 예고 뒤(배틀 직전), 절반은 맨 처음(첫 연출) */   // 부활형 당첨(꽝을 본 뒤 역전): 3000 → 즉시 7500 고정
-   if(fHand===undefined)hand=NB?Math.random()<(win?B_HAND_WIN:bHandLose()):Math.random()<(win?HAND_WIN[tier]:tier==='strong'?HAND_LOSE_STRONG:handLoseWeak());const RV=RVc,list=P.pre.concat(P.list),first=segOf(list[0]),fin=vwin?CLIP.bonus:rev?RV:null;
+   if(preDrop==='rize')P.pre=P.pre.filter(x=>x!=='pre_rize_drop');if(fHand===undefined)hand=NB?Math.random()<(win?B_HAND_WIN:bHandLose()):Math.random()<(win?HAND_WIN[tier]:tier==='strong'?HAND_LOSE_STRONG:handLoseWeak());const RV=RVc,list=P.pre.concat(P.list),first=segOf(list[0]),fin=vwin?CLIP.bonus:rev?RV:null;
    if(list[0]==='pre_button'||list[0]==='pre_rize_drop'||preDrop)hand=false;   // pre_button 앞에는 손떨이 붙지 않음 / 손떨(pre_hand · pre_hand2)과 리제 낙하는 모두 첫 연출이라 서로 이어서 나오지 않음
    if(hand)await playClip('videos/pre_hand.mp4',{next:first.a?{src:first.src,from:first.a}:first.src});
    await playChain(list,fin);$('reels').classList.remove('small');
@@ -1616,7 +1621,7 @@ async function spinNormal(){LED.sw();
    const tp=P.num.t||tenpai;stopSilent(0,tp);stopSilent(2,tp);stopSilent(1,win?tp:(P.num.mid||nx(tp)));
    return finishNormal(res,rushPre,win)}}
  // 부활: 꽝 리치 영상이 끝난 뒤에 올빼미 연출로 되살아남
- if(rev){const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);const lr=(fReach&&av.find(x=>x[0]===fReach))||(av.length?av[Math.floor(Math.random()*av.length)]:null),RV=RVc;
+ if(rev){if(preDrop)hand=false;const av=[];for(const e of N_REACH)if(await reachOK(e[0],false))av.push(e);const lr=(fReach&&av.find(x=>x[0]===fReach))||(av.length?av[Math.floor(Math.random()*av.length)]:null),RV=RVc;
   if(lr){const lf=await reachFirst(lr[0],false);if(hand)await playClip('videos/pre_hand.mp4',{next:lf});await doReach(lr,0,false,false,{quiet:true,next:RV})}
   else if(hand)await playClip('videos/pre_hand.mp4',{next:RV});
   await revPlay(RV);return finishNormal(res,rushPre,true,true)}
@@ -1627,9 +1632,9 @@ async function spinNormal(){LED.sw();
  if(first){
   // 리치 전 도입: 70% 손떨 예고, 30% 긴 도입 연출(병실 → 손떨+리제 웃음 → 리제 먹음, 한 덩어리 영상)
   // 긴 도입의 두 번째 형태(손떨 옵션2): 손이 내려온 채 리제 장면 → 긴 도입 영상의 85초 지점(꽃밭)으로 이어짐. 긴 도입이 뽑혔을 때 절반은 이쪽
-  const long2=long&&(fIntro?fIntro==='long2':Math.random()<.5)&&await probe(PRE_LONG.alt);
+  const long2=long&&preDrop!=='hand'&&(preDrop==='hand2'||(fIntro?fIntro==='long2':Math.random()<.5))&&await probe(PRE_LONG.alt);
   const YB=V_('pre_yamori_body');yLead=null;
-  if(preDrop&&!(long&&!long2))hand=false;if(hand){let ok;   /* 회전 시작 손 낙하(pre_hand) 뒤에도 병실 → 리제 낙하(pre_rize_drop)는 나올 수 있음. pre_hand · pre_hand2 는 안 나옴 */
+  if(preDrop)hand=preDrop==='hand2'||(preDrop==='hand'&&long&&!long2);if(hand){let ok;   /* 회전 시작이 pre_hand 면 병실 → 리제 낙하는 나올 수 있음 · pre_hand2 면 그 영상을 여기서 틂 · pre_rize_drop 이면 더 없음 */
    if(long2){ok=await playClip(PRE_LONG.alt,{next:YB});if(ok)yLead=['pre_yamori_body']}
    else if(long){ok=await playClip(PRE_LONG.src,{next:V_('pre_rize_drop')});if(ok)yLead=['pre_rize_drop','pre_yamori_body']}
    else ok=await playClip('videos/pre_hand.mp4',{next:first});
