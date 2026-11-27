@@ -1050,7 +1050,7 @@ async function playClip(src,opt){opt=opt||{};{const nx=opt.next&&(opt.next.src||
   const levW=inPush&&LEVONLY[g.n];if(levW&&window.PUSHSRC!=='lever'){pushReq=false;skipReq=false}
   if(inPush!==pushShown){pushShown=inPush;$('pushHint').style.display=inPush&&!LEVONLY[g.n]?'block':'none'}
   if((NOBTN[g.n]||[]).some(w=>t>=w[0]&&t<w[1])){pushReq=false;skip5Req=false}
-  if(opt.hardns){skipReq=false;pushReq=false;skip5Req=false;if(seekReq>0)seekReq=0}   /* 부활로 이어지는 꽝 결말: SKIP·레버·화면·5초 앞 모두 막음 */
+  if(opt.hardns){skipReq=false;if(!inPush){pushReq=false;skip5Req=false}if(seekReq>0)seekReq=0}   /* 부활로 이어지는 꽝 결말: SKIP·레버·5초 앞은 막고, 버튼 구간(PUSH)의 버튼은 그대로 */
   if(opt.noskip)pushReq=false;   // 브레이크 모드: 화면 클릭(PUSH)은 불가, SKIP 버튼·Space 는 가능
   if(pushReq){pushReq=false;if(inPush){pw.done=true;skipReq=false;inputLock=performance.now()+800;$('pushHint').style.display='none';try{v.currentTime=g.base+pEnd}catch(e){}return}}   // 창 안에서 한 번만: 결과로 바로 이동, 이후 1.5초는 입력 무시(연타 방지)
   if(seekReq){const d=seekReq;seekReq=0;if(!levW){const to=d>0?Math.min(t+d,t1-g.base-1):Math.max(g.min||0,t+d);if(Math.abs(to-t)>.05){pws.forEach(w=>{if(w[0]>=to-.01)w.done=false});marks.forEach(m=>{if(m[0]>=to)m[2]=false});skipReq=pushReq=false;try{v.currentTime=g.base+to}catch(e){}return}}}   // → 5초 앞(끝나기 1초 전까지) / ← 5초 뒤(영상 처음까지). 되돌아간 구간의 PUSH 창은 다시 쓸 수 있게
@@ -1528,7 +1528,7 @@ async function newFlowOK(){return !NOCLIP()&&await segsOK(['battle_nishio_strong
 // 영상 순서 재생: 같은 파일에서 바로 이어지는 구간은 끊지 않고 한 번에 재생
 async function playChain(list,fin,hardLast){const m=[];for(const n of list){const s=segNow(n),p=m[m.length-1];if(p&&p.src===s.src&&p.b!=null&&s.a!=null&&Math.abs(p.b-s.a)<.01)p.b=s.b;else m.push({src:s.src,a:s.a,b:s.b})}
  const spec=s=>s.a?{src:s.src,from:s.a}:s.src;let ok=false;
- for(let i=0;i<m.length;i++){const s=m[i],o={next:i+1<m.length?spec(m[i+1]):(fin||null)};if(hardLast&&i===m.length-1){o.noskip=true;o.hardns=true}if(s.a)o.from=s.a;if(s.b!=null)o.to=s.b;ok=(await playClip(s.src,o))||ok}return ok}
+ for(let i=0;i<m.length;i++){const s=m[i],o={next:i+1<m.length?spec(m[i+1]):(fin||null)};if(hardLast&&i===m.length-1)o.hardns=trueif(s.a)o.from=s.a;if(s.b!=null)o.to=s.b;ok=(await playClip(s.src,o))||ok}return ok}
 // 배틀·예고 고르기. tier: 배틀의 강약, vwin: 영상에서 이기는지(부활·뒤늦은 당첨이면 꽝 영상을 봄)
 async function pickBattle(tier,vwin,fB,fPre,rvOK,noB){const av=[];for(const k of Object.keys(BTL)){if(noB&&noB.includes(k))continue;const l=BTL[k][tier]&&BTL[k][tier][vwin?'win':'lose'];if(l&&!(vwin&&BTL[k][tier].rv&&!rvOK&&k!==fB)&&await segsOK(l.concat(BTL[k].pre||[],BTL[k].pres?BTL[k].pres[0]:[],BTL[k].human?['pre_street_human_4']:[],BTL[k].bld?['pre_street_weak']:[])))av.push(k)}if(!av.length)return null;
  let b=fB&&av.includes(fB)?fB:av[Math.floor(Math.random()*av.length)];const pt=Math.random()<PRE_MATCH?tier:(tier==='strong'?'weak':'strong');
